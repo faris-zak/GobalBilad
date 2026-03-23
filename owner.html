@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إدارة حساب المتجر — جوب البلاد</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="owner-page">
+  <!-- Skip link for keyboard accessibility -->
+  <a class="skip-link" href="#ownerMainContent">تخطي إلى المحتوى</a>
+
+  <!-- Main nav with links to customer pages -->
+  <header class="navbar site-navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo" aria-label="العودة إلى الصفحة الرئيسية">
+        <span class="logo-icon" aria-hidden="true">🛒</span>
+        <span class="logo-text">جوب البلاد</span>
+      </a>
+
+      <nav class="nav-actions" aria-label="التنقل الرئيسي">
+        <a href="index.html" class="btn btn-ghost">الرئيسية</a>
+        <a href="stores.html" class="btn btn-secondary">المتاجر</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="ownerMainContent" class="owner-main">
+    <!-- Owner profile editor card -->
+    <section class="owner-editor" aria-labelledby="ownerEditorTitle">
+      <div class="owner-editor-header">
+        <h1 id="ownerEditorTitle">إدارة معلومات المتجر</h1>
+        <p>عدّل بيانات متجرك وسيتم عرضها مباشرة في صفحات الموقع.</p>
+      </div>
+
+      <div class="owner-layout">
+        <form class="owner-form" id="ownerProfileForm" onsubmit="event.preventDefault(); saveOwnerProfileFromForm();">
+          <div class="form-group">
+            <label for="ownerStoreNameInput">اسم المتجر</label>
+            <input id="ownerStoreNameInput" type="text" placeholder="مثال: بقالة البركة" required />
+          </div>
+
+          <div class="form-group">
+            <label for="ownerNameInput">اسم صاحب المتجر</label>
+            <input id="ownerNameInput" type="text" placeholder="مثال: سالم الزكواني" required />
+          </div>
+
+          <div class="form-group">
+            <label for="ownerLocationInput">موقع المتجر</label>
+            <input id="ownerLocationInput" type="text" placeholder="مثال: مسقط - الخوض" required />
+          </div>
+
+          <div class="form-group">
+            <label for="ownerPhoneInput">رقم واتساب المتجر</label>
+            <input id="ownerPhoneInput" type="tel" placeholder="96890000000" />
+          </div>
+
+          <div class="form-group">
+            <label for="ownerPictureInput">صورة المتجر (رفع ملف)</label>
+            <input id="ownerPictureInput" type="file" accept="image/*" />
+          </div>
+
+          <div class="form-group">
+            <label for="ownerPictureUrlInput">أو رابط صورة المتجر</label>
+            <input id="ownerPictureUrlInput" type="url" placeholder="https://..." />
+          </div>
+
+          <div class="form-actions owner-actions">
+            <button class="btn btn-primary" type="submit">حفظ التغييرات</button>
+            <button class="btn btn-outline" type="button" onclick="resetOwnerProfile()">إعادة ضبط</button>
+          </div>
+          <p id="ownerSaveMessage" class="owner-save-message" aria-live="polite"></p>
+        </form>
+
+        <aside class="owner-preview" aria-label="معاينة بيانات المتجر">
+          <div class="owner-preview-image" id="ownerPreviewImageWrap">
+            <img id="ownerPreviewImage" src="assets/images/placeholder-store.svg" alt="معاينة صورة المتجر" />
+          </div>
+
+          <div class="owner-preview-body">
+            <h2 id="ownerPreviewStoreName">اسم المتجر</h2>
+            <p id="ownerPreviewOwnerName">صاحب المتجر</p>
+            <p id="ownerPreviewLocation">الموقع</p>
+            <p id="ownerPreviewPhone">واتساب</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-icon" aria-hidden="true">🛒</span>
+        <span class="logo-text">جوب البلاد</span>
+      </div>
+      <p class="footer-tagline">لوحة إدارة بسيطة لتمكين المتاجر المحلية في عُمان.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', loadOwnerPage);
+  </script>
+  <p class="developer-sign">توقيع المطور: الفارس بن مجاهد الزكواني للتواصل: 93281000</p>
+</body>
+</html>
