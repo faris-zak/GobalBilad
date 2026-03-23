@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — GobalBilad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🛒</span>
+        <span class="logo-text">GobalBilad</span>
+      </a>
+      <button class="btn btn-outline" onclick="handleSignOut()">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- Dashboard Content -->
+  <div class="dashboard-layout">
+
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div>
+        <h1 id="storeName">My Store</h1>
+        <p id="storeViewLink" style="color:var(--text-light);font-size:14px;margin-top:4px;"></p>
+      </div>
+      <button class="btn btn-primary" onclick="openAddProduct()">+ Add Product</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number" id="productCount">—</div>
+        <div class="stat-label">Products</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">📲</div>
+        <div class="stat-label">WhatsApp Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">✅</div>
+        <div class="stat-label">Store Active</div>
+      </div>
+    </div>
+
+    <!-- Products list -->
+    <div>
+      <div class="section-header">
+        <h2>Your Products</h2>
+        <a id="storePublicLink" href="#" target="_blank" class="btn btn-outline" style="padding:10px 16px;font-size:14px;">
+          View Public Store →
+        </a>
+      </div>
+      <div id="productsList" class="product-list">
+        <div class="loading">Loading products</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== ADD/EDIT PRODUCT MODAL ===== -->
+  <div class="modal-overlay" id="productModal">
+    <div class="modal">
+      <h2 id="modalTitle">Add Product</h2>
+
+      <div class="form-group">
+        <label for="productName">Product Name *</label>
+        <input type="text" id="productName" placeholder="e.g. Fresh White Bread" />
+      </div>
+
+      <div class="form-group">
+        <label for="productPrice">Price (OMR) *</label>
+        <input type="number" id="productPrice" placeholder="0.500" step="0.001" min="0" />
+      </div>
+
+      <div class="form-group">
+        <label for="productDescription">Description</label>
+        <textarea id="productDescription" placeholder="Describe your product..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="productImageUrl">Image URL (optional)</label>
+        <input type="url" id="productImageUrl" placeholder="https://..." />
+        <p style="font-size:12px;color:var(--text-light);margin-top:4px;">
+          Tip: Upload your image to a free host like <a href="https://imgur.com" target="_blank" style="color:var(--green)">imgur.com</a> and paste the link
+        </p>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" id="saveProductBtn" onclick="saveProduct()">Save Product</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Editing state
+    let editingProductId = null;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Check auth first
+      const user = await getCurrentUser();
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      loadDashboard(user);
+    });
+
+    function openAddProduct() {
+      editingProductId = null;
+      document.getElementById('modalTitle').textContent = 'Add Product';
+      document.getElementById('saveProductBtn').textContent = 'Add Product';
+      clearForm();
+      document.getElementById('productModal').classList.add('open');
+    }
+
+    function openEditProduct(product) {
+      editingProductId = product.id;
+      document.getElementById('modalTitle').textContent = 'Edit Product';
+      document.getElementById('saveProductBtn').textContent = 'Save Changes';
+      document.getElementById('productName').value        = product.name;
+      document.getElementById('productPrice').value       = product.price;
+      document.getElementById('productDescription').value = product.description || '';
+      document.getElementById('productImageUrl').value    = product.image_url || '';
+      document.getElementById('productModal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('productModal').classList.remove('open');
+      clearForm();
+    }
+
+    function clearForm() {
+      document.getElementById('productName').value = '';
+      document.getElementById('productPrice').value = '';
+      document.getElementById('productDescription').value = '';
+      document.getElementById('productImageUrl').value = '';
+    }
+
+    async function saveProduct() {
+      const name        = document.getElementById('productName').value.trim();
+      const price       = parseFloat(document.getElementById('productPrice').value);
+      const description = document.getElementById('productDescription').value.trim();
+      const image_url   = document.getElementById('productImageUrl').value.trim();
+
+      if (!name || isNaN(price) || price < 0) {
+        alert('Please fill in the product name and a valid price.');
+        return;
+      }
+
+      const btn = document.getElementById('saveProductBtn');
+      btn.textContent = 'Saving...';
+      btn.disabled = true;
+
+      try {
+        if (editingProductId) {
+          await updateProduct(editingProductId, { name, price, description, image_url });
+        } else {
+          await addProduct({ name, price, description, image_url });
+        }
+        closeModal();
+        const user = await getCurrentUser();
+        loadDashboard(user);
+      } catch (err) {
+        alert('Error saving product: ' + err.message);
+      } finally {
+        btn.textContent = editingProductId ? 'Save Changes' : 'Add Product';
+        btn.disabled = false;
+      }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('productModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+  </script>
+</body>
+</html>

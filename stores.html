@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Stores — GobalBilad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🛒</span>
+        <span class="logo-text">GobalBilad</span>
+      </a>
+      <a href="login.html" class="btn btn-outline">Store Owner Login</a>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <h1>Local Stores</h1>
+      <p>Browse grocery shops, bakeries, and more in your area</p>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="🔍  Search stores..." />
+  </div>
+
+  <!-- Stores -->
+  <div class="stores-container">
+    <div id="storesList" class="stores-grid">
+      <div class="loading">Loading stores</div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Load stores when page is ready
+    document.addEventListener('DOMContentLoaded', loadStores);
+
+    // Search filter
+    document.getElementById('searchInput').addEventListener('input', function() {
+      filterStores(this.value);
+    });
+  </script>
+</body>
+</html>

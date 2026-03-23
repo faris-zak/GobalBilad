@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Store Owner Login — GobalBilad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="login-page">
+    <div class="login-card">
+
+      <!-- Logo -->
+      <div class="logo">
+        <span class="logo-icon">🛒</span>
+        <span class="logo-text">GobalBilad</span>
+      </div>
+      <p class="login-tagline">Store Owner Portal</p>
+
+      <!-- Toggle between login and signup -->
+      <h2 class="login-title" id="formTitle">Sign in to your store</h2>
+
+      <!-- Error message -->
+      <div class="error-msg" id="errorMsg"></div>
+
+      <!-- Email / Password form -->
+      <div class="form-group">
+        <label for="emailInput">Email</label>
+        <input type="email" id="emailInput" placeholder="you@example.com" />
+      </div>
+
+      <div class="form-group">
+        <label for="passwordInput">Password</label>
+        <input type="password" id="passwordInput" placeholder="Your password" />
+      </div>
+
+      <!-- Store name (only shown on signup) -->
+      <div class="form-group" id="storeNameGroup" style="display:none;">
+        <label for="storeNameInput">Store Name</label>
+        <input type="text" id="storeNameInput" placeholder="e.g. Al-Baraka Grocery" />
+      </div>
+
+      <!-- Submit button -->
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" id="submitBtn" onclick="handleAuth()">
+        Sign In
+      </button>
+
+      <!-- Toggle link -->
+      <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--text-light);">
+        <span id="toggleText">Don't have an account?</span>
+        <a href="#" id="toggleLink" onclick="toggleMode(event)" style="color:var(--green);font-weight:600;"> Sign up</a>
+      </p>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Mode: 'login' or 'signup'
+    let authMode = 'login';
+
+    function toggleMode(e) {
+      e.preventDefault();
+      authMode = authMode === 'login' ? 'signup' : 'login';
+      const isSignup = authMode === 'signup';
+      document.getElementById('formTitle').textContent = isSignup ? 'Create your store' : 'Sign in to your store';
+      document.getElementById('submitBtn').textContent  = isSignup ? 'Create Account' : 'Sign In';
+      document.getElementById('toggleText').textContent = isSignup ? 'Already have an account?' : 'Don\'t have an account?';
+      document.getElementById('toggleLink').textContent = isSignup ? ' Sign in' : ' Sign up';
+      document.getElementById('storeNameGroup').style.display = isSignup ? 'block' : 'none';
+      hideError();
+    }
+
+    async function handleAuth() {
+      const email    = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+
+      if (!email || !password) {
+        showError('Please enter your email and password.');
+        return;
+      }
+
+      const btn = document.getElementById('submitBtn');
+      btn.textContent = 'Please wait...';
+      btn.disabled = true;
+      hideError();
+
+      try {
+        if (authMode === 'login') {
+          await signIn(email, password);
+        } else {
+          const storeName = document.getElementById('storeNameInput').value.trim();
+          if (!storeName) {
+            showError('Please enter your store name.');
+            btn.textContent = 'Create Account';
+            btn.disabled = false;
+            return;
+          }
+          await signUp(email, password, storeName);
+        }
+        // Redirect to dashboard on success
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        showError(err.message || 'Something went wrong. Please try again.');
+        btn.textContent = authMode === 'login' ? 'Sign In' : 'Create Account';
+        btn.disabled = false;
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.classList.add('show');
+    }
+    function hideError() {
+      document.getElementById('errorMsg').classList.remove('show');
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleAuth();
+    });
+  </script>
+</body>
+</html>

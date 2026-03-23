@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Store — GobalBilad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🛒</span>
+        <span class="logo-text">GobalBilad</span>
+      </a>
+      <a href="login.html" class="btn btn-outline">Store Owner Login</a>
+    </div>
+  </header>
+
+  <!-- Back -->
+  <div style="max-width:1100px;margin:0 auto;padding:0 24px;">
+    <a href="stores.html" class="back-link">← Back to Stores</a>
+  </div>
+
+  <!-- Store Hero (filled by JS) -->
+  <div id="storeHero" class="store-hero">
+    <div class="loading">Loading store</div>
+  </div>
+
+  <!-- Products -->
+  <div class="products-container">
+    <h2 class="products-title">Products</h2>
+    <div id="productsList" class="products-grid">
+      <div class="loading">Loading products</div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', loadStorePage);
+  </script>
+</body>
+</html>
