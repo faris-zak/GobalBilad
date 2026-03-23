@@ -21,8 +21,8 @@
   --radius-sm:    8px;
   --shadow:       0 2px 16px rgba(0,0,0,0.08);
   --shadow-lg:    0 8px 40px rgba(0,0,0,0.12);
-  --font-display: 'Lora', Georgia, serif;
-  --font-body:    'DM Sans', sans-serif;
+  --font-display: 'Cairo', sans-serif;
+  --font-body:    'Tajawal', sans-serif;
 }
 
 /* ---- RESET & BASE ---- */
@@ -488,6 +488,13 @@ img { max-width: 100%; display: block; }
 .footer-copy {
   color: rgba(255,255,255,0.35);
   font-size: 13px;
+}
+
+.developer-sign {
+  text-align: center;
+  color: var(--text-light);
+  font-size: 14px;
+  padding: 18px 24px 26px;
 }
 
 /* =============================================
@@ -1037,10 +1044,15 @@ img { max-width: 100%; display: block; }
   border-top-color: var(--green);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin-left: 10px;
+  margin-inline-start: 10px;
   vertical-align: middle;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+[dir="rtl"] .step-number {
+  left: auto;
+  right: 24px;
+}
 
 /* ---- EMPTY STATE ---- */
 .empty-state {
