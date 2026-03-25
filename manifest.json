@@ -1,0 +1,36 @@
+{
+  "name": "جوب البلاد",
+  "short_name": "جوب البلاد",
+  "description": "دكاكين البلاد فمخباك",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "ar",
+  "dir": "rtl",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "assets/images/gb-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/gb-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/images/gb-banner.webp",
+      "sizes": "1200x655",
+      "type": "image/webp",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"]
+}
