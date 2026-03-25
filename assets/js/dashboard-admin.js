@@ -31,21 +31,26 @@ window.switchTab = function (tabId, btn) {
     if (tabId === 'tab-drivers')  loadDrivers();
     if (tabId === 'tab-orders')   loadAllOrders();
     if (tabId === 'tab-users')    loadUsers();
+    if (tabId === 'tab-messages') loadMessages();
 };
 
 // ── STATS ─────────────────────────────────────────────
 async function loadStats() {
     try {
-        const [stores, drivers, orders, users] = await Promise.all([
+        const [stores, drivers, orders, users, unread] = await Promise.all([
             API.stores.adminGetAll(),
             API.drivers.adminGetAll(),
             API.orders.adminGetAll(),
             API.users.adminGetAll(),
+            API.contactMessages.adminUnreadCount(),
         ]);
-        document.getElementById('stat-stores').innerText  = stores.length;
-        document.getElementById('stat-drivers').innerText = drivers.length;
-        document.getElementById('stat-orders').innerText  = orders.length;
-        document.getElementById('stat-users').innerText   = users.length;
+        document.getElementById('stat-stores').innerText   = stores.length;
+        document.getElementById('stat-drivers').innerText  = drivers.length;
+        document.getElementById('stat-orders').innerText   = orders.length;
+        document.getElementById('stat-users').innerText    = users.length;
+        document.getElementById('stat-messages').innerText = unread;
+        const msgBtn = document.getElementById('messages-tab-btn');
+        if (msgBtn) msgBtn.textContent = unread > 0 ? `📨 الرسائل (${unread})` : '📨 الرسائل';
     } catch { /* stats are non-critical */ }
 }
 
@@ -220,3 +225,58 @@ function escHtml(str) {
     if (!str) return '';
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+// ── MESSAGES ───────────────────────────────────────────
+const REQUEST_TYPE_ICONS = { 'شكوى':'😡', 'اقتراح':'💡', 'سؤال':'❓', 'إبلاغ عن مشكلة':'🚨' };
+
+window.loadMessages = async function () {
+    const list = document.getElementById('messages-list');
+    list.innerHTML = '<div class="loader">جاري التحميل...</div>';
+    try {
+        const messages = await API.contactMessages.adminGetAll();
+        if (!messages.length) {
+            list.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">لا توجد رسائل بعد.</p>';
+            return;
+        }
+        list.innerHTML = messages.map(m => {
+            const icon = REQUEST_TYPE_ICONS[m.request_type] || '📨';
+            const date = new Date(m.created_at).toLocaleString('ar-OM');
+            const unreadBorder = m.is_read ? '' : 'border-right:3px solid var(--accent);';
+            return `
+                <div class="admin-card" style="${unreadBorder}">
+                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.4rem;">
+                        <h4>${icon} ${escHtml(m.request_type)}
+                            ${!m.is_read ? '<span style="background:var(--accent);color:#fff;font-size:.72rem;font-weight:700;padding:.15em .55em;border-radius:999px;margin-right:.4rem;">جديد</span>' : ''}
+                        </h4>
+                        <span style="font-size:.82rem;color:var(--text-muted);">${date}</span>
+                    </div>
+                    <p style="font-size:.92rem;font-weight:600;color:var(--text-primary);margin-bottom:.25rem;">
+                        ${escHtml(m.name)}
+                        ${m.phone ? `<span style="color:var(--text-muted);font-weight:400;"> · ${escHtml(m.phone)}</span>` : ''}
+                    </p>
+                    <p style="font-size:.92rem;color:var(--text-secondary);white-space:pre-wrap;margin-bottom:.75rem;">${escHtml(m.message)}</p>
+                    <div class="admin-actions">
+                        ${!m.is_read
+                            ? `<button class="btn btn-outline" style="font-size:.82rem;padding:.35rem .85rem;" onclick="markMessageRead('${m.id}')">✅ تحديد كمقروء</button>`
+                            : '<span style="font-size:.82rem;color:var(--text-muted);">✔ مقروء</span>'
+                        }
+                        <button class="btn btn-outline" style="font-size:.82rem;padding:.35rem .85rem;color:var(--danger);border-color:var(--danger);" onclick="deleteMessage('${m.id}')">🗑 حذف</button>
+                        ${m.phone ? `<a href="https://wa.me/968${m.phone.replace(/\D/g,'')}" target="_blank" rel="noopener" class="btn" style="font-size:.82rem;padding:.35rem .85rem;background:#25d366;color:#fff;border:none;">واتساب</a>` : ''}
+                    </div>
+                </div>`;
+        }).join('');
+    } catch {
+        list.innerHTML = '<p style="color:var(--danger);">تعذر التحميل.</p>';
+    }
+};
+
+window.markMessageRead = async function (id) {
+    await API.contactMessages.adminMarkRead(id).catch(e => alert(e.message));
+    await Promise.all([loadStats(), loadMessages()]);
+};
+
+window.deleteMessage = async function (id) {
+    if (!confirm('هل تريد حذف هذه الرسالة نهائياً؟')) return;
+    await API.contactMessages.adminDelete(id).catch(e => alert(e.message));
+    await Promise.all([loadStats(), loadMessages()]);
+};

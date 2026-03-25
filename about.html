@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جوب البلاد - من نحن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <meta name="description" content="تعرّف على منصة جوب البلاد - سوق المعمورة المحلي">
+    <style>
+        /* ── About Page Styles ── */
+        .about-hero {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            color: #fff;
+            padding: 4rem 1.5rem 3rem;
+            border-radius: var(--radius-lg);
+            margin: 2rem 0 3rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-hero::before {
+            content: "🛒";
+            font-size: 6rem;
+            position: absolute;
+            left: -1rem;
+            bottom: -1.5rem;
+            opacity: 0.1;
+        }
+
+        .about-hero::after {
+            content: "🏘️";
+            font-size: 6rem;
+            position: absolute;
+            right: -1rem;
+            top: -1.5rem;
+            opacity: 0.1;
+        }
+
+        .about-hero h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .about-hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 560px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .about-content {
+            max-width: 860px;
+            margin: 0 auto;
+            padding-bottom: 4rem;
+        }
+
+        /* Feature Cards Grid */
+        .value-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .value-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition-normal);
+        }
+
+        .value-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .value-card .card-icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 0.85rem;
+        }
+
+        .value-card h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .value-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            margin: 0;
+        }
+
+        /* Story Section */
+        .story-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .story-section h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .story-section p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.9;
+            margin-bottom: 1rem;
+        }
+
+        .story-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Parties Section */
+        .parties-section {
+            margin-bottom: 2rem;
+        }
+
+        .parties-section h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .parties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .party-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 1.25rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .party-card .party-icon {
+            font-size: 2.2rem;
+            display: block;
+            margin-bottom: 0.65rem;
+        }
+
+        .party-card h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+        }
+
+        .party-card p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Vision Section */
+        .vision-section {
+            background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(59,130,246,0.08));
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .vision-section h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--secondary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .vision-section p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.9;
+            max-width: 620px;
+            margin: 0 auto 0.75rem;
+        }
+
+        .vision-quote {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            border-right: 4px solid var(--secondary);
+            text-align: right;
+        }
+
+        /* CTA */
+        .cta-section {
+            text-align: center;
+            padding: 2rem 0 3rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .about-hero h1 { font-size: 1.7rem; }
+            .story-section { padding: 1.5rem 1.25rem; }
+            .vision-section { padding: 1.75rem 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <main class="container">
+
+        <!-- Hero -->
+        <header class="about-hero">
+            <h1>جوب البلاد 🏪</h1>
+            <p>سوقك المحلي في المعمورة — قريب منك، يخدم بلدك</p>
+        </header>
+
+        <div class="about-content">
+
+            <!-- Our Story -->
+            <article class="story-section" aria-labelledby="story-title">
+                <h2 id="story-title">🌟 ما هي جوب البلاد؟</h2>
+                <p>
+                    <strong>جوب البلاد</strong> منصة إلكترونية محلية نشأت من قلب منطقة <strong>المعمورة</strong> في سلطنة عُمان.
+                    هدفها الأساسي هو ربط أبناء المنطقة بمتاجرهم المحلية بشكل سهل وسريع، دون الحاجة للتنقل أو الانتظار.
+                </p>
+                <p>
+                    من خلال هاتفك، تستطيع أن تتصفح منتجات متاجر المعمورة، تضع طلبك، وتستقبله على بابك في أسرع وقت.
+                    ندعم التجارة المحلية ونساعد أصحاب المتاجر الصغيرة على الوصول لعملاء أكثر دون تعقيد.
+                </p>
+                <p>
+                    المنصة تعمل كوسيط عادل وشفاف بين العملاء والمتاجر وسائقي التوصيل — الكل يستفيد، والمنطقة تنمو.
+                </p>
+            </article>
+
+            <!-- Values -->
+            <section aria-labelledby="values-title">
+                <h2 id="values-title" style="font-size:1.35rem; font-weight:800; color:var(--text-primary); text-align:center; margin-bottom:0.5rem;">لماذا جوب البلاد؟</h2>
+                <p style="text-align:center; color:var(--text-secondary); margin-bottom:0; font-size:0.95rem;">القيم التي تميزنا</p>
+                <div class="value-grid">
+                    <div class="value-card">
+                        <span class="card-icon">🏠</span>
+                        <h3>محليّة 100%</h3>
+                        <p>صُممت خصيصاً لمنطقة المعمورة، ونفهم احتياجات أهلها.</p>
+                    </div>
+                    <div class="value-card">
+                        <span class="card-icon">⚡</span>
+                        <h3>سرعة وسهولة</h3>
+                        <p>اطلب في دقائق واستقبل طلبك أمام بابك دون عناء.</p>
+                    </div>
+                    <div class="value-card">
+                        <span class="card-icon">🤝</span>
+                        <h3>دعم التجار المحليين</h3>
+                        <p>نمنح المتاجر الصغيرة منصة رقمية لتنمو وتتوسع.</p>
+                    </div>
+                    <div class="value-card">
+                        <span class="card-icon">🔒</span>
+                        <h3>شفافية وأمان</h3>
+                        <p>طلباتك وبياناتك في أمان تام، وتعاملاتك واضحة وموثقة.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Who We Serve -->
+            <section class="parties-section" aria-labelledby="parties-title">
+                <h2 id="parties-title">👥 من نخدم؟</h2>
+                <div class="parties-grid">
+                    <div class="party-card">
+                        <span class="party-icon">🛍️</span>
+                        <h3>العملاء</h3>
+                        <p>أهالي المعمورة الذين يرغبون في التسوق بسهولة من منازلهم.</p>
+                    </div>
+                    <div class="party-card">
+                        <span class="party-icon">🏪</span>
+                        <h3>المتاجر</h3>
+                        <p>أصحاب البقالات والمحلات المحلية الراغبون في توسيع عملائهم.</p>
+                    </div>
+                    <div class="party-card">
+                        <span class="party-icon">🚗</span>
+                        <h3>السائقون</h3>
+                        <p>شباب المنطقة الذين يوفرون خدمة التوصيل بمرونة واحترافية.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vision -->
+            <section class="vision-section" aria-labelledby="vision-title">
+                <h2 id="vision-title">🔭 رؤيتنا للمستقبل</h2>
+                <p>
+                    نطمح في <strong>جوب البلاد</strong> أن نصبح المنصة الرائدة لتجارة التجزئة المحلية في سلطنة عُمان.
+                    نبدأ من المعمورة، ونسعى للتوسع تدريجياً لخدمة مناطق أكثر وتوفير فرص عمل لأبناء العُمان.
+                </p>
+                <p>
+                    كل طلب تضعه هو دعم لتاجر محلي، وفرصة عمل لسائق من منطقتك، ومساهمة في اقتصاد بلدك.
+                </p>
+                <blockquote class="vision-quote">
+                    "بلدنا تستاهل — ونحن هنا نبنيها معاً، خطوة بخطوة."
+                </blockquote>
+            </section>
+
+            <!-- CTA -->
+            <div class="cta-section">
+                <a href="index.html" class="btn btn-primary">تصفح المتاجر الآن</a>
+                <a href="contact.html" class="btn btn-outline">تواصل معنا</a>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="lib/supabase.js"></script>
+    <script src="lib/utils.js"></script>
+    <script src="components/navbar.js"></script>
+</body>
+</html>

@@ -50,6 +50,7 @@
             <div class="stat-card"><div class="stat-num" id="stat-drivers">—</div><div class="stat-label">مندوبون</div></div>
             <div class="stat-card"><div class="stat-num" id="stat-orders">—</div><div class="stat-label">إجمالي الطلبات</div></div>
             <div class="stat-card"><div class="stat-num" id="stat-users">—</div><div class="stat-label">مستخدمون</div></div>
+            <div class="stat-card"><div class="stat-num" id="stat-messages" style="color:var(--accent);">—</div><div class="stat-label">رسائل غير مقروءة</div></div>
         </div>
 
         <div class="dashboard-tabs">
@@ -57,6 +58,7 @@
             <button class="tab-btn" onclick="switchTab('tab-drivers',this)">🚚 المندوبون</button>
             <button class="tab-btn" onclick="switchTab('tab-orders',this)">📋 الطلبات</button>
             <button class="tab-btn" onclick="switchTab('tab-users',this)">👥 المستخدمون</button>
+            <button class="tab-btn" onclick="switchTab('tab-messages',this)" id="messages-tab-btn">📨 الرسائل</button>
         </div>
 
         <!-- STORES -->
@@ -93,6 +95,15 @@
                 <button class="btn btn-outline" style="font-size:.85rem;padding:.5rem 1rem;" onclick="loadUsers()">🔄 تحديث</button>
             </div>
             <div id="users-list"><div class="loader">جاري التحميل...</div></div>
+        </div>
+
+        <!-- MESSAGES -->
+        <div id="tab-messages" class="tab-section">
+            <div class="section-header">
+                <h3>📨 رسائل التواصل</h3>
+                <button class="btn btn-outline" style="font-size:.85rem;padding:.5rem 1rem;" onclick="loadMessages()">🔄 تحديث</button>
+            </div>
+            <div id="messages-list"><div class="loader">جاري التحميل...</div></div>
         </div>
     </div>
 </main>
