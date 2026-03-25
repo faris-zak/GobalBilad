@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جوب البلاد | التسجيل كسائق</title>
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+
+  <style>
+    .register-page { min-height: 100vh; background: var(--color-bg); padding: var(--space-8) var(--space-4); }
+    .register-card { max-width: 480px; margin-inline: auto; }
+    .success-box { display: none; text-align: center; padding: var(--space-12) var(--space-4); }
+
+    /* Password requirements checklist */
+    .pw-requirements {
+      display: none;
+      margin-top: var(--space-2);
+      padding: var(--space-3);
+      background: var(--color-surface-2);
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+    }
+    .pw-requirements.visible { display: block; }
+    .pw-req-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-1);
+      color: var(--color-text-muted);
+      transition: color var(--transition-fast);
+    }
+    .pw-req-item:last-child { margin-bottom: 0; }
+    .pw-req-item.met { color: var(--color-success, #22c55e); }
+    .pw-req-icon { font-size: 0.85em; width: 1em; text-align: center; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+  <div class="register-page">
+    <div class="register-card">
+
+      <a href="/login.html" class="btn btn-ghost btn-sm mb-4">← رجوع</a>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🚗 التسجيل كسائق توصيل</div>
+            <div class="text-sm text-muted mt-2">سيتم مراجعة طلبك من قِبَل الإدارة</div>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div id="form-error" class="alert alert-danger" style="display:none">
+            <span class="alert-icon">✕</span>
+            <span id="form-error-msg"></span>
+          </div>
+
+          <div class="alert alert-info mb-6">
+            <span class="alert-icon">ℹ</span>
+            <span>
+              عدد السائقين محدود بـ <strong>${CONSTANTS.MAX_DRIVERS}</strong> سائقين فعّالين.
+              سيصلك رد الإدارة قريباً بعد إرسال طلبك.
+            </span>
+          </div>
+
+          <form id="driver-form" novalidate>
+
+            <h3 class="font-bold mb-4">بيانات الحساب</h3>
+
+            <div class="form-group">
+              <label for="d-name">الاسم الكامل *</label>
+              <input type="text" id="d-name" placeholder="الاسم الكامل" required>
+              <span class="field-error" id="d-name_error"></span>
+            </div>
+            <div class="form-group">
+              <label for="d-email">البريد الإلكتروني *</label>
+              <input type="email" id="d-email" placeholder="mail@example.com" dir="ltr" required>
+              <span class="field-error" id="d-email_error"></span>
+            </div>
+            <div class="form-group">
+              <label for="d-phone">رقم الهاتف *</label>
+              <input type="tel" id="d-phone" placeholder="9XXXXXXX" dir="ltr" required>
+              <span class="field-error" id="d-phone_error"></span>
+            </div>
+            <div class="form-group">
+              <label for="d-password">كلمة المرور *</label>
+              <input type="password" id="d-password" placeholder="8 أحرف على الأقل" dir="ltr" required>
+              <span class="field-error" id="d-password_error"></span>
+              <!-- Live requirements checklist -->
+              <div class="pw-requirements" id="pw-requirements">
+                <div class="pw-req-item" id="req-length"><span class="pw-req-icon">○</span><span>8 أحرف على الأقل</span></div>
+                <div class="pw-req-item" id="req-lower"><span class="pw-req-icon">○</span><span>حرف صغير (a-z)</span></div>
+                <div class="pw-req-item" id="req-upper"><span class="pw-req-icon">○</span><span>حرف كبير (A-Z)</span></div>
+                <div class="pw-req-item" id="req-digit"><span class="pw-req-icon">○</span><span>رقم (0-9)</span></div>
+                <div class="pw-req-item" id="req-symbol"><span class="pw-req-icon">○</span><span>رمز خاص (!@#$…)</span></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="d-password2">تأكيد كلمة المرور *</label>
+              <input type="password" id="d-password2" placeholder="تأكيد" dir="ltr" required>
+              <span class="field-error" id="d-password2_error"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg mt-4" id="submit-btn">
+              إرسال طلب التسجيل
+            </button>
+
+          </form>
+
+          <!-- Success -->
+          <div class="success-box" id="success-box">
+            <div style="font-size:4rem">🎉</div>
+            <h2 class="font-bold text-2xl mt-4 mb-2">تم إرسال طلبك!</h2>
+            <p class="text-secondary mb-6">
+              ستتواصل معك الإدارة قريباً لمراجعة طلبك والموافقة عليه.
+            </p>
+            <a href="/login.html" class="btn btn-primary">العودة لتسجيل الدخول</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/lib/constants.js"></script>
+  <script src="/lib/helpers.js"></script>
+  <script src="/lib/validation.js"></script>
+  <script src="/api/supabase.js"></script>
+  <script src="/api/auth.js"></script>
+  <script src="/api/drivers.js"></script>
+  <script src="/assets/js/cart.js"></script>
+
+  <script>
+    // Fill in the constant in the info alert
+    document.querySelector('.alert-info span strong').textContent = CONSTANTS.MAX_DRIVERS;
+
+    // ================================================================
+    // Live password requirements checklist
+    // ================================================================
+    (function () {
+      const passEl = document.getElementById('d-password');
+      const box    = document.getElementById('pw-requirements');
+      const reqMap = {
+        length: document.getElementById('req-length'),
+        lower:  document.getElementById('req-lower'),
+        upper:  document.getElementById('req-upper'),
+        digit:  document.getElementById('req-digit'),
+        symbol: document.getElementById('req-symbol'),
+      };
+      function updateReqs() {
+        const reqs = Validation.passwordRequirements(passEl.value);
+        Object.entries(reqs).forEach(([key, met]) => {
+          const el = reqMap[key];
+          el.classList.toggle('met',   met);
+          el.classList.toggle('unmet', !met);
+          el.querySelector('.pw-req-icon').textContent = met ? '✓' : '○';
+        });
+      }
+      passEl.addEventListener('focus', () => { box.classList.add('visible'); updateReqs(); });
+      passEl.addEventListener('input', updateReqs);
+      passEl.addEventListener('blur',  () => {
+        const reqs = Validation.passwordRequirements(passEl.value);
+        if (Object.values(reqs).every(Boolean)) box.classList.remove('visible');
+      });
+    })();
+
+    document.getElementById('driver-form').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const nameEl  = document.getElementById('d-name');
+      const emailEl = document.getElementById('d-email');
+      const phoneEl = document.getElementById('d-phone');
+      const passEl  = document.getElementById('d-password');
+      const pass2El = document.getElementById('d-password2');
+      const btn     = document.getElementById('submit-btn');
+      const errorEl = document.getElementById('form-error');
+
+      errorEl.style.display = 'none';
+
+      const ok1 = Validation.field(nameEl,  Validation.name.bind(Validation));
+      const ok2 = Validation.field(emailEl, Validation.email.bind(Validation));
+      const ok3 = Validation.field(phoneEl, Validation.phone.bind(Validation));
+      const ok4 = Validation.field(passEl,  Validation.password.bind(Validation));
+      const ok5 = Validation.field(pass2El, Validation.passwordConfirm.bind(Validation),
+                    passEl.value, pass2El.value);
+      if (!ok1 || !ok2 || !ok3 || !ok4 || !ok5) return;
+
+      Helpers.btnLoading(btn, true, 'جاري الإرسال...');
+
+      try {
+        // 1. Create auth account
+        const { user } = await AuthAPI.signUp(
+          emailEl.value.trim(),
+          passEl.value,
+          nameEl.value.trim()
+        );
+        if (!user) throw new Error('فشل إنشاء الحساب');
+
+        // 2. Register driver profile (pending approval)
+        await DriversAPI.register({
+          name:  nameEl.value.trim(),
+          phone: phoneEl.value.trim(),
+        });
+
+        // Show success
+        document.getElementById('driver-form').style.display = 'none';
+        document.getElementById('success-box').style.display = 'block';
+
+      } catch (err) {
+        const msg = err.message.includes('already registered')
+          ? 'هذا البريد الإلكتروني مسجّل بالفعل'
+          : err.message;
+        document.getElementById('form-error-msg').textContent = msg;
+        errorEl.style.display = 'flex';
+      } finally {
+        Helpers.btnLoading(btn, false);
+      }
+    });
+  </script>
+</body>
+</html>

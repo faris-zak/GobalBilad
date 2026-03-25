@@ -1,0 +1,191 @@
+/**
+ * جوب البلاد — Utility Classes
+ * Single-purpose helper classes for layout, spacing, and text.
+ */
+
+/* ══════════════════════════════════════════════
+   Display
+══════════════════════════════════════════════ */
+.flex        { display: flex; }
+.flex-col    { display: flex; flex-direction: column; }
+.inline-flex { display: inline-flex; }
+.block       { display: block; }
+.hidden      { display: none !important; }
+.grid        { display: grid; }
+
+/* ══════════════════════════════════════════════
+   Flex utilities
+══════════════════════════════════════════════ */
+.items-center   { align-items: center; }
+.items-start    { align-items: flex-start; }
+.items-end      { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between{ justify-content: space-between; }
+.justify-end    { justify-content: flex-end; }
+.flex-wrap      { flex-wrap: wrap; }
+.flex-1         { flex: 1; }
+.flex-shrink-0  { flex-shrink: 0; }
+.gap-1          { gap: var(--space-1); }
+.gap-2          { gap: var(--space-2); }
+.gap-3          { gap: var(--space-3); }
+.gap-4          { gap: var(--space-4); }
+.gap-6          { gap: var(--space-6); }
+
+/* ══════════════════════════════════════════════
+   Text
+══════════════════════════════════════════════ */
+.text-xs     { font-size: var(--text-xs); }
+.text-sm     { font-size: var(--text-sm); }
+.text-base   { font-size: var(--text-base); }
+.text-lg     { font-size: var(--text-lg); }
+.text-xl     { font-size: var(--text-xl); }
+.text-2xl    { font-size: var(--text-2xl); }
+.text-3xl    { font-size: var(--text-3xl); }
+
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-bold   { font-weight: var(--font-bold); }
+.font-black  { font-weight: var(--font-black); }
+
+.text-right  { text-align: right; }
+.text-center { text-align: center; }
+.text-left   { text-align: left; }
+
+.text-primary   { color: var(--color-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-muted     { color: var(--color-text-muted); }
+.text-success   { color: var(--color-success); }
+.text-warning   { color: var(--color-warning); }
+.text-danger    { color: var(--color-danger); }
+.text-white     { color: #fff; }
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ltr { direction: ltr; }
+
+/* ══════════════════════════════════════════════
+   Background
+══════════════════════════════════════════════ */
+.bg-surface    { background: var(--color-surface); }
+.bg-surface-2  { background: var(--color-surface-2); }
+.bg-primary    { background: var(--color-primary); color: #fff; }
+.bg-success    { background: var(--color-success-bg); }
+.bg-warning    { background: var(--color-warning-bg); }
+.bg-danger     { background: var(--color-danger-bg); }
+
+/* ══════════════════════════════════════════════
+   Borders
+══════════════════════════════════════════════ */
+.border      { border: 1px solid var(--color-border); }
+.border-t    { border-top: 1px solid var(--color-border); }
+.border-b    { border-bottom: 1px solid var(--color-border); }
+.rounded     { border-radius: var(--radius-md); }
+.rounded-lg  { border-radius: var(--radius-lg); }
+.rounded-full{ border-radius: var(--radius-full); }
+
+/* ══════════════════════════════════════════════
+   Spacing
+══════════════════════════════════════════════ */
+.m-0  { margin: 0; }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mt-8 { margin-top: var(--space-8); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+.mb-8 { margin-bottom: var(--space-8); }
+
+.p-0  { padding: 0; }
+.p-4  { padding: var(--space-4); }
+.p-6  { padding: var(--space-6); }
+.p-8  { padding: var(--space-8); }
+.py-4 { padding-block: var(--space-4); }
+.py-8 { padding-block: var(--space-8); }
+.px-4 { padding-inline: var(--space-4); }
+.px-6 { padding-inline: var(--space-6); }
+
+/* ══════════════════════════════════════════════
+   Layout
+══════════════════════════════════════════════ */
+.w-full    { width: 100%; }
+.max-w-sm  { max-width: 480px; }
+.max-w-md  { max-width: 640px; }
+.max-w-lg  { max-width: 800px; }
+.mx-auto   { margin-inline: auto; }
+.min-h-screen { min-height: 100vh; }
+
+/* ══════════════════════════════════════════════
+   Responsive visibility
+══════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .hide-sm { display: none !important; }
+}
+
+@media (min-width: 641px) {
+  .show-sm-only { display: none !important; }
+}
+
+/* ══════════════════════════════════════════════
+   Price display (always LTR)
+══════════════════════════════════════════════ */
+.price {
+  direction: ltr;
+  display: inline-block;
+  font-weight: var(--font-bold);
+  color: var(--color-primary);
+}
+
+/* ══════════════════════════════════════════════
+   Sticky footer layout helper
+══════════════════════════════════════════════ */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-wrapper main { flex: 1; }
+
+/* ══════════════════════════════════════════════
+   Alert / Info box
+══════════════════════════════════════════════ */
+.alert {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.alert-icon { flex-shrink: 0; font-size: var(--text-base); margin-top: 1px; }
+.alert-success { background: var(--color-success-bg); color: var(--color-success); }
+.alert-warning { background: var(--color-warning-bg); color: var(--color-warning); }
+.alert-danger  { background: var(--color-danger-bg);  color: var(--color-danger); }
+.alert-info    { background: var(--color-info-bg);    color: var(--color-info); }
+
+/* ══════════════════════════════════════════════
+   Separator with text
+══════════════════════════════════════════════ */
+.separator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-block: var(--space-6);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}

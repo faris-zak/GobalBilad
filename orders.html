@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جوب البلاد | طلباتي</title>
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="page-wrapper">
+
+  <div id="navbar"></div>
+
+  <main class="page">
+    <div class="container" style="max-width: 760px">
+
+      <div class="page-header">
+        <h1 class="page-title">📋 طلباتي</h1>
+      </div>
+
+      <div id="orders-container"></div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">🏪 جوب البلاد</div>
+    <p class="footer-copy">سوق المعمورة المحلي © 2025</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/lib/constants.js"></script>
+  <script src="/lib/helpers.js"></script>
+  <script src="/lib/validation.js"></script>
+  <script src="/api/supabase.js"></script>
+  <script src="/api/auth.js"></script>
+  <script src="/api/orders.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/location.js"></script>
+  <script src="/assets/js/whatsapp.js"></script>
+  <script src="/assets/js/components.js"></script>
+  <script src="/assets/js/app.js"></script>
+
+  <script>
+    document.addEventListener('app:ready', loadOrders);
+
+    async function loadOrders() {
+      if (!App.profile) {
+        window.location.href = '/login.html?redirect=/orders.html';
+        return;
+      }
+
+      const container = document.getElementById('orders-container');
+      container.innerHTML = Components.spinner();
+
+      try {
+        const orders = await OrdersAPI.getMyOrders();
+
+        if (!orders.length) {
+          container.innerHTML = Components.emptyState(
+            '📦', 'لا توجد طلبات بعد',
+            'ابدأ بتصفّح المتاجر وإضافة منتجات',
+            `<a href="/index.html" class="btn btn-primary">تصفّح المتاجر</a>`
+          );
+          return;
+        }
+
+        container.innerHTML = orders.map(order => renderOrderCard(order)).join('');
+
+      } catch (err) {
+        container.innerHTML = Components.emptyState(
+          '😕', 'تعذّر تحميل الطلبات',
+          '', '<button class="btn btn-primary" onclick="loadOrders()">إعادة المحاولة</button>'
+        );
+      }
+    }
+
+    function renderOrderCard(order) {
+      const items    = order.order_items || [];
+      const total    = parseFloat(order.total_price) + parseFloat(order.delivery_fee);
+      const storeName = order.stores?.name || '—';
+
+      return `
+        <div class="order-card">
+          <div class="order-card-header">
+            <div>
+              <div class="font-bold">${Helpers.escapeHtml(storeName)}</div>
+              <div class="order-id">#${order.id.slice(0, 8).toUpperCase()}</div>
+              <div class="text-xs text-muted mt-2">${Helpers.formatDateTime(order.created_at)}</div>
+            </div>
+            ${Components.statusBadge(order.status)}
+          </div>
+
+          <div class="order-card-body">
+            <div class="order-items-list">
+              ${items.map(i => `
+                <div class="order-item-row">
+                  <span>${Helpers.escapeHtml(i.product_name)} × ${i.quantity}</span>
+                  <span class="ltr">${Helpers.formatPrice(parseFloat(i.price) * i.quantity)}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="order-totals">
+              <div class="total-line">
+                <span>المنتجات</span>
+                <span class="ltr">${Helpers.formatPrice(order.total_price)}</span>
+              </div>
+              <div class="total-line">
+                <span>التوصيل</span>
+                <span class="ltr" style="${order.is_free_delivery ? 'color:var(--color-success)' : ''}">
+                  ${order.is_free_delivery ? '🎁 مجاني' : Helpers.formatPrice(order.delivery_fee)}
+                </span>
+              </div>
+              <div class="total-line total-grand">
+                <span>الإجمالي</span>
+                <span class="ltr">${Helpers.formatPrice(total)}</span>
+              </div>
+            </div>
+
+            ${order.location_link
+              ? `<div class="mt-4 text-sm">
+                   📍 <a href="${Helpers.escapeHtml(order.location_link)}" target="_blank" rel="noopener"
+                         style="color:var(--color-primary)">عرض موقع التسليم</a>
+                 </div>`
+              : ''}
+
+            ${order.rejection_reason
+              ? `<div class="alert alert-danger mt-4">
+                   <span class="alert-icon">✕</span>
+                   سبب الرفض: ${Helpers.escapeHtml(order.rejection_reason)}
+                 </div>`
+              : ''}
+          </div>
+
+          <div class="order-card-actions">
+            ${order.status === 'delivered' || order.status === 'rejected'
+              ? `<button class="btn btn-sm btn-outline"
+                   onclick="reorder('${order.store_id}')">
+                   🔄 إعادة الطلب
+                 </button>`
+              : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // Redirect to the store page to re-add items (the store page remembers nothing,
+    // but at least the user lands in the right place)
+    function reorder(storeId) {
+      window.location.href = `/store.html?id=${storeId}`;
+    }
+  </script>
+</body>
+</html>

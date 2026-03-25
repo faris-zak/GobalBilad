@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جوب البلاد | الملف الشخصي</title>
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+</head>
+<body class="page-wrapper">
+
+  <div id="navbar"></div>
+
+  <main class="page">
+    <div class="container" style="max-width: 520px">
+
+      <div class="page-header">
+        <h1 class="page-title">👤 الملف الشخصي</h1>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">بياناتي</span>
+          <span class="badge badge-outline" id="role-badge"></span>
+        </div>
+        <div class="card-body">
+          <form id="profile-form" novalidate>
+
+            <div class="form-group">
+              <label for="p-name">الاسم الكامل</label>
+              <input type="text" id="p-name" placeholder="أدخل اسمك" required>
+              <span class="field-error" id="p-name_error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="p-email">البريد الإلكتروني</label>
+              <input type="email" id="p-email" disabled>
+            </div>
+
+            <div class="form-group">
+              <label for="p-phone">رقم الهاتف</label>
+              <input type="tel" id="p-phone" placeholder="9XXXXXXX" dir="ltr">
+              <span class="field-error" id="p-phone_error"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full mt-4" id="save-profile-btn">
+              حفظ التغييرات
+            </button>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Dashboard shortcut -->
+      <div id="dashboard-link-section" class="mt-6" style="display:none">
+        <a id="dashboard-link" href="#" class="btn btn-outline btn-full">🗂 الذهاب إلى لوحة التحكم</a>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="card mt-6">
+        <div class="card-header">
+          <span class="card-title text-danger">تسجيل الخروج</span>
+        </div>
+        <div class="card-body">
+          <button class="btn btn-danger btn-full" onclick="AuthAPI.signOut()">
+            تسجيل الخروج
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">🏪 جوب البلاد</div>
+    <p class="footer-copy">سوق المعمورة المحلي © 2025</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/lib/constants.js"></script>
+  <script src="/lib/helpers.js"></script>
+  <script src="/lib/validation.js"></script>
+  <script src="/api/supabase.js"></script>
+  <script src="/api/auth.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/location.js"></script>
+  <script src="/assets/js/components.js"></script>
+  <script src="/assets/js/app.js"></script>
+
+  <script>
+    document.addEventListener('app:ready', initProfile);
+
+    function initProfile() {
+      if (!App.profile) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const { profile } = App;
+
+      // Fill form
+      document.getElementById('p-name').value  = profile.name  || '';
+      document.getElementById('p-email').value = profile.email || '';
+      document.getElementById('p-phone').value = profile.phone || '';
+
+      // Role badge
+      const roleLabels = { customer: 'عميل', store: 'صاحب متجر', driver: 'سائق', admin: 'مدير' };
+      document.getElementById('role-badge').textContent = roleLabels[profile.role] || profile.role;
+
+      // Show dashboard link for non-customers
+      const dashboards = CONSTANTS.ROLE_DASHBOARDS;
+      if (profile.role !== 'customer') {
+        const section = document.getElementById('dashboard-link-section');
+        const link    = document.getElementById('dashboard-link');
+        section.style.display = 'block';
+        link.href = dashboards[profile.role];
+      }
+
+      document.getElementById('profile-form').addEventListener('submit', handleSave);
+    }
+
+    async function handleSave(e) {
+      e.preventDefault();
+      const nameEl  = document.getElementById('p-name');
+      const phoneEl = document.getElementById('p-phone');
+      const btn     = document.getElementById('save-profile-btn');
+
+      const validName  = Validation.field(nameEl,  Validation.name.bind(Validation));
+      const validPhone = !phoneEl.value.trim() || Validation.field(phoneEl, Validation.phone.bind(Validation));
+      if (!validName || !validPhone) return;
+
+      Helpers.btnLoading(btn, true, 'جاري الحفظ...');
+      try {
+        await AuthAPI.updateProfile({
+          name:  nameEl.value.trim(),
+          phone: phoneEl.value.trim(),
+        });
+        // Update local state
+        App.profile.name  = nameEl.value.trim();
+        App.profile.phone = phoneEl.value.trim();
+        Toast.success('تم حفظ البيانات بنجاح ✓');
+        Components.renderNavbar(); // Refresh name in navbar
+      } catch (err) {
+        Toast.error('حدث خطأ أثناء الحفظ. يرجى المحاولة مجدداً.');
+      } finally {
+        Helpers.btnLoading(btn, false);
+      }
+    }
+  </script>
+</body>
+</html>

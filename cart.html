@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جوب البلاد | السلة</title>
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+
+  <style>
+    .cart-store-section {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-6);
+    }
+    .cart-store-header {
+      padding: var(--space-4) var(--space-5);
+      background: var(--color-primary-light);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cart-store-name { font-weight: var(--font-bold); color: var(--color-primary); }
+    .cart-items-table { width: 100%; }
+    .cart-item-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .cart-item-row:last-child { border-bottom: none; }
+    .cart-item-name { flex: 1; font-weight: var(--font-medium); }
+    .cart-item-price { color: var(--color-text-muted); font-size: var(--text-sm); direction: ltr; }
+    .cart-item-total { font-weight: var(--font-bold); color: var(--color-primary); direction: ltr; min-width: 70px; text-align: left; }
+    .cart-summary-box {
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin-top: var(--space-2);
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-2) 0;
+      font-size: var(--text-sm);
+      border-bottom: 1px dashed var(--color-border);
+    }
+    .summary-row:last-child { border: none; font-size: var(--text-base); font-weight: var(--font-bold); }
+    .delivery-note {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-top: var(--space-2);
+    }
+  </style>
+</head>
+<body class="page-wrapper">
+
+  <div id="navbar"></div>
+
+  <main class="page">
+    <div class="container" style="max-width: 720px">
+
+      <div class="page-header">
+        <h1 class="page-title">🛒 سلة التسوق</h1>
+      </div>
+
+      <div id="cart-content"></div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-brand">🏪 جوب البلاد</div>
+    <p class="footer-copy">سوق المعمورة المحلي © 2025</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/lib/constants.js"></script>
+  <script src="/lib/helpers.js"></script>
+  <script src="/lib/validation.js"></script>
+  <script src="/api/supabase.js"></script>
+  <script src="/api/auth.js"></script>
+  <script src="/api/orders.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/location.js"></script>
+  <script src="/assets/js/components.js"></script>
+  <script src="/assets/js/app.js"></script>
+
+  <script>
+    document.addEventListener('app:ready', renderCart);
+    document.addEventListener('cart:changed', renderCart);
+
+    async function renderCart() {
+      const carts    = Cart.getAll();
+      const container = document.getElementById('cart-content');
+
+      if (!carts.length) {
+        container.innerHTML = Components.emptyState(
+          '🛒', 'سلتك فارغة',
+          'أضف منتجات من المتاجر',
+          `<a href="/index.html" class="btn btn-primary">تصفّح المتاجر</a>`
+        );
+        return;
+      }
+
+      // Check free delivery eligibility once
+      const isFreeEligible = App.profile
+        ? await OrdersAPI.isFreeDeliveryEligible().catch(() => false)
+        : false;
+
+      container.innerHTML = carts.map(storeCart =>
+        renderStoreCart(storeCart, isFreeEligible)
+      ).join('');
+    }
+
+    function renderStoreCart(storeCart, isFreeEligible) {
+      const items    = storeCart.items;
+      const subtotal = items.reduce((s, i) => s + parseFloat(i.price) * i.quantity, 0);
+      const feeInfo  = Helpers.calcDeliveryFee(subtotal, isFreeEligible);
+
+      const tooLarge  = feeInfo === null;
+      const total     = tooLarge ? subtotal : subtotal + feeInfo.fee;
+
+      return `
+        <div class="cart-store-section">
+          <div class="cart-store-header">
+            <span class="cart-store-name">🏪 ${Helpers.escapeHtml(storeCart.storeName)}</span>
+            <button class="btn btn-sm btn-ghost" style="color:var(--color-danger)"
+              onclick="confirmClearStore('${storeCart.storeId}','${Helpers.escapeHtml(storeCart.storeName)}')">
+              مسح
+            </button>
+          </div>
+
+          <div class="cart-items-table">
+            ${items.map(item => `
+              <div class="cart-item-row" data-pid="${item.id}">
+                <div class="cart-item-name">${Helpers.escapeHtml(item.name)}</div>
+                <div class="cart-item-price">${Helpers.formatPrice(item.price)}</div>
+                <div class="qty-control">
+                  <button class="qty-btn"
+                    onclick="Cart.setQuantity('${storeCart.storeId}','${item.id}',${item.quantity - 1})">−</button>
+                  <span class="qty-value">${item.quantity}</span>
+                  <button class="qty-btn"
+                    onclick="Cart.setQuantity('${storeCart.storeId}','${item.id}',${item.quantity + 1})">+</button>
+                </div>
+                <div class="cart-item-total">${Helpers.formatPrice(parseFloat(item.price) * item.quantity)}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Summary -->
+          <div class="cart-summary-box">
+            <div class="summary-row">
+              <span>إجمالي المنتجات</span>
+              <span class="ltr">${Helpers.formatPrice(subtotal)}</span>
+            </div>
+            <div class="summary-row">
+              <span>رسوم التوصيل</span>
+              <span class="ltr" style="color:${tooLarge ? 'var(--color-danger)' : (feeInfo?.isFree ? 'var(--color-success)' : 'inherit')}">
+                ${tooLarge ? 'الطلب يتجاوز الحد المسموح' : (feeInfo?.isFree ? '🎁 مجاني' : Helpers.formatPrice(feeInfo?.fee))}
+              </span>
+            </div>
+            <div class="summary-row">
+              <span>الإجمالي</span>
+              <span class="ltr">${Helpers.formatPrice(total)}</span>
+            </div>
+            ${isFreeEligible && !feeInfo?.isFree ? `
+              <p class="delivery-note">🎁 أنت مؤهل للتوصيل المجاني في أول طلب!</p>` : ''}
+            ${tooLarge ? `
+              <div class="alert alert-danger" style="margin-top:var(--space-3)">
+                <span class="alert-icon">⚠</span>
+                الطلب تجاوز الحد الأقصى (${CONSTANTS.DELIVERY.MAX_ORDER_AMOUNT} ر.ع.). يرجى تخفيض الكمية.
+              </div>` : ''}
+          </div>
+
+          ${!tooLarge ? `
+            <div class="p-4">
+              <a href="/checkout.html?store=${storeCart.storeId}"
+                 class="btn btn-primary btn-full">
+                المتابعة للدفع ←
+              </a>
+            </div>` : ''}
+        </div>
+      `;
+    }
+
+    async function confirmClearStore(storeId, storeName) {
+      const ok = await Modal.confirm(
+        'مسح السلة',
+        `هل تريد مسح جميع منتجات "${storeName}" من السلة؟`,
+        { danger: true, confirmText: 'نعم، امسح' }
+      );
+      if (ok) Cart.clearStore(storeId);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+/**
+ * جوب البلاد — Design Tokens (CSS Custom Properties)
+ * Import this first before any other stylesheet.
+ * All values reference Arabic/Omani aesthetic: green, gold, clean white.
+ */
+
+:root {
+  /* ══════════════════════════════════════════════
+     Colour Palette
+  ══════════════════════════════════════════════ */
+
+  /* Primary — Oman Green */
+  --color-primary:        #0d6e3f;
+  --color-primary-hover:  #0a5832;
+  --color-primary-light:  #e8f5ee;
+  --color-primary-muted:  #4caf7d;
+
+  /* Secondary — Gold */
+  --color-secondary:      #f0a500;
+  --color-secondary-hover:#c8880a;
+  --color-secondary-light:#fff8e1;
+
+  /* Neutrals */
+  --color-bg:             #f7f8f5;
+  --color-surface:        #ffffff;
+  --color-surface-2:      #f2f4f0;
+  --color-border:         #e2e8e4;
+  --color-border-strong:  #c4cfc8;
+
+  /* Text */
+  --color-text:           #1a2a1f;
+  --color-text-secondary: #4a6356;
+  --color-text-muted:     #7a9485;
+  --color-text-on-primary:#ffffff;
+
+  /* Semantic */
+  --color-success:        #16a34a;
+  --color-success-bg:     #f0fdf4;
+  --color-warning:        #d97706;
+  --color-warning-bg:     #fffbeb;
+  --color-danger:         #dc2626;
+  --color-danger-bg:      #fef2f2;
+  --color-info:           #0284c7;
+  --color-info-bg:        #f0f9ff;
+
+  /* ══════════════════════════════════════════════
+     Typography
+  ══════════════════════════════════════════════ */
+
+  --font-body:   'Tajawal', system-ui, -apple-system, Arial, sans-serif;
+  --font-mono:   'Courier New', monospace;
+
+  --text-xs:    0.75rem;   /* 12px */
+  --text-sm:    0.875rem;  /* 14px */
+  --text-base:  1rem;      /* 16px */
+  --text-lg:    1.125rem;  /* 18px */
+  --text-xl:    1.25rem;   /* 20px */
+  --text-2xl:   1.5rem;    /* 24px */
+  --text-3xl:   1.875rem;  /* 30px */
+  --text-4xl:   2.25rem;   /* 36px */
+
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-bold:   700;
+  --font-black:  800;
+
+  --leading-tight:  1.25;
+  --leading-normal: 1.6;
+  --leading-loose:  1.8;
+
+  /* ══════════════════════════════════════════════
+     Spacing (8px base unit)
+  ══════════════════════════════════════════════ */
+
+  --space-1:  0.25rem;   /* 4px  */
+  --space-2:  0.5rem;    /* 8px  */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.25rem;   /* 20px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+
+  /* ══════════════════════════════════════════════
+     Border Radius
+  ══════════════════════════════════════════════ */
+
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+
+  /* ══════════════════════════════════════════════
+     Shadows
+  ══════════════════════════════════════════════ */
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 12px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+  --shadow-lg:  0 12px 32px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.06);
+  --shadow-focus: 0 0 0 3px rgba(13, 110, 63, .25);
+
+  /* ══════════════════════════════════════════════
+     Layout
+  ══════════════════════════════════════════════ */
+
+  --container-max: 1100px;
+  --navbar-height: 64px;
+
+  /* ══════════════════════════════════════════════
+     Transitions
+  ══════════════════════════════════════════════ */
+
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* ══════════════════════════════════════════════
+     Z-index scale
+  ══════════════════════════════════════════════ */
+
+  --z-base:    1;
+  --z-above:   10;
+  --z-navbar:  100;
+  --z-modal:   200;
+  --z-toast:   300;
+}

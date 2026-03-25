@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جوب البلاد | تواصل معنا</title>
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+
+  <style>
+    .contact-page { background: var(--color-bg); min-height: 100vh; }
+
+    /* ---- Hero ---- */
+    .contact-hero {
+      background: linear-gradient(135deg, #1a2a4a 0%, #0d3060 100%);
+      color: #fff;
+      padding: var(--space-12) var(--space-4);
+      text-align: center;
+    }
+
+    .contact-hero h1 {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      margin: 0 0 var(--space-3);
+    }
+
+    .contact-hero p {
+      font-size: 1rem;
+      opacity: 0.85;
+      margin: 0;
+    }
+
+    /* ---- Layout ---- */
+    .contact-body {
+      max-width: 900px;
+      margin-inline: auto;
+      padding: var(--space-10) var(--space-4) var(--space-16);
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: var(--space-8);
+      align-items: start;
+    }
+
+    /* ---- Form card ---- */
+    .contact-form-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-7) var(--space-6);
+    }
+
+    .contact-form-card h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin: 0 0 var(--space-6);
+      color: var(--color-text);
+    }
+
+    .contact-form-card .form-group { margin-bottom: var(--space-5); }
+
+    .contact-type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
+    }
+
+    .type-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--color-bg);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+
+    .type-option:has(input:checked) {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+
+    .type-option input { display: none; }
+    .type-option-icon { font-size: 1.3rem; }
+    .type-option-label { font-size: 0.9rem; font-weight: 600; color: var(--color-text); }
+
+    /* ---- Success state ---- */
+    .contact-success {
+      display: none;
+      text-align: center;
+      padding: var(--space-10) var(--space-4);
+    }
+
+    .contact-success-icon { font-size: 4rem; display: block; margin-bottom: var(--space-4); }
+    .contact-success h3 { font-size: 1.4rem; font-weight: 800; margin: 0 0 var(--space-3); }
+    .contact-success p { color: var(--color-text-muted); font-size: 1rem; line-height: 1.7; margin: 0 0 var(--space-6); }
+
+    /* ---- Sidebar ---- */
+    .contact-sidebar { display: flex; flex-direction: column; gap: var(--space-5); }
+
+    .contact-info-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+    }
+
+    .contact-info-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0 0 var(--space-4);
+      color: var(--color-text);
+    }
+
+    .contact-info-item {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      align-items: flex-start;
+    }
+
+    .contact-info-item:last-child { margin-bottom: 0; }
+
+    .contact-info-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-lg);
+      background: var(--color-primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .contact-info-text strong {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--color-text);
+      margin-bottom: 2px;
+    }
+
+    .contact-info-text p {
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .whatsapp-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      background: #25d366;
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      text-decoration: none;
+      transition: background .15s, transform .1s;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .whatsapp-btn:hover { background: #1da851; transform: translateY(-1px); }
+    .whatsapp-btn-icon { font-size: 1.4rem; }
+
+    .response-note {
+      background: var(--color-bg);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+    }
+
+    .response-note p {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    .response-note p + p { margin-top: var(--space-2); }
+
+    .faq-item {
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-4) 0;
+    }
+
+    .faq-item:first-of-type { padding-top: 0; }
+    .faq-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .faq-q {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin: 0 0 var(--space-2);
+    }
+
+    .faq-a {
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 760px) {
+      .contact-body {
+        grid-template-columns: 1fr;
+        padding: var(--space-6) var(--space-4);
+      }
+      .contact-type-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 400px) {
+      .contact-type-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="contact-page">
+
+  <div id="navbar"></div>
+
+  <!-- Hero -->
+  <header class="contact-hero">
+    <h1>📨 تواصل معنا</h1>
+    <p>نحن هنا للاستماع — شكاوى، اقتراحات، أسئلة، أو تقارير</p>
+  </header>
+
+  <div class="contact-body">
+
+    <!-- =========== FORM =========== -->
+    <section>
+      <div class="contact-form-card">
+
+        <!-- Form -->
+        <div id="form-container">
+          <h2>📝 أرسل رسالتك</h2>
+
+          <div id="form-error" class="alert alert-danger" style="display:none">
+            <span class="alert-icon">✕</span>
+            <span id="form-error-msg"></span>
+          </div>
+
+          <form id="contact-form" novalidate>
+
+            <div class="form-group">
+              <label for="c-name">اسمك *</label>
+              <input type="text" id="c-name" placeholder="الاسم الكامل" required>
+              <span class="field-error" id="c-name_error"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="c-phone">رقم الهاتف (اختياري)</label>
+              <input type="tel" id="c-phone" placeholder="9XXXXXXX" dir="ltr">
+              <span class="field-error" id="c-phone_error"></span>
+            </div>
+
+            <div class="form-group">
+              <label>نوع رسالتك *</label>
+              <div class="contact-type-grid" id="type-grid" role="group" aria-label="نوع الطلب">
+                <label class="type-option">
+                  <input type="radio" name="request-type" value="complaint">
+                  <span class="type-option-icon">😤</span>
+                  <span class="type-option-label">شكوى</span>
+                </label>
+                <label class="type-option">
+                  <input type="radio" name="request-type" value="suggestion">
+                  <span class="type-option-icon">💡</span>
+                  <span class="type-option-label">اقتراح</span>
+                </label>
+                <label class="type-option">
+                  <input type="radio" name="request-type" value="question">
+                  <span class="type-option-icon">❓</span>
+                  <span class="type-option-label">سؤال</span>
+                </label>
+                <label class="type-option">
+                  <input type="radio" name="request-type" value="report">
+                  <span class="type-option-icon">🚨</span>
+                  <span class="type-option-label">تقرير مشكلة</span>
+                </label>
+              </div>
+              <span class="field-error" id="c-type_error" style="display:block"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="c-message">رسالتك *</label>
+              <textarea
+                id="c-message"
+                rows="5"
+                placeholder="اكتب رسالتك هنا بكل تفصيل..."
+                required
+              ></textarea>
+              <span class="field-error" id="c-message_error"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-lg" id="submit-btn">
+              إرسال الرسالة
+            </button>
+
+          </form>
+        </div>
+
+        <!-- Success state -->
+        <div class="contact-success" id="success-state">
+          <span class="contact-success-icon">✅</span>
+          <h3>شكراً لتواصلك معنا!</h3>
+          <p>
+            وصلتنا رسالتك وسنرد عليك في أقرب وقت ممكن.
+            إذا كانت مسألتك عاجلة، لا تتردد في التواصل معنا عبر واتساب.
+          </p>
+          <button class="btn btn-primary" onclick="resetForm()">إرسال رسالة أخرى</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =========== SIDEBAR =========== -->
+    <aside class="contact-sidebar">
+
+      <!-- Response info -->
+      <div class="contact-info-card">
+        <h3>⏱ وقت الرد</h3>
+        <div class="response-note">
+          <p>نسعى للرد على جميع الرسائل <strong>خلال 24 ساعة</strong> في أيام العمل.</p>
+          <p>للمسائل العاجلة، التواصل عبر واتساب أسرع.</p>
+        </div>
+      </div>
+
+      <!-- WhatsApp -->
+      <div class="contact-info-card">
+        <h3>📱 تواصل عاجل</h3>
+        <p class="text-sm text-muted mb-4">
+          للشكاوى العاجلة أو مشاكل الطلبات الجارية، تواصل معنا مباشرةً عبر واتساب:
+        </p>
+        <!--
+          ✏️ للمطوّر: استبدل رقم الواتساب أدناه برقم الإدارة الفعلي
+          الصيغة: https://wa.me/968XXXXXXXX
+        -->
+        <a href="https://wa.me/96812345678" target="_blank" rel="noopener" class="whatsapp-btn">
+          <span class="whatsapp-btn-icon">💬</span>
+          <span>فتح واتساب</span>
+        </a>
+      </div>
+
+      <!-- Contact info -->
+      <div class="contact-info-card">
+        <h3>📍 معلومات التواصل</h3>
+        <div class="contact-info-item">
+          <div class="contact-info-icon">🕐</div>
+          <div class="contact-info-text">
+            <strong>ساعات الخدمة</strong>
+            <p>السبت – الخميس</p>
+            <p>8:00 صباحاً – 10:00 مساءً</p>
+          </div>
+        </div>
+        <div class="contact-info-item">
+          <div class="contact-info-icon">📍</div>
+          <div class="contact-info-text">
+            <strong>المنطقة</strong>
+            <p>المعمورة، سلطنة عُمان</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini FAQ -->
+      <div class="contact-info-card">
+        <h3>❓ أسئلة شائعة</h3>
+
+        <div class="faq-item">
+          <p class="faq-q">طلبي تأخر — ماذا أفعل؟</p>
+          <p class="faq-a">تواصل مع المتجر مباشرةً عبر واتساب، أو تواصل معنا لمتابعة الأمر.</p>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-q">أريد تسجيل متجري في المنصة</p>
+          <p class="faq-a">
+            يمكنك التسجيل مباشرةً من
+            <a href="/register-store.html" class="text-primary">هذه الصفحة</a>.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-q">كيف أنضم كسائق توصيل؟</p>
+          <p class="faq-a">
+            سجّل طلبك من
+            <a href="/register-driver.html" class="text-primary">صفحة التسجيل كسائق</a>
+            وستتواصل معك الإدارة.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <p class="faq-q">هل التوصيل مجاني؟</p>
+          <p class="faq-a">نعم، خلال فترة الإطلاق التوصيل مجاني! ستعود رسوم رمزية لاحقاً.</p>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-brand">🏪 جوب البلاد</div>
+    <p class="footer-copy">سوق المعمورة المحلي © 2026</p>
+    <nav class="footer-links" aria-label="روابط الموقع">
+      <a href="/privacy.html">سياسة الخصوصية</a>
+      <a href="/terms.html">شروط الاستخدام</a>
+      <a href="/about.html">من نحن</a>
+      <a href="/contact.html">تواصل معنا</a>
+    </nav>
+  </footer>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/lib/constants.js"></script>
+  <script src="/lib/helpers.js"></script>
+  <script src="/lib/validation.js"></script>
+  <script src="/api/supabase.js"></script>
+  <script src="/api/auth.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/components.js"></script>
+  <script src="/assets/js/app.js"></script>
+
+  <script>
+    document.addEventListener('app:ready', () => {
+      Components.renderNavbar();
+      prefillFromProfile();
+    });
+
+    // Pre-fill name/phone if user is logged in
+    function prefillFromProfile() {
+      if (!App.profile) return;
+      if (App.profile.name)  document.getElementById('c-name').value  = App.profile.name;
+      if (App.profile.phone) document.getElementById('c-phone').value = App.profile.phone;
+    }
+
+    // ============================================================
+    // Form submission
+    // ============================================================
+    const TYPE_LABELS = {
+      complaint:  'شكوى',
+      suggestion: 'اقتراح',
+      question:   'سؤال',
+      report:     'تقرير مشكلة',
+    };
+
+    document.getElementById('contact-form').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const nameEl    = document.getElementById('c-name');
+      const phoneEl   = document.getElementById('c-phone');
+      const messageEl = document.getElementById('c-message');
+      const errEl     = document.getElementById('form-error');
+      const btn       = document.getElementById('submit-btn');
+
+      errEl.style.display = 'none';
+      clearErrors();
+
+      // Validate
+      let valid = true;
+
+      if (!nameEl.value.trim()) {
+        showError('c-name_error', 'الاسم مطلوب');
+        valid = false;
+      }
+
+      const selectedType = document.querySelector('input[name="request-type"]:checked');
+      if (!selectedType) {
+        showError('c-type_error', 'يرجى اختيار نوع الرسالة');
+        valid = false;
+      }
+
+      if (!messageEl.value.trim() || messageEl.value.trim().length < 10) {
+        showError('c-message_error', 'الرسالة قصيرة جداً (10 أحرف على الأقل)');
+        valid = false;
+      }
+
+      if (phoneEl.value.trim()) {
+        const phoneResult = Validation.phone(phoneEl.value.trim());
+        if (!phoneResult.valid) {
+          showError('c-phone_error', phoneResult.message);
+          valid = false;
+        }
+      }
+
+      if (!valid) return;
+
+      Helpers.btnLoading(btn, true, 'جاري الإرسال...');
+
+      try {
+        // Build a WhatsApp message to admin instead of email
+        // (pure frontend — no server-side email available)
+        const typeLabel = TYPE_LABELS[selectedType.value];
+        const name      = Helpers.escapeHtml(nameEl.value.trim());
+        const phone     = phoneEl.value.trim();
+        const message   = Helpers.escapeHtml(messageEl.value.trim());
+
+        const waMsg = encodeURIComponent(
+          `📨 رسالة جديدة من موقع جوب البلاد\n\n` +
+          `👤 الاسم: ${name}\n` +
+          (phone ? `📞 الهاتف: ${phone}\n` : '') +
+          `🏷 النوع: ${typeLabel}\n\n` +
+          `📝 الرسالة:\n${decodeURIComponent(message)}`
+        );
+
+        // Open WhatsApp with pre-filled message — replace number with actual admin number
+        window.open(`https://wa.me/96812345678?text=${waMsg}`, '_blank', 'noopener,noreferrer');
+
+        // Show success
+        document.getElementById('form-container').style.display = 'none';
+        document.getElementById('success-state').style.display  = 'block';
+
+      } catch (err) {
+        document.getElementById('form-error-msg').textContent = 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.';
+        errEl.style.display = 'flex';
+      } finally {
+        Helpers.btnLoading(btn, false);
+      }
+    });
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      if (el) { el.textContent = msg; el.style.display = 'block'; }
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.field-error').forEach(el => {
+        el.textContent = '';
+        el.style.display = '';
+      });
+    }
+
+    function resetForm() {
+      document.getElementById('contact-form').reset();
+      clearErrors();
+      document.getElementById('form-container').style.display = 'block';
+      document.getElementById('success-state').style.display  = 'none';
+      prefillFromProfile();
+    }
+  </script>
+
+</body>
+</html>

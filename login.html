@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جوب البلاد | تسجيل الدخول</title>
+
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/utilities.css">
+
+  <style>
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-6) var(--space-4);
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+    }
+    .login-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 440px;
+      overflow: hidden;
+    }
+    .login-header {
+      text-align: center;
+      padding: var(--space-8) var(--space-6) var(--space-4);
+    }
+    .login-logo  { font-size: 3rem; margin-bottom: var(--space-2); }
+    .login-title { font-size: var(--text-2xl); font-weight: var(--font-black); }
+    .login-sub   { color: var(--color-text-muted); font-size: var(--text-sm); margin-top: var(--space-1); }
+    .login-body  { padding: var(--space-6); }
+
+    .google-btn {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      font-size: var(--text-base);
+      font-family: inherit;
+      cursor: pointer;
+      transition: background var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .google-btn:hover { background: var(--color-surface-2); box-shadow: var(--shadow-sm); }
+    .google-icon { font-size: 1.2em; }
+
+    /* Password requirements checklist */
+    .pw-requirements {
+      display: none;
+      margin-top: var(--space-2);
+      padding: var(--space-3);
+      background: var(--color-surface-2);
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+    }
+    .pw-requirements.visible { display: block; }
+    .pw-req-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-1);
+      color: var(--color-text-muted);
+      transition: color var(--transition-fast);
+    }
+    .pw-req-item:last-child { margin-bottom: 0; }
+    .pw-req-item.met { color: var(--color-success, #22c55e); }
+    .pw-req-item.unmet { color: var(--color-text-muted); }
+    .pw-req-icon { font-size: 0.85em; width: 1em; text-align: center; flex-shrink: 0; }
+
+    .login-footer-links {
+      text-align: center;
+      padding: var(--space-4) var(--space-6) var(--space-6);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+    .login-footer-links a { color: var(--color-primary); }
+  </style>
+</head>
+<body>
+
+  <div class="login-page">
+    <div class="login-card">
+
+      <!-- Header -->
+      <div class="login-header">
+        <div class="login-logo">🏪</div>
+        <div class="login-title">جوب البلاد</div>
+        <div class="login-sub">أهلاً بك — سوق المعمورة المحلي</div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="login-body">
+        <div class="tabs">
+          <div class="tab-list">
+            <button class="tab-btn active" data-tab="customer">عميل</button>
+            <button class="tab-btn"        data-tab="business">متجر / سائق</button>
+          </div>
+
+          <!-- Customer tab (Google OAuth) -->
+          <div class="tab-panel active" id="tab-customer" style="padding-top:var(--space-6)">
+            <p class="text-center text-secondary mb-4" style="font-size:var(--text-sm)">
+              سجّل دخولك بحساب Google لبدء التسوق
+            </p>
+            <button class="google-btn" onclick="handleGoogleSignIn()">
+              <span class="google-icon">🔵</span>
+              <span>الدخول بواسطة Google</span>
+            </button>
+            <p class="text-center mt-4" style="font-size:var(--text-xs);color:var(--color-text-muted)">
+              لا نشارك بياناتك مع أي طرف ثالث
+            </p>
+          </div>
+
+          <!-- Store / Driver tab (Email + Password) -->
+          <div class="tab-panel" id="tab-business" style="padding-top:var(--space-6)">
+
+            <div id="login-error" class="alert alert-danger" style="display:none">
+              <span class="alert-icon">✕</span>
+              <span id="login-error-msg"></span>
+            </div>
+
+            <form id="email-login-form" novalidate>
+              <div class="form-group">
+                <label for="l-email">البريد الإلكتروني</label>
+                <input type="email" id="l-email" placeholder="mail@example.com" dir="ltr" required>
+                <span class="field-error" id="l-email_error"></span>
+              </div>
+              <div class="form-group">
+                <label for="l-password">كلمة المرور</label>
+                <input type="password" id="l-password" placeholder="••••••••" dir="ltr" required>
+                <span class="field-error" id="l-password_error"></span>
+                <!-- Live requirements checklist -->
+                <div class="pw-requirements" id="pw-requirements">
+                  <div class="pw-req-item" id="req-length">
+                    <span class="pw-req-icon">○</span>
+                    <span>8 أحرف على الأقل</span>
+                  </div>
+                  <div class="pw-req-item" id="req-lower">
+                    <span class="pw-req-icon">○</span>
+                    <span>حرف صغير (a-z)</span>
+                  </div>
+                  <div class="pw-req-item" id="req-upper">
+                    <span class="pw-req-icon">○</span>
+                    <span>حرف كبير (A-Z)</span>
+                  </div>
+                  <div class="pw-req-item" id="req-digit">
+                    <span class="pw-req-icon">○</span>
+                    <span>رقم (0-9)</span>
+                  </div>
+                  <div class="pw-req-item" id="req-symbol">
+                    <span class="pw-req-icon">○</span>
+                    <span>رمز خاص (!@#$…)</span>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+                تسجيل الدخول
+              </button>
+            </form>
+
+            <div class="separator">أو</div>
+
+            <div class="flex flex-col gap-2">
+              <a href="/register-store.html"  class="btn btn-outline btn-full">🏪 تسجيل متجر جديد</a>
+              <a href="/register-driver.html" class="btn btn-outline btn-full">🚗 التسجيل كسائق</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="login-footer-links">
+        بدخولك توافق على <a href="#">شروط الاستخدام</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/lib/constants.js"></script>
+  <script src="/lib/helpers.js"></script>
+  <script src="/lib/validation.js"></script>
+  <script src="/api/supabase.js"></script>
+  <script src="/api/auth.js"></script>
+  <script src="/assets/js/cart.js"></script>
+
+  <script>
+    // ================================================================
+    // Tab switching
+    // ================================================================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn, .tab-panel').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+      });
+    });
+
+    // ================================================================
+    // Redirect if already logged in
+    // ================================================================
+    (async () => {
+      const { data: { session } } = await window.db.auth.getSession();
+      if (session?.user) {
+        const profile = await getUserProfile();
+        const dest    = CONSTANTS.ROLE_DASHBOARDS[profile?.role] || '/index.html';
+        window.location.href = Helpers.getParam('redirect') || dest;
+      }
+    })();
+
+    // ================================================================
+    // Google sign-in
+    // ================================================================
+    async function handleGoogleSignIn() {
+      try {
+        await AuthAPI.signInWithGoogle();
+        // Browser will redirect to OAuth flow; onAuthChange handles the return
+      } catch (err) {
+        alert('تعذّر تسجيل الدخول بـ Google. يرجى المحاولة مجدداً.');
+      }
+    }
+
+    // ================================================================
+    // Live password requirements checklist
+    // ================================================================
+    (function () {
+      const passEl = document.getElementById('l-password');
+      const box    = document.getElementById('pw-requirements');
+
+      const reqMap = {
+        length: document.getElementById('req-length'),
+        lower:  document.getElementById('req-lower'),
+        upper:  document.getElementById('req-upper'),
+        digit:  document.getElementById('req-digit'),
+        symbol: document.getElementById('req-symbol'),
+      };
+
+      function updateReqs() {
+        const reqs = Validation.passwordRequirements(passEl.value);
+        Object.entries(reqs).forEach(([key, met]) => {
+          const el   = reqMap[key];
+          const icon = el.querySelector('.pw-req-icon');
+          el.classList.toggle('met',   met);
+          el.classList.toggle('unmet', !met);
+          icon.textContent = met ? '✓' : '○';
+        });
+      }
+
+      passEl.addEventListener('focus', () => { box.classList.add('visible'); updateReqs(); });
+      passEl.addEventListener('input', updateReqs);
+      passEl.addEventListener('blur',  () => {
+        // Hide checklist only if all requirements are already satisfied
+        const reqs = Validation.passwordRequirements(passEl.value);
+        if (Object.values(reqs).every(Boolean)) box.classList.remove('visible');
+      });
+    })();
+
+    // ================================================================
+    // Email / Password sign-in
+    // ================================================================
+    document.getElementById('email-login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const emailEl = document.getElementById('l-email');
+      const passEl  = document.getElementById('l-password');
+      const btn     = document.getElementById('login-btn');
+      const errorEl = document.getElementById('login-error');
+
+      const validEmail = Validation.field(emailEl, Validation.email.bind(Validation));
+      const validPass  = Validation.field(passEl,  Validation.password.bind(Validation));
+      if (!validEmail || !validPass) return;
+
+      errorEl.style.display = 'none';
+      Helpers.btnLoading(btn, true, 'جاري الدخول...');
+
+      try {
+        const { user } = await AuthAPI.signInWithEmail(emailEl.value.trim(), passEl.value);
+
+        // Wait for profile to be available
+        const profile = await getUserProfile();
+        if (!profile) { throw new Error('لم يتم العثور على الملف الشخصي'); }
+
+        // Check account status
+        if (profile.is_blocked) {
+          throw new Error('تم تعليق هذا الحساب. تواصل مع الإدارة.');
+        }
+
+        const redirect = Helpers.getParam('redirect');
+        const dest     = redirect || CONSTANTS.ROLE_DASHBOARDS[profile.role] || '/index.html';
+        window.location.href = dest;
+
+      } catch (err) {
+        const msg = err.message.includes('Invalid login')
+          ? 'بريد إلكتروني أو كلمة مرور خاطئة'
+          : err.message;
+        document.getElementById('login-error-msg').textContent = msg;
+        errorEl.style.display = 'flex';
+      } finally {
+        Helpers.btnLoading(btn, false);
+      }
+    });
+  </script>
+</body>
+</html>
