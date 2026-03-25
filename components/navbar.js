@@ -34,9 +34,14 @@ const NavbarComponent = {
         if (user && profile) {
             // Determine dashboard link by role
             let dashLink = '';
+            let accountDropdownLink = '';
             if (profile.role === 'store')  dashLink = '<a href="dashboard-store.html"  class="nav-link">لوحة المتجر</a>';
             if (profile.role === 'driver') dashLink = '<a href="dashboard-driver.html" class="nav-link">لوحتي</a>';
             if (profile.role === 'admin')  dashLink = '<a href="dashboard-admin.html"  class="nav-link">الإدارة</a>';
+            if (profile.role === 'customer') {
+                dashLink = '<a href="account.html" class="nav-link">حسابي</a>';
+                accountDropdownLink = '<a href="account.html" class="nav-dropdown-item">الحساب</a>';
+            }
 
             linksEl.innerHTML = `
                 <a href="index.html" class="nav-link">المتاجر</a>
@@ -52,6 +57,7 @@ const NavbarComponent = {
                         👤 ${escHtmlNav(profile.name || user.email)}
                     </button>
                     <div id="user-dropdown" class="nav-dropdown">
+                        ${accountDropdownLink}
                         <a href="orders.html" class="nav-dropdown-item">طلباتي</a>
                         <hr style="margin:.25rem 0;border-color:var(--border);">
                         <button onclick="NavbarComponent.logout()" class="nav-dropdown-item" style="color:var(--danger);">تسجيل الخروج</button>
