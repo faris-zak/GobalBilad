@@ -1,208 +1,50 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="جوب البلاد — سوق المعمورة المحلي. تسوّق من متاجر حيّك بسهولة وتسليم سريع.">
-  <meta property="og:title"       content="جوب البلاد">
-  <meta property="og:description" content="سوق المعمورة المحلي">
-  <meta property="og:type"        content="website">
-  <title>جوب البلاد | الرئيسية</title>
-
-  <link rel="stylesheet" href="/assets/css/variables.css">
-  <link rel="stylesheet" href="/assets/css/main.css">
-  <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/utilities.css">
-
-  <style>
-    .search-bar { margin-bottom: var(--space-8); }
-    .search-input-wrap {
-      position: relative;
-      max-width: 480px;
-      margin-inline: auto;
-    }
-    .search-input-wrap input {
-      padding-right: var(--space-10);
-      border-radius: var(--radius-full);
-      border: 1.5px solid var(--color-border);
-      background: var(--color-surface);
-    }
-    .search-icon {
-      position: absolute;
-      right: var(--space-4);
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--color-text-muted);
-      pointer-events: none;
-    }
-    .filter-bar {
-      display: flex;
-      gap: var(--space-2);
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: var(--space-6);
-    }
-    .filter-chip {
-      padding: var(--space-2) var(--space-4);
-      border-radius: var(--radius-full);
-      border: 1.5px solid var(--color-border);
-      background: var(--color-surface);
-      font-size: var(--text-sm);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    .filter-chip.active,
-    .filter-chip:hover {
-      background: var(--color-primary-light);
-      border-color: var(--color-primary);
-      color: var(--color-primary);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جوب البلاد - الرئيسية</title>
+    <!-- Modern Arabic Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="جوب البلاد - المنصة الأولى للتسوق المحلي في المعمورة">
+    <meta property="og:title" content="جوب البلاد">
+    <meta property="og:description" content="تسوق من المتاجر المحلية في المعمورة بكل سهولة">
 </head>
-<body class="page-wrapper">
+<body>
+    <!-- Navbar placeholder -->
+    <div id="navbar-container"></div>
 
-  <!-- Navbar (injected by JS) -->
-  <div id="navbar"></div>
+    <main class="container">
+        <header class="hero">
+            <h1>أهلاً بك في جوب البلاد</h1>
+            <p>منصتك المحلية للتسوق من أسواق ومتاجر المعمورة</p>
+            <div id="location-status" class="status-badge checking">جارِ التحقق من الموقع...</div>
+        </header>
 
-  <!-- Location check banners -->
-  <div id="location-banner" style="display:none">
-    <span>🔍</span> جاري التحقق من موقعك...
-  </div>
-  <div id="location-blocked"></div>
+        <section class="stores-section">
+            <div class="section-header">
+                <h2>المتاجر المتاحة</h2>
+                <input type="text" id="search-stores" placeholder="ابحث عن متجر..." class="input-field">
+            </div>
+            
+            <!-- Stores Grid -->
+            <div id="stores-grid" class="grid-layout">
+                <div class="loader">جاري تحميل المتاجر...</div>
+            </div>
+        </section>
+    </main>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-title">🏪 جوب البلاد</div>
-    <p class="hero-subtitle">سوق المعمورة المحلي — تسوّق من متاجر حيّك بسهولة</p>
-  </section>
+    <!-- Footer placeholder -->
+    <div id="footer-container"></div>
 
-  <!-- Main Content -->
-  <main class="page">
-    <div class="container">
-
-      <!-- Search -->
-      <div class="search-bar">
-        <div class="search-input-wrap">
-          <span class="search-icon">🔍</span>
-          <input
-            type="search"
-            id="store-search"
-            placeholder="ابحث عن متجر..."
-            autocomplete="off"
-            aria-label="بحث عن متجر"
-          >
-        </div>
-      </div>
-
-      <!-- Category Filters -->
-      <div class="filter-bar" id="filter-bar">
-        <button class="filter-chip active" data-cat="all">الكل</button>
-        <button class="filter-chip" data-cat="grocery">🛒 بقالة</button>
-        <button class="filter-chip" data-cat="restaurant">🍽 مطاعم</button>
-        <button class="filter-chip" data-cat="bakery">🥖 مخبز</button>
-        <button class="filter-chip" data-cat="pharmacy">💊 صيدلية</button>
-        <button class="filter-chip" data-cat="electronics">📱 إلكترونيات</button>
-        <button class="filter-chip" data-cat="general">🏪 عام</button>
-      </div>
-
-      <!-- Store Grid -->
-      <div id="stores-container">
-        <!-- Injected by JS -->
-      </div>
-
-    </div>
-  </main>
-
-  <footer class="footer">
-    <div class="footer-brand">🏪 جوب البلاد</div>
-    <p class="footer-copy">سوق المعمورة المحلي © 2025</p>
-  </footer>
-
-  <!-- ================================================================
-       Scripts — order matters
-  ================================================================ -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/lib/constants.js"></script>
-  <script src="/lib/helpers.js"></script>
-  <script src="/lib/validation.js"></script>
-  <script src="/api/supabase.js"></script>
-  <script src="/api/auth.js"></script>
-  <script src="/api/stores.js"></script>
-  <script src="/assets/js/cart.js"></script>
-  <script src="/assets/js/location.js"></script>
-  <script src="/assets/js/components.js"></script>
-  <script src="/assets/js/app.js"></script>
-
-  <script>
-    // ================================================================
-    // Home page logic
-    // ================================================================
-    let allStores   = [];
-    let activeFilter = 'all';
-
-    document.addEventListener('app:ready', initHome);
-
-    async function initHome() {
-      // Location check (non-blocking: show stores while checking)
-      LocationService.verifyAndBlock();
-
-      await loadStores();
-
-      // Wire up search
-      const searchInput = document.getElementById('store-search');
-      searchInput.addEventListener('input', Helpers.debounce(() => {
-        renderStores(filterStores());
-      }, 250));
-
-      // Wire up category filters
-      document.getElementById('filter-bar').addEventListener('click', e => {
-        const chip = e.target.closest('.filter-chip');
-        if (!chip) return;
-        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        activeFilter = chip.dataset.cat;
-        renderStores(filterStores());
-      });
-    }
-
-    async function loadStores() {
-      const container = document.getElementById('stores-container');
-      container.innerHTML = Components.spinner();
-      try {
-        allStores = await StoresAPI.getAll();
-        renderStores(allStores);
-      } catch (err) {
-        container.innerHTML = Components.emptyState(
-          '😕', 'تعذّر تحميل المتاجر', 'يرجى تحديث الصفحة',
-          '<button class="btn btn-primary" onclick="loadStores()">إعادة المحاولة</button>'
-        );
-      }
-    }
-
-    function filterStores() {
-      const q = document.getElementById('store-search').value.trim().toLowerCase();
-      return allStores.filter(s => {
-        const matchCat  = activeFilter === 'all' || s.category === activeFilter;
-        const matchText = !q || s.name.toLowerCase().includes(q) ||
-                          (s.description || '').toLowerCase().includes(q);
-        return matchCat && matchText;
-      });
-    }
-
-    function renderStores(stores) {
-      const container = document.getElementById('stores-container');
-      if (!stores.length) {
-        container.innerHTML = Components.emptyState(
-          '🔍', 'لا توجد متاجر تطابق بحثك', 'جرّب كلمة مختلفة أو فئة أخرى'
-        );
-        return;
-      }
-      container.innerHTML = `
-        <div class="store-grid">
-          ${stores.map(s => Components.storeCard(s)).join('')}
-        </div>
-      `;
-    }
-  </script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="api/supabase.js"></script>
+    <script src="lib/utils.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="assets/js/app.js"></script>
 </body>
 </html>
