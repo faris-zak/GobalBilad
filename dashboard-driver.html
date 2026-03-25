@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المندوب - جوب البلاد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <style>
+        .driver-status-toggle { display:flex; gap:1rem; align-items:center; background:var(--bg-card); padding:1rem 1.5rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:2rem; flex-wrap:wrap; }
+        .delivery-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1rem; }
+        .delivery-card h4 { margin-bottom:.5rem; }
+        .delivery-actions { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.75rem; }
+    </style>
+</head>
+<body>
+<div id="navbar-container"></div>
+
+<main class="container" style="padding-top:2rem;">
+    <div id="auth-guard" style="display:none; text-align:center; padding:4rem;">
+        <p style="font-size:1.2rem; color:var(--danger);">⛔ يجب تسجيل الدخول كمندوب للوصول لهذه الصفحة.</p>
+        <a href="login.html" class="btn btn-primary" style="margin-top:1rem;">تسجيل الدخول</a>
+    </div>
+
+    <div id="dashboard-body" style="display:none;">
+        <div class="section-header">
+            <h2>لوحة المندوب 🚚</h2>
+        </div>
+
+        <!-- Availability toggle -->
+        <div class="driver-status-toggle">
+            <span style="font-weight:700;">حالتي:</span>
+            <button id="btn-toggle-availability" class="btn btn-secondary" onclick="toggleAvailability()">متاح ✅</button>
+            <span id="availability-label" style="color:var(--text-muted);font-size:.9rem;"></span>
+            <div style="margin-right:auto;">
+                <button class="btn btn-outline" style="font-size:.85rem; color:var(--danger); border-color:var(--danger);" onclick="confirmRetirement()">التقاعد من الخدمة</button>
+            </div>
+        </div>
+
+        <!-- Orders ready for pickup -->
+        <div class="section-header" style="margin-bottom:1rem;">
+            <h3>الطلبات الجاهزة للاستلام</h3>
+            <button class="btn btn-outline" style="font-size:.85rem;padding:.5rem 1rem;" onclick="loadOrders()">🔄 تحديث</button>
+        </div>
+        <div id="orders-list"><div class="loader">جاري تحميل الطلبات...</div></div>
+
+        <!-- Profile section -->
+        <div style="margin-top:3rem;">
+            <h3 style="margin-bottom:1.5rem;">ملفي الشخصي</h3>
+            <form id="driver-profile-form" style="max-width:480px;">
+                <div class="input-group">
+                    <label class="input-label">الاسم</label>
+                    <input type="text" id="d-name" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">رقم الهاتف</label>
+                    <input type="tel" id="d-phone" class="input-field" required>
+                </div>
+                <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="api/supabase.js"></script>
+<script src="lib/utils.js"></script>
+<script src="components/navbar.js"></script>
+<script src="assets/js/dashboard-driver.js"></script>
+</body>
+</html>

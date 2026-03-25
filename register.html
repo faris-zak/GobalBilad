@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل متجر أو مندوب - جوب البلاد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <style>
+        .role-selector { display:flex; gap:1rem; margin-bottom:2rem; }
+        .role-card { flex:1; border:2px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; cursor:pointer; transition:var(--transition-fast); }
+        .role-card:hover { border-color:var(--primary-light); }
+        .role-card.selected { border-color:var(--primary); background:rgba(59,130,246,.05); }
+        .role-card .role-icon { font-size:2rem; display:block; margin-bottom:.5rem; }
+        .role-card h3 { font-size:1rem; margin-bottom:.25rem; }
+        .role-card p { font-size:.85rem; color:var(--text-muted); }
+        .form-section { display:none; }
+        .form-section.active { display:block; }
+    </style>
+</head>
+<body>
+<div id="navbar-container"></div>
+
+<main class="container">
+    <div class="auth-card" style="max-width:560px;">
+        <div class="auth-header">
+            <h2>تسجيل حساب جديد</h2>
+            <p>اختر نوع الحساب الذي تريد إنشاءه</p>
+        </div>
+
+        <!-- Role selector -->
+        <div class="role-selector">
+            <div class="role-card" id="role-store-card" onclick="selectRole('store')">
+                <span class="role-icon">🏪</span>
+                <h3>صاحب متجر</h3>
+                <p>أريد بيع منتجاتي</p>
+            </div>
+            <div class="role-card" id="role-driver-card" onclick="selectRole('driver')">
+                <span class="role-icon">🚚</span>
+                <h3>مندوب توصيل</h3>
+                <p>أريد توصيل الطلبات</p>
+            </div>
+        </div>
+
+        <!-- Step 1: Account credentials -->
+        <div id="step-credentials" class="form-section active">
+            <h3 style="margin-bottom:1rem;">بيانات الحساب</h3>
+            <form id="credentials-form">
+                <div class="input-group">
+                    <label class="input-label">البريد الإلكتروني</label>
+                    <input type="email" id="reg-email" class="input-field" required placeholder="example@email.com">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">كلمة المرور</label>
+                    <input type="password" id="reg-password" class="input-field" required placeholder="8 أحرف على الأقل" minlength="8">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">تأكيد كلمة المرور</label>
+                    <input type="password" id="reg-password-confirm" class="input-field" required placeholder="أعد كتابة كلمة المرور">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" id="btn-next">التالي ←</button>
+            </form>
+        </div>
+
+        <!-- Step 2a: Store details -->
+        <div id="step-store" class="form-section">
+            <h3 style="margin-bottom:1rem;">بيانات المتجر</h3>
+            <form id="store-form">
+                <div class="input-group">
+                    <label class="input-label">اسم المتجر</label>
+                    <input type="text" id="store-name" class="input-field" required placeholder="مثال: بقالة النور">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">اسمك الكامل (المالك)</label>
+                    <input type="text" id="store-owner" class="input-field" required placeholder="محمد علي">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">رقم الهاتف</label>
+                    <input type="tel" id="store-phone" class="input-field" required placeholder="9xxxxxxxx">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">رقم الواتساب (للطلبات)</label>
+                    <input type="tel" id="store-whatsapp" class="input-field" placeholder="9xxxxxxxx (اتركه فارغاً إن كان نفس الهاتف)">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">نوع / فئة المتجر</label>
+                    <input type="text" id="store-category" class="input-field" placeholder="مواد غذائية، خضار، مخبوزات...">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">وصف مختصر للمتجر</label>
+                    <textarea id="store-desc" class="input-field" rows="2" placeholder="أفضل المواد الغذائية في المعمورة..."></textarea>
+                </div>
+                <div style="display:flex;gap:.75rem;">
+                    <button type="submit" class="btn btn-primary" id="btn-register-store">إرسال الطلب</button>
+                    <button type="button" class="btn btn-outline" onclick="goBack()">رجوع</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 2b: Driver details -->
+        <div id="step-driver" class="form-section">
+            <h3 style="margin-bottom:1rem;">بيانات المندوب</h3>
+            <form id="driver-form">
+                <div class="input-group">
+                    <label class="input-label">الاسم الكامل</label>
+                    <input type="text" id="driver-name" class="input-field" required placeholder="عبدالله محمد">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">رقم الهاتف</label>
+                    <input type="tel" id="driver-phone" class="input-field" required placeholder="9xxxxxxxx">
+                </div>
+                <div style="display:flex;gap:.75rem;">
+                    <button type="submit" class="btn btn-primary" id="btn-register-driver">إرسال الطلب</button>
+                    <button type="button" class="btn btn-outline" onclick="goBack()">رجوع</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Success state -->
+        <div id="step-success" class="form-section" style="text-align:center;padding:2rem 0;">
+            <p style="font-size:2.5rem;">✅</p>
+            <h3 style="margin:.75rem 0 .5rem;">تم إرسال طلبك بنجاح!</h3>
+            <p style="color:var(--text-muted);">سيتم مراجعة طلبك من قِبَل الإدارة وإعلامك في أقرب وقت.</p>
+            <a href="index.html" class="btn btn-primary" style="margin-top:1.5rem;">العودة للرئيسية</a>
+        </div>
+
+        <p style="text-align:center;margin-top:1.5rem;font-size:.9rem;color:var(--text-muted);">
+            لديك حساب بالفعل؟ <a href="login.html" style="color:var(--primary);">تسجيل الدخول</a>
+        </p>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="api/supabase.js"></script>
+<script src="components/navbar.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.NavbarComponent) NavbarComponent.render('navbar-container');
+    setupForms();
+});
+
+let _selectedRole = null;
+let _registeredUserId = null;
+let _registeredEmail = null;
+
+window.selectRole = function (role) {
+    _selectedRole = role;
+    document.getElementById('role-store-card').classList.toggle('selected', role === 'store');
+    document.getElementById('role-driver-card').classList.toggle('selected', role === 'driver');
+};
+
+window.goBack = function () {
+    showSection('step-credentials');
+};
+
+function showSection(id) {
+    document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function setupForms() {
+    // Step 1: credentials
+    document.getElementById('credentials-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!_selectedRole) { alert('يرجى اختيار نوع الحساب أولاً'); return; }
+
+        const email    = document.getElementById('reg-email').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const confirm  = document.getElementById('reg-password-confirm').value;
+
+        if (password !== confirm) { alert('كلمتا المرور غير متطابقتين'); return; }
+
+        const btn = document.getElementById('btn-next');
+        btn.disabled = true; btn.innerText = '...';
+
+        try {
+            const { data, error } = await API.auth.signUpWithEmail(email, password);
+            if (error) throw error;
+            _registeredUserId = data?.user?.id;
+            _registeredEmail  = email;
+
+            // Update user role
+            if (_registeredUserId) {
+                await API.auth.updateProfile(_registeredUserId, { role: _selectedRole, email }).catch(() => {});
+            }
+
+            showSection(_selectedRole === 'store' ? 'step-store' : 'step-driver');
+        } catch (err) {
+            alert('خطأ: ' + (err.message || 'فشل التسجيل'));
+        } finally {
+            btn.disabled = false; btn.innerText = 'التالي ←';
+        }
+    });
+
+    // Step 2a: store details
+    document.getElementById('store-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-register-store');
+        btn.disabled = true; btn.innerText = 'جاري الإرسال...';
+
+        const phone     = document.getElementById('store-phone').value.trim();
+        const whatsapp  = document.getElementById('store-whatsapp').value.trim();
+
+        try {
+            await API.stores.register({
+                user_id:    _registeredUserId,
+                name:       document.getElementById('store-name').value.trim(),
+                owner_name: document.getElementById('store-owner').value.trim(),
+                phone:      `968${phone.replace(/\D/g,'')}`,
+                whatsapp:   whatsapp ? `968${whatsapp.replace(/\D/g,'')}` : null,
+                category:   document.getElementById('store-category').value.trim() || null,
+                description:document.getElementById('store-desc').value.trim() || null,
+                approved:   false,
+            });
+            showSection('step-success');
+        } catch (err) {
+            alert('خطأ: ' + err.message);
+        } finally {
+            btn.disabled = false; btn.innerText = 'إرسال الطلب';
+        }
+    });
+
+    // Step 2b: driver details
+    document.getElementById('driver-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-register-driver');
+        btn.disabled = true; btn.innerText = 'جاري الإرسال...';
+
+        const phone = document.getElementById('driver-phone').value.trim();
+
+        try {
+            await API.drivers.register({
+                user_id:  _registeredUserId,
+                name:     document.getElementById('driver-name').value.trim(),
+                phone:    `968${phone.replace(/\D/g,'')}`,
+                approved: false,
+                active:   false,
+                available:false,
+            });
+            showSection('step-success');
+        } catch (err) {
+            alert('خطأ: ' + err.message);
+        } finally {
+            btn.disabled = false; btn.innerText = 'إرسال الطلب';
+        }
+    });
+}
+</script>
+</body>
+</html>

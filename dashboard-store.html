@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة المتجر - جوب البلاد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <style>
+        .dashboard-tabs { display:flex; gap:.5rem; margin-bottom:2rem; flex-wrap:wrap; }
+        .tab-btn { padding:.6rem 1.25rem; border:1px solid var(--border); border-radius:var(--radius-full); background:var(--bg-card); cursor:pointer; font-weight:600; font-family:'Tajawal',sans-serif; font-size:.95rem; transition:var(--transition-fast); }
+        .tab-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+        .tab-section { display:none; }
+        .tab-section.active { display:block; }
+        .order-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1rem; }
+        .order-card h4 { margin-bottom:.5rem; }
+        .order-actions { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.75rem; }
+        .order-actions button { font-size:.85rem; padding:.4rem .9rem; }
+        .product-row { display:flex; justify-content:space-between; align-items:center; padding:.75rem 0; border-bottom:1px solid var(--border); gap:.5rem; flex-wrap:wrap; }
+        .product-row:last-child { border-bottom:none; }
+        .badge-status { padding:.25em .75em; border-radius:var(--radius-full); font-size:.82rem; font-weight:700; }
+        .badge-pending  { background:#fef3c7; color:#92400e; }
+        .badge-confirmed{ background:#dbeafe; color:#1e40af; }
+        .badge-ready    { background:#d1fae5; color:#065f46; }
+        .badge-out      { background:#ede9fe; color:#4c1d95; }
+        .badge-delivered{ background:#dcfce7; color:#14532d; }
+        .badge-rejected { background:#fee2e2; color:#991b1b; }
+    </style>
+</head>
+<body>
+<div id="navbar-container"></div>
+
+<main class="container" style="padding-top:2rem;">
+    <div id="auth-guard" style="display:none; text-align:center; padding:4rem;">
+        <p style="font-size:1.2rem; color:var(--danger);">⛔ يجب تسجيل الدخول للوصول لهذه الصفحة.</p>
+        <a href="login.html" class="btn btn-primary" style="margin-top:1rem;">تسجيل الدخول</a>
+    </div>
+
+    <div id="dashboard-body" style="display:none;">
+        <div class="section-header">
+            <h2 id="store-name-heading">لوحة تحكم المتجر</h2>
+        </div>
+
+        <div class="dashboard-tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-orders')">📋 الطلبات</button>
+            <button class="tab-btn" onclick="switchTab('tab-products')">📦 المنتجات</button>
+            <button class="tab-btn" onclick="switchTab('tab-settings')">⚙️ الإعدادات</button>
+        </div>
+
+        <!-- ORDERS TAB -->
+        <div id="tab-orders" class="tab-section active">
+            <div class="section-header">
+                <h3>الطلبات الواردة</h3>
+                <button class="btn btn-outline" style="font-size:.85rem;padding:.5rem 1rem;" onclick="loadOrders()">🔄 تحديث</button>
+            </div>
+            <div id="orders-list"><div class="loader">جاري تحميل الطلبات...</div></div>
+        </div>
+
+        <!-- PRODUCTS TAB -->
+        <div id="tab-products" class="tab-section">
+            <div class="section-header">
+                <h3>إدارة المنتجات</h3>
+                <button class="btn btn-primary" style="font-size:.9rem;" onclick="showAddProductForm()">+ إضافة منتج</button>
+            </div>
+
+            <!-- Add/Edit form -->
+            <div id="product-form-wrapper" style="display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:2rem;">
+                <h4 id="product-form-title" style="margin-bottom:1rem;">إضافة منتج جديد</h4>
+                <form id="product-form">
+                    <input type="hidden" id="edit-product-id">
+                    <div class="input-group">
+                        <label class="input-label">اسم المنتج</label>
+                        <input type="text" id="p-name" class="input-field" required placeholder="مثال: حليب طازج 1 لتر">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">الوصف (اختياري)</label>
+                        <input type="text" id="p-desc" class="input-field" placeholder="وصف مختصر للمنتج">
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="input-group">
+                            <label class="input-label">السعر (ر.ع)</label>
+                            <input type="number" id="p-price" class="input-field" step="0.001" min="0" required placeholder="0.500">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">الفئة</label>
+                            <input type="text" id="p-category" class="input-field" placeholder="مشروبات، خضار...">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">رابط الصورة (اختياري)</label>
+                        <input type="url" id="p-image" class="input-field" placeholder="https://...">
+                    </div>
+                    <div style="display:flex;gap:.75rem;">
+                        <button type="submit" class="btn btn-primary" id="product-submit-btn">حفظ</button>
+                        <button type="button" class="btn btn-outline" onclick="hideProductForm()">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="products-list"><div class="loader">جاري تحميل المنتجات...</div></div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div id="tab-settings" class="tab-section">
+            <h3 style="margin-bottom:1.5rem;">إعدادات المتجر</h3>
+            <form id="store-settings-form" style="max-width:540px;">
+                <div class="input-group">
+                    <label class="input-label">اسم المتجر</label>
+                    <input type="text" id="s-name" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">اسم المالك</label>
+                    <input type="text" id="s-owner" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">رقم الهاتف</label>
+                    <input type="tel" id="s-phone" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">رقم واتساب (للطلبات)</label>
+                    <input type="tel" id="s-whatsapp" class="input-field">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">وصف المتجر</label>
+                    <textarea id="s-desc" class="input-field" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">حفظ الإعدادات</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="api/supabase.js"></script>
+<script src="lib/utils.js"></script>
+<script src="components/navbar.js"></script>
+<script src="assets/js/dashboard-store.js"></script>
+</body>
+</html>

@@ -283,6 +283,44 @@
     border-radius: var(--radius-full);
 }
 
+/* Navbar Dropdown */
+.nav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 160px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+    padding: 0.25rem 0;
+}
+
+.nav-dropdown.open {
+    display: block;
+}
+
+.nav-dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    background: none;
+    border: none;
+    text-align: right;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 500;
+}
+
+.nav-dropdown-item:hover {
+    background: var(--bg-main);
+}
+
 /* Auth Cards */
 .auth-card {
     max-width: 450px;

@@ -1,9 +1,285 @@
 /**
- * Cart & Checkout Logic
+ * Cart & Checkout Logic — جوب البلاد
+ * Saves orders to Supabase, generates WhatsApp link
  */
 
 let activeStoreCarts = [];
-let currentCheckoutStoreId = null;
+let currentCheckoutStore = null; // { storeId, subtotal, deliveryFee }
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.NavbarComponent) NavbarComponent.render('navbar-container');
+    loadAllCarts();
+    setupLocationButton();
+    setupCheckoutForm();
+});
+
+// ── Load carts from localStorage ─────────────────────
+
+function loadAllCarts() {
+    activeStoreCarts = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key.startsWith('cart_')) continue;
+
+        const storeId = key.replace('cart_', '');
+        let cartData;
+        try { cartData = JSON.parse(localStorage.getItem(key)); } catch { continue; }
+
+        const items = Object.values(cartData || {});
+        if (items.length > 0) {
+            activeStoreCarts.push({ storeId, items });
+        } else {
+            localStorage.removeItem(key);
+        }
+    }
+
+    renderCarts();
+}
+
+// ── Render cart list ──────────────────────────────────
+
+async function renderCarts() {
+    const emptyMsg = document.getElementById('cart-empty-msg');
+    const content  = document.getElementById('cart-content');
+    const list     = document.getElementById('cart-items-list');
+
+    if (activeStoreCarts.length === 0) {
+        emptyMsg.style.display = 'block';
+        content.style.display  = 'none';
+        document.querySelector('.summary-box').style.display = 'none';
+        return;
+    }
+
+    emptyMsg.style.display = 'none';
+    content.style.display  = 'block';
+    list.innerHTML = '';
+
+    // Fetch store names in parallel for display
+    const storeCache = {};
+    await Promise.all(activeStoreCarts.map(async (c) => {
+        try {
+            const s = await API.stores.getById(c.storeId);
+            storeCache[c.storeId] = s;
+        } catch {
+            storeCache[c.storeId] = null;
+        }
+    }));
+
+    activeStoreCarts.forEach((cartEntry) => {
+        let subtotal = 0;
+        const store = storeCache[cartEntry.storeId];
+        const storeName = store ? escHtml(store.name) : `متجر`;
+
+        const itemsHtml = cartEntry.items.map(item => {
+            const itemTotal = item.price * item.qty;
+            subtotal += itemTotal;
+            return `
+                <div class="cart-item">
+                    <div>
+                        <h4>${escHtml(item.name)}</h4>
+                        <span class="text-muted" style="font-size:.9rem;color:var(--text-muted);">
+                            ${item.qty} × ${Utils.formatCurrency(item.price)}
+                        </span>
+                    </div>
+                    <strong>${Utils.formatCurrency(itemTotal)}</strong>
+                </div>`;
+        }).join('');
+
+        const deliveryFee = Utils.calculateDeliveryFee(subtotal);
+        const isRejected  = deliveryFee === -1;
+
+        list.innerHTML += `
+            <div style="background:var(--bg-card);border-radius:var(--radius-md);padding:1.5rem;margin-bottom:2rem;border:1px solid var(--border);">
+                <h3 style="margin-bottom:1rem;color:var(--primary);">🛒 ${storeName}</h3>
+                ${itemsHtml}
+                <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--border);padding-top:1rem;margin-top:1rem;flex-wrap:wrap;gap:.5rem;">
+                    <strong>المجموع: ${Utils.formatCurrency(subtotal)}</strong>
+                    ${isRejected
+                        ? `<span style="color:var(--danger);font-weight:bold;">الطلب تجاوز 50 ر.ع — غير مقبول ❌</span>`
+                        : `<button class="btn btn-secondary" onclick="prepareCheckout('${cartEntry.storeId}', ${subtotal}, ${deliveryFee})">إتمام الطلب →</button>`
+                    }
+                </div>
+            </div>`;
+    });
+
+    document.querySelector('.summary-box').style.display = 'none';
+}
+
+// ── Prepare checkout for one store ───────────────────
+
+window.prepareCheckout = function (storeId, subtotal, deliveryFee) {
+    currentCheckoutStore = { storeId, subtotal, deliveryFee };
+
+    document.getElementById('subtotal-val').innerText  = Utils.formatCurrency(subtotal);
+    document.getElementById('delivery-val').innerText  = Utils.formatCurrency(deliveryFee);
+    document.getElementById('total-val').innerText     = Utils.formatCurrency(subtotal + deliveryFee);
+
+    const box = document.querySelector('.summary-box');
+    box.style.display = 'block';
+    box.scrollIntoView({ behavior: 'smooth' });
+};
+
+// ── Location button ───────────────────────────────────
+
+function setupLocationButton() {
+    const btn = document.getElementById('btn-get-location');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.innerText = '⏳';
+        try {
+            const loc = await Utils.checkLocation();
+            if (loc.isInside) {
+                document.getElementById('cust-location').value = Utils.getGoogleMapsLink(loc.lat, loc.lng);
+            } else {
+                alert('أنت خارج نطاق التوصيل (المعمورة) ❌');
+                document.getElementById('cust-location').value = '';
+            }
+        } catch {
+            alert('تعذر تحديد الموقع تلقائياً. يرجى إدخال الرابط يدوياً.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = '📍';
+        }
+    });
+}
+
+// ── Checkout form submission ──────────────────────────
+
+function setupCheckoutForm() {
+    const form = document.getElementById('checkout-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!currentCheckoutStore) {
+            alert('يرجى اختيار سلة المتجر أولاً');
+            return;
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'جاري إرسال الطلب...';
+
+        try {
+            const { storeId, subtotal, deliveryFee } = currentCheckoutStore;
+            const name  = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const loc   = document.getElementById('cust-location').value.trim();
+
+            // Validate phone (basic Omani format)
+            if (!/^9\d{7}$/.test(phone)) {
+                alert('يرجى إدخال رقم هاتف عُماني صحيح (9 أرقام يبدأ بـ 9)');
+                return;
+            }
+
+            const cartData = JSON.parse(localStorage.getItem(`cart_${storeId}`));
+            const items    = Object.values(cartData || {});
+            if (items.length === 0) {
+                alert('السلة فارغة');
+                return;
+            }
+
+            // Check free delivery eligibility
+            let finalDeliveryFee = deliveryFee;
+            let isFreeDelivery   = false;
+            const user = await API.auth.getUser();
+
+            if (user) {
+                const config = await API.config.getAll().catch(() => ({}));
+                const launchDate = config.launch_date ? new Date(config.launch_date) : null;
+                const freeDays   = parseInt(config.free_delivery_days || '7');
+                const withinFreeWindow = launchDate
+                    ? (Date.now() - launchDate.getTime()) / 86400000 <= freeDays
+                    : false;
+
+                if (withinFreeWindow) {
+                    const alreadyUsed = await API.freeDelivery.hasUsed(user.id);
+                    if (!alreadyUsed) {
+                        finalDeliveryFee = 0;
+                        isFreeDelivery   = true;
+                    }
+                }
+
+                // Build order object for DB
+                const orderPayload = {
+                    user_id:        user.id,
+                    store_id:       storeId,
+                    status:         'pending',
+                    total_price:    subtotal,
+                    delivery_fee:   finalDeliveryFee,
+                    customer_name:  name,
+                    customer_phone: `968${phone}`,
+                    location_link:  loc,
+                    is_free_delivery: isFreeDelivery,
+                };
+
+                const newOrder = await API.orders.place({ order: orderPayload, items });
+
+                // Mark free delivery as used
+                if (isFreeDelivery) {
+                    await API.freeDelivery.markUsed(user.id).catch(() => {});
+                }
+
+                // Fetch store for WhatsApp number
+                const store = await API.stores.getById(storeId);
+                const whatsappNum = store.whatsapp || store.phone;
+
+                // Generate WhatsApp message
+                const waLink = Utils.generateWhatsAppLink(
+                    whatsappNum,
+                    { items, total: subtotal, delivery: finalDeliveryFee },
+                    { name, locationLink: loc, orderId: newOrder.id }
+                );
+
+                // Clear this store's cart
+                localStorage.removeItem(`cart_${storeId}`);
+
+                // Update delivery display if free
+                if (isFreeDelivery) {
+                    document.getElementById('delivery-val').innerText = 'مجانية 🎁';
+                    document.getElementById('total-val').innerText = Utils.formatCurrency(subtotal);
+                }
+
+                alert('تم إنشاء طلبك بنجاح ✅\nسيتم تحويلك للواتساب للتواصل مع المتجر.');
+                window.open(waLink, '_blank');
+                window.location.reload();
+
+            } else {
+                // Not logged in — guest checkout (WhatsApp only, no DB save)
+                const store  = await API.stores.getById(storeId);
+                const waLink = Utils.generateWhatsAppLink(
+                    store.whatsapp || store.phone,
+                    { items, total: subtotal, delivery: deliveryFee },
+                    { name, locationLink: loc }
+                );
+                localStorage.removeItem(`cart_${storeId}`);
+                alert('طلبك يتم تحويله للواتساب.\nللاستفادة من تتبع الطلبات، سجّل الدخول.');
+                window.open(waLink, '_blank');
+                window.location.reload();
+            }
+
+        } catch (err) {
+            console.error('[checkout]', err);
+            alert('حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'تأكيد الطلب وإرسال عبر واتساب';
+        }
+    });
+}
+
+function escHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     if (window.NavbarComponent) NavbarComponent.render('navbar-container');
