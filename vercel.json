@@ -36,6 +36,7 @@
     { "source": "/register-driver", "destination": "/register-driver.html" },
     { "source": "/dashboard/store",  "destination": "/dashboard/store.html" },
     { "source": "/dashboard/driver", "destination": "/dashboard/driver.html" },
-    { "source": "/dashboard/admin",  "destination": "/dashboard/admin.html" }
+    { "source": "/dashboard/admin",  "destination": "/dashboard/admin.html" },
+    { "source": "/reset-password",   "destination": "/reset-password.html" }
   ]
 }

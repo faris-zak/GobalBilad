@@ -89,7 +89,7 @@ const StoresAPI = {
   async update(storeId, updates) {
     // Only allow safe fields to be updated by store owner
     const safe = {};
-    const allowed = ['name', 'description', 'phone', 'whatsapp', 'category', 'location_text'];
+    const allowed = ['name', 'owner_name', 'description', 'phone', 'whatsapp', 'category', 'location_text'];
     allowed.forEach(k => {
       if (updates[k] !== undefined) safe[k] = updates[k];
     });

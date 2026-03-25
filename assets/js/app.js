@@ -53,7 +53,11 @@ App.boot = async function () {
 // Route Guard
 // ================================================================
 App.enforceRouteGuard = function () {
-  const path           = window.location.pathname.replace(/\\/g, '/');
+  let path = window.location.pathname.replace(/\\/g, '/');
+  // Normalise clean URLs (no .html) to match PROTECTED_ROUTES keys
+  if (!path.endsWith('.html') && CONSTANTS.PROTECTED_ROUTES[path + '.html'] !== undefined) {
+    path = path + '.html';
+  }
   const allowedRoles   = CONSTANTS.PROTECTED_ROUTES[path];
   if (!allowedRoles) return; // Public page
 

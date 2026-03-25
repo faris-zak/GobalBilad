@@ -138,10 +138,10 @@ const Components = {
               ? `<div class="qty-control">
                    <button class="qty-btn" onclick="Cart.setQuantity('${storeId}','${product.id}',${qty - 1});Components.refreshProductCard('${product.id}','${storeId}','${Helpers.escapeHtml(storeName)}')">−</button>
                    <span class="qty-value">${qty}</span>
-                   <button class="qty-btn" onclick="Cart.addItem('${storeId}','${Helpers.escapeHtml(storeName)}',${JSON.stringify(product).replace(/"/g, '&quot;')});Components.refreshProductCard('${product.id}','${storeId}','${Helpers.escapeHtml(storeName)}')">+</button>
+                   <button class="qty-btn" onclick="Cart.addItem('${storeId}','${Helpers.escapeHtml(storeName)}',${JSON.stringify(product).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/"/g,'&quot;')});Components.refreshProductCard('${product.id}','${storeId}','${Helpers.escapeHtml(storeName)}')">+</button>
                  </div>`
               : `<button class="btn btn-primary btn-sm"
-                   onclick="Cart.addItem('${storeId}','${Helpers.escapeHtml(storeName)}',${JSON.stringify({ id: product.id, name: product.name, price: product.price }).replace(/"/g, '&quot;')});Components.refreshProductCard('${product.id}','${storeId}','${Helpers.escapeHtml(storeName)}')">
+                   onclick="Cart.addItem('${storeId}','${Helpers.escapeHtml(storeName)}',${JSON.stringify({ id: product.id, name: product.name, price: product.price }).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/"/g,'&quot;')});Components.refreshProductCard('${product.id}','${storeId}','${Helpers.escapeHtml(storeName)}')">
                    أضف +
                  </button>`}
           </div>

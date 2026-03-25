@@ -11,6 +11,7 @@
 
   /* Primary — Oman Green */
   --color-primary:        #0d6e3f;
+  --color-primary-dark:   #0a5030;
   --color-primary-hover:  #0a5832;
   --color-primary-light:  #e8f5ee;
   --color-primary-muted:  #4caf7d;
@@ -31,6 +32,7 @@
   --color-text:           #1a2a1f;
   --color-text-secondary: #4a6356;
   --color-text-muted:     #7a9485;
+  --color-text-light:     #a0b5aa;
   --color-text-on-primary:#ffffff;
 
   /* Semantic */
@@ -38,6 +40,7 @@
   --color-success-bg:     #f0fdf4;
   --color-warning:        #d97706;
   --color-warning-bg:     #fffbeb;
+  --color-warning-light:  #fef3c7;
   --color-danger:         #dc2626;
   --color-danger-bg:      #fef2f2;
   --color-info:           #0284c7;
@@ -91,6 +94,7 @@
   --radius-md:   10px;
   --radius-lg:   16px;
   --radius-xl:   24px;
+  --radius-2xl:  32px;
   --radius-full: 9999px;
 
   /* ══════════════════════════════════════════════

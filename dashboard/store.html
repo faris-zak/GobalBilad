@@ -293,8 +293,9 @@
     }
 
     // Load store
-    const { data: store, error } = await StoresAPI.getMyStore();
-    if (error || !store) {
+    let store;
+    try { store = await StoresAPI.getMyStore(); } catch (err) { Toast.error(err.message); return; }
+    if (!store) {
       Toast.error('لم يتم العثور على متجرك. يرجى إكمال التسجيل');
       setTimeout(() => { window.location.href = '/register-store.html'; }, 2000);
       return;
@@ -340,7 +341,7 @@
   // Stats
   // ============================================================
   async function loadStats() {
-    const { data: orders } = await OrdersAPI.getStoreOrders(myStore.id);
+    const orders = await OrdersAPI.getStoreOrders(myStore.id).catch(() => null);
     if (!orders) return;
 
     const today = new Date().toDateString();
@@ -362,10 +363,10 @@
     document.getElementById('products-table-wrap').style.display = 'none';
     document.getElementById('products-empty').style.display = 'none';
 
-    const { data: products, error } = await ProductsAPI.getAllByStore(myStore.id);
+    let products;
+    try { products = await ProductsAPI.getAllByStore(myStore.id); } catch { Toast.error('خطأ في تحميل المنتجات'); return; }
     document.getElementById('products-loading').style.display = 'none';
 
-    if (error) { Toast.error('خطأ في تحميل المنتجات'); return; }
     if (!products || products.length === 0) {
       document.getElementById('products-empty').style.display = 'block';
       return;
@@ -403,12 +404,12 @@
     // Availability toggles
     tbody.querySelectorAll('.avail-toggle').forEach(toggle => {
       toggle.addEventListener('change', async e => {
-        const { error } = await ProductsAPI.setAvailability(e.target.dataset.id, e.target.checked);
-        if (error) {
+        try {
+          await ProductsAPI.setAvailability(e.target.dataset.id, e.target.checked);
+          Toast.success(e.target.checked ? 'المنتج متاح الآن' : 'تم إخفاء المنتج');
+        } catch {
           Toast.error('فشل تحديث الحالة');
           e.target.checked = !e.target.checked;
-        } else {
-          Toast.success(e.target.checked ? 'المنتج متاح الآن' : 'تم إخفاء المنتج');
         }
       });
     });
@@ -425,8 +426,7 @@
     tbody.querySelectorAll('.delete-product-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
-        const { error } = await ProductsAPI.delete(btn.dataset.id);
-        if (error) { Toast.error('فشل الحذف'); return; }
+        try { await ProductsAPI.delete(btn.dataset.id); } catch { Toast.error('فشل الحذف'); return; }
         Toast.success('تم حذف المنتج');
         loadProducts();
       });
@@ -483,17 +483,17 @@
     };
 
     const pid = document.getElementById('p-id').value;
-    const { error } = pid
-      ? await ProductsAPI.update(pid, productData)
-      : await ProductsAPI.create(myStore.id, productData);
-
-    Helpers.btnLoading(btn, false);
-
-    if (error) {
-      document.getElementById('modal-error-msg').textContent = error.message;
+    try {
+      if (pid) await ProductsAPI.update(pid, productData);
+      else     await ProductsAPI.create(myStore.id, productData);
+    } catch (err) {
+      document.getElementById('modal-error-msg').textContent = err.message;
       errEl.style.display = 'flex';
+      Helpers.btnLoading(btn, false);
       return;
     }
+
+    Helpers.btnLoading(btn, false);
 
     Toast.success(pid ? 'تم تحديث المنتج' : 'تم إضافة المنتج');
     closeProductModal();
@@ -508,11 +508,11 @@
     document.getElementById('orders-empty').style.display = 'none';
     document.getElementById('orders-list').innerHTML = '';
 
-    const { data: orders, error } = await OrdersAPI.getStoreOrders(myStore.id);
+    let orders;
+    try { orders = await OrdersAPI.getStoreOrders(myStore.id); } catch { Toast.error('خطأ في تحميل الطلبات'); return; }
     document.getElementById('orders-loading').style.display = 'none';
 
-    if (error) { Toast.error('خطأ في تحميل الطلبات'); return; }
-    allOrders = orders || [];
+    allOrders = orders;
 
     const pendingCount = allOrders.filter(o => o.status === 'pending').length;
     const badge = document.getElementById('new-orders-badge');
@@ -607,8 +607,7 @@
     }
 
     const statusMap = { confirm: 'confirmed', ready: 'ready' };
-    const { error } = await OrdersAPI.updateStatus(orderId, statusMap[action]);
-    if (error) { Toast.error('فشل تحديث الحالة'); return; }
+    try { await OrdersAPI.updateStatus(orderId, statusMap[action]); } catch { Toast.error('فشل تحديث الحالة'); return; }
     Toast.success('تم تحديث الطلب');
     await loadOrders(document.getElementById('orders-filter').value);
     loadStats();
@@ -624,9 +623,8 @@
   document.getElementById('reject-confirm-btn').addEventListener('click', async () => {
     const reason = document.getElementById('reject-reason').value.trim();
     if (!reason) { document.getElementById('reject-reason_error').textContent = 'مطلوب'; return; }
-    const { error } = await OrdersAPI.updateStatus(rejectOrderId, 'rejected', { rejectionReason: reason });
     document.getElementById('reject-modal').style.display = 'none';
-    if (error) { Toast.error('فشل الرفض'); return; }
+    try { await OrdersAPI.updateStatus(rejectOrderId, 'rejected', { rejectionReason: reason }); } catch { Toast.error('فشل الرفض'); return; }
     Toast.success('تم رفض الطلب');
     await loadOrders(document.getElementById('orders-filter').value);
   });
@@ -656,7 +654,7 @@
     document.getElementById('settings-form').style.display = 'none';
     document.getElementById('settings-loading').style.display = 'block';
 
-    const { data: store } = await StoresAPI.getMyStore();
+    const store = await StoresAPI.getMyStore().catch(() => null);
     document.getElementById('settings-loading').style.display = 'none';
     if (!store) return;
 
@@ -673,16 +671,21 @@
     const btn = document.getElementById('settings-save-btn');
     Helpers.btnLoading(btn, true);
 
-    const { error } = await StoresAPI.update(myStore.id, {
-      name:        document.getElementById('s-name').value.trim(),
-      owner_name:  document.getElementById('s-owner').value.trim(),
-      phone:       document.getElementById('s-phone').value.trim(),
-      whatsapp:    document.getElementById('s-whatsapp').value.trim(),
-      description: document.getElementById('s-description').value.trim(),
-    });
+    try {
+      await StoresAPI.update(myStore.id, {
+        name:        document.getElementById('s-name').value.trim(),
+        owner_name:  document.getElementById('s-owner').value.trim(),
+        phone:       document.getElementById('s-phone').value.trim(),
+        whatsapp:    document.getElementById('s-whatsapp').value.trim(),
+        description: document.getElementById('s-description').value.trim(),
+      });
+    } catch (err) {
+      Helpers.btnLoading(btn, false);
+      Toast.error('فشل الحفظ');
+      return;
+    }
 
     Helpers.btnLoading(btn, false);
-    if (error) { Toast.error('فشل الحفظ'); return; }
     Toast.success('تم حفظ الإعدادات');
   });
 </script>

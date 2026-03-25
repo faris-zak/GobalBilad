@@ -425,8 +425,8 @@
     listEl.innerHTML = '';
     emptyEl.style.display = 'none';
 
-    const { data: allS } = await StoresAPI.adminGetAll();
-    const stores = (allS || []).filter(s => !s.approved && !s.rejection_reason);
+    const allS = await StoresAPI.adminGetAll().catch(() => []);
+    const stores = allS.filter(s => !s.approved && !s.rejection_reason);
     loadEl.style.display = 'none';
 
     const badge = document.getElementById('pending-stores-badge');
@@ -467,7 +467,7 @@
     loadEl.style.display = 'block';
     tableEl.style.display = 'none';
 
-    const { data: stores } = await StoresAPI.adminGetAll();
+    const stores = await StoresAPI.adminGetAll().catch(() => null);
     loadEl.style.display = 'none';
     if (!stores) return;
 
@@ -520,8 +520,8 @@
     listEl.innerHTML = '';
     emptyEl.style.display = 'none';
 
-    const { data: allD } = await DriversAPI.adminGetAll();
-    const drivers = (allD || []).filter(d => !d.approved && !d.retired);
+    const allD = await DriversAPI.adminGetAll().catch(() => []);
+    const drivers = allD.filter(d => !d.approved && !d.retired);
     loadEl.style.display = 'none';
 
     const badge = document.getElementById('pending-drivers-badge');
@@ -559,7 +559,7 @@
     loadEl.style.display = 'block';
     tableEl.style.display = 'none';
 
-    const { data: drivers } = await DriversAPI.adminGetAll();
+    const drivers = await DriversAPI.adminGetAll().catch(() => null);
     loadEl.style.display = 'none';
     if (!drivers) return;
 
@@ -608,10 +608,10 @@
     tableEl.style.display = 'none';
     emptyEl.style.display = 'none';
 
-    const { data: orders } = await OrdersAPI.adminGetAll();
+    const orders = await OrdersAPI.adminGetAll().catch(() => []);
     loadEl.style.display = 'none';
 
-    allOrders = orders || [];
+    allOrders = orders;
     renderAdminOrders(allOrders);
   }
 
@@ -672,9 +672,9 @@
     loadEl.style.display = 'block';
     tableEl.style.display = 'none';
 
-    const { data: users } = await UsersAPI.adminGetAll();
+    const users = await UsersAPI.adminGetAll().catch(() => []);
     loadEl.style.display = 'none';
-    allUsers = users || [];
+    allUsers = users;
     renderAdminUsers(allUsers);
 
     document.getElementById('users-search').addEventListener('input', Helpers.debounce(() => {
@@ -729,8 +729,7 @@
     try {
       switch (action) {
         case 'approve-store': {
-          const { error } = await StoresAPI.adminApprove(id);
-          if (error) throw error;
+          await StoresAPI.adminApprove(id);
           Toast.success('تمت الموافقة على المتجر');
           loadPendingStores();
           loadStats();
@@ -742,22 +741,19 @@
           break;
         }
         case 'disable-store': {
-          const { error } = await StoresAPI.adminSetActive(id, false);
-          if (error) throw error;
+          await StoresAPI.adminSetActive(id, false);
           Toast.success('تم تعطيل المتجر');
           loadAllStores();
           break;
         }
         case 'enable-store': {
-          const { error } = await StoresAPI.adminSetActive(id, true);
-          if (error) throw error;
+          await StoresAPI.adminSetActive(id, true);
           Toast.success('تم تفعيل المتجر');
           loadAllStores();
           break;
         }
         case 'approve-driver': {
-          const { error } = await DriversAPI.adminApprove(id);
-          if (error) throw error;
+          await DriversAPI.adminApprove(id);
           Toast.success('تمت الموافقة على السائق');
           loadPendingDrivers();
           loadStats();
@@ -769,23 +765,20 @@
           break;
         }
         case 'disable-driver': {
-          const { error } = await DriversAPI.adminDisable(id);
-          if (error) throw error;
+          await DriversAPI.adminDisable(id);
           Toast.success('تم إيقاف السائق');
           loadAllDrivers();
           break;
         }
         case 'block-user': {
           if (!confirm('هل تريد حظر هذا المستخدم؟')) break;
-          const { error } = await UsersAPI.adminSetBlocked(id, true);
-          if (error) throw error;
+          await UsersAPI.adminSetBlocked(id, true);
           Toast.success('تم حظر المستخدم');
           loadAdminUsers();
           break;
         }
         case 'unblock-user': {
-          const { error } = await UsersAPI.adminSetBlocked(id, false);
-          if (error) throw error;
+          await UsersAPI.adminSetBlocked(id, false);
           Toast.success('تم رفع الحظر');
           loadAdminUsers();
           break;
@@ -822,9 +815,8 @@
     const { type, id } = rejectTarget;
     rejectTarget = null;
 
-    const fn = type === 'store' ? StoresAPI.adminReject : DriversAPI.adminReject;
-    const { error } = await fn(id, reason);
-    if (error) { Toast.error('فشل الرفض'); return; }
+    const fn = type === 'store' ? StoresAPI.adminReject.bind(StoresAPI) : DriversAPI.adminReject.bind(DriversAPI);
+    try { await fn(id, reason); } catch (err) { Toast.error('فشل الرفض'); return; }
 
     Toast.success('تم الرفض');
     if (type === 'store') loadPendingStores();

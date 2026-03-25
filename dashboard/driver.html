@@ -204,10 +204,11 @@
 
     document.getElementById('driver-name').textContent = App.profile.name;
 
-    const { data: driver, error } = await DriversAPI.getMyProfile();
+    let driver;
+    try { driver = await DriversAPI.getMyProfile(); } catch { driver = null; }
     document.getElementById('page-loading').style.display = 'none';
 
-    if (error || !driver) {
+    if (!driver) {
       document.getElementById('pending-hero').style.display = 'block';
       return;
     }
@@ -241,14 +242,15 @@
   document.getElementById('avail-toggle').addEventListener('change', async e => {
     const avail = e.target.checked;
     Helpers.btnLoading(document.getElementById('avail-toggle-label'), true, '');
-    const { error } = await DriversAPI.setAvailability(myDriver.id, avail);
-    Helpers.btnLoading(document.getElementById('avail-toggle-label'), false);
-
-    if (error) {
+    try {
+      await DriversAPI.setAvailability(myDriver.id, avail);
+    } catch {
       Toast.error('فشل تحديث الحالة');
       e.target.checked = !avail;
+      Helpers.btnLoading(document.getElementById('avail-toggle-label'), false);
       return;
     }
+    Helpers.btnLoading(document.getElementById('avail-toggle-label'), false);
 
     myDriver.available = avail;
     setAvailabilityUI(avail);
@@ -297,10 +299,9 @@
     document.getElementById('orders-empty').style.display = 'none';
     document.getElementById('orders-list').innerHTML = '';
 
-    const { data: orders, error } = await OrdersAPI.getReadyOrders();
+    let orders;
+    try { orders = await OrdersAPI.getReadyOrders(); } catch { Toast.error('خطأ في تحميل الطلبات'); return; }
     document.getElementById('orders-loading-inner').style.display = 'none';
-
-    if (error) { Toast.error('خطأ في تحميل الطلبات'); return; }
 
     // My assigned orders
     const myOrders  = (orders || []).filter(o => o.driver_id === myDriver.id && o.status === 'out_for_delivery');
@@ -365,12 +366,12 @@
     const orderId = e.target.dataset.id;
 
     if (action === 'pickup') {
-      const { error } = await OrdersAPI.updateStatus(orderId, 'out_for_delivery', { driverId: myDriver.id });
-      if (error) { Toast.error('فشل تأكيد الاستلام'); return; }
+      try { await OrdersAPI.updateStatus(orderId, 'out_for_delivery', { driverId: myDriver.id }); }
+      catch { Toast.error('فشل تأكيد الاستلام'); return; }
       Toast.success('تم تأكيد استلام الطلب');
     } else if (action === 'delivered') {
-      const { error } = await OrdersAPI.updateStatus(orderId, 'delivered');
-      if (error) { Toast.error('فشل تحديث حالة التسليم'); return; }
+      try { await OrdersAPI.updateStatus(orderId, 'delivered', { driverId: myDriver.id }); }
+      catch { Toast.error('فشل تحديث حالة التسليم'); return; }
       Toast.success('تم تسجيل التسليم 🎉');
     }
 
@@ -394,10 +395,8 @@
   });
 
   document.getElementById('retire-confirm-btn').addEventListener('click', async () => {
-    const { error } = await DriversAPI.retire(myDriver.id);
+    try { await DriversAPI.retire(myDriver.id); } catch { Toast.error('حدث خطأ'); return; }
     document.getElementById('retire-modal').style.display = 'none';
-
-    if (error) { Toast.error('حدث خطأ'); return; }
     Toast.success('تم اعتزالك من الخدمة. شكراً على تعاونك');
     setTimeout(() => { AuthAPI.signOut(); }, 2000);
   });

@@ -138,34 +138,15 @@
                 <label for="l-password">كلمة المرور</label>
                 <input type="password" id="l-password" placeholder="••••••••" dir="ltr" required>
                 <span class="field-error" id="l-password_error"></span>
-                <!-- Live requirements checklist -->
-                <div class="pw-requirements" id="pw-requirements">
-                  <div class="pw-req-item" id="req-length">
-                    <span class="pw-req-icon">○</span>
-                    <span>8 أحرف على الأقل</span>
-                  </div>
-                  <div class="pw-req-item" id="req-lower">
-                    <span class="pw-req-icon">○</span>
-                    <span>حرف صغير (a-z)</span>
-                  </div>
-                  <div class="pw-req-item" id="req-upper">
-                    <span class="pw-req-icon">○</span>
-                    <span>حرف كبير (A-Z)</span>
-                  </div>
-                  <div class="pw-req-item" id="req-digit">
-                    <span class="pw-req-icon">○</span>
-                    <span>رقم (0-9)</span>
-                  </div>
-                  <div class="pw-req-item" id="req-symbol">
-                    <span class="pw-req-icon">○</span>
-                    <span>رمز خاص (!@#$…)</span>
-                  </div>
-                </div>
               </div>
               <button type="submit" class="btn btn-primary btn-full" id="login-btn">
                 تسجيل الدخول
               </button>
             </form>
+
+            <div class="text-center mt-3" style="font-size:var(--text-sm)">
+              <a href="/reset-password.html" class="text-primary">نسيت كلمة المرور؟</a>
+            </div>
 
             <div class="separator">أو</div>
 
@@ -230,39 +211,9 @@
     }
 
     // ================================================================
-    // Live password requirements checklist
+    // Live password requirements checklist — login page has no signup form,
+    // so the checklist block has been removed. Nothing to initialise here.
     // ================================================================
-    (function () {
-      const passEl = document.getElementById('l-password');
-      const box    = document.getElementById('pw-requirements');
-
-      const reqMap = {
-        length: document.getElementById('req-length'),
-        lower:  document.getElementById('req-lower'),
-        upper:  document.getElementById('req-upper'),
-        digit:  document.getElementById('req-digit'),
-        symbol: document.getElementById('req-symbol'),
-      };
-
-      function updateReqs() {
-        const reqs = Validation.passwordRequirements(passEl.value);
-        Object.entries(reqs).forEach(([key, met]) => {
-          const el   = reqMap[key];
-          const icon = el.querySelector('.pw-req-icon');
-          el.classList.toggle('met',   met);
-          el.classList.toggle('unmet', !met);
-          icon.textContent = met ? '✓' : '○';
-        });
-      }
-
-      passEl.addEventListener('focus', () => { box.classList.add('visible'); updateReqs(); });
-      passEl.addEventListener('input', updateReqs);
-      passEl.addEventListener('blur',  () => {
-        // Hide checklist only if all requirements are already satisfied
-        const reqs = Validation.passwordRequirements(passEl.value);
-        if (Object.values(reqs).every(Boolean)) box.classList.remove('visible');
-      });
-    })();
 
     // ================================================================
     // Email / Password sign-in
@@ -275,7 +226,8 @@
       const errorEl = document.getElementById('login-error');
 
       const validEmail = Validation.field(emailEl, Validation.email.bind(Validation));
-      const validPass  = Validation.field(passEl,  Validation.password.bind(Validation));
+      // For sign-in we only require a non-empty password, no strength check
+      const validPass  = Validation.field(passEl,  v => v.length > 0 ? null : 'مطلوب');
       if (!validEmail || !validPass) return;
 
       errorEl.style.display = 'none';
