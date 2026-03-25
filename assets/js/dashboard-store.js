@@ -64,7 +64,7 @@ async function initDashboard() {
     await loadOrders();
     setupSettingsForm();
     setupProductForm();
-});
+};
 
 function showAuthGuard() {
     document.getElementById('auth-guard').style.display = 'block';
