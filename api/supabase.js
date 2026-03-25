@@ -1,14 +1,3 @@
-/**
- * جوب البلاد — Supabase Client
- *
- * SETUP:
- *  1. Create a project at https://supabase.com
- *  2. Go to Settings → API
- *  3. Replace SUPABASE_URL and SUPABASE_ANON_KEY below
- *  4. Run sql/schema.sql in the Supabase SQL Editor
- *  5. Enable Google OAuth in Authentication → Providers → Google
- */
-
 const SUPABASE_URL      = 'https://voqzlqijszaacphtfvzb.supabase.co';   // e.g. https://xxxx.supabase.co
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvcXpscWlqc3phYWNwaHRmdnpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MTkzNDYsImV4cCI6MjA4OTk5NTM0Nn0.9DWQSAts6ADWMD2rxUkrsGhZK3_ey9JFm6K7UD1lrZ4';      // public anon key (safe for frontend)
 
