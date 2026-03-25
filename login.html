@@ -1,129 +1,59 @@
 <!DOCTYPE html>
 <html lang="ar-OM" dir="rtl">
-<head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3JG6XP3YDN"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3JG6XP3YDN"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
 
-  gtag('config', 'G-3JG6XP3YDN');
-</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>دخول صاحب المتجر — جوب البلاد</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/css/main.css" />
-</head>
-<body>
+        gtag('config', 'G-3JG6XP3YDN');
+        </script>
 
-  <div class="login-page">
-    <div class="login-card">
+        <meta name="google-site-verification" content="gNTAV4_HL6DKg_nrsbGdCuCppQ7wbXqpq6f3vwiH3S8" />
 
-      <div class="logo">
-        <span class="logo-icon">🛒</span>
-        <span class="logo-text">جوب البلاد</span>
-      </div>
-      <p class="login-tagline">بوابة أصحاب المتاجر</p>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Al-Faris Mujahid AlZakwani, Awab Hilal AlZakwani">
+        <meta name="keywords" content="جوب البلاد, جوب, البلاد, دكاكين البلاد, دكاكين, طلب عبر واتساب, متاجر محلية, تسوق محلي, عمان">
+        <meta name="theme-color" content="#fff">
+        <meta name="mobile-web-app-capable" content="yes">
 
-      <h2 class="login-title" id="formTitle">تسجيل الدخول إلى متجرك</h2>
+        <title>جوب البلاد - تسجيل الدخول</title>
+        
+        <meta name="description" content="تسجيل الدخول">
 
-      <div class="error-msg" id="errorMsg"></div>
+        <!-- Facebook Meta Tags -->
 
-      <div class="form-group">
-        <label for="emailInput">البريد الإلكتروني</label>
-        <input type="email" id="emailInput" placeholder="you@example.com" />
-      </div>
+        <meta property="og:url" content="https://gobalbilad.vercel.app/">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="جوب البلاد - تسجيل الدخول">
+        <meta property="og:description" content="تسجيل الدخول">
+        <meta property="og:image" content="https://opengraph.b-cdn.net/production/images/66ab0b5f-1e37-4dc0-8981-8023091df655.png?token=bk1vDi4Saw5_bwdXjEp_5TYyAwQmij9Wicpv7DgY4TA&height=655&width=1200&expires=33310465447">
 
-      <div class="form-group">
-        <label for="passwordInput">كلمة المرور</label>
-        <input type="password" id="passwordInput" placeholder="كلمة المرور" />
-      </div>
+        <!-- Twitter Meta Tags -->
 
-      <div class="form-group" id="storeNameGroup" style="display:none;">
-        <label for="storeNameInput">اسم المتجر</label>
-        <input type="text" id="storeNameInput" placeholder="مثال: بقالة البركة" />
-      </div>
+        <meta name="twitter:card" content="summary_large_image">
+        <meta property="twitter:domain" content="gobalbilad.vercel.app">
+        <meta property="twitter:url" content="https://gobalbilad.vercel.app/">
+        <meta name="twitter:title" content="جوب البلاد - تسجيل الدخول">
+        <meta name="twitter:description" content="تسجيل الدخول">
+        <meta name="twitter:image" content="https://opengraph.b-cdn.net/production/images/66ab0b5f-1e37-4dc0-8981-8023091df655.png?token=bk1vDi4Saw5_bwdXjEp_5TYyAwQmij9Wicpv7DgY4TA&height=655&width=1200&expires=33310465447">
 
-      <button class="btn btn-primary" style="width:100%;justify-content:center;" id="submitBtn" onclick="handleAuth()">
-        تسجيل الدخول
-      </button>
+        <link rel="icon" href="assets/images/gb-icon.ico" type="image/x-icon">
 
-      <p style="text-align:center;margin-top:16px;font-size:14px;color:var(--text-light);">
-        <span id="toggleText">ليس لديك حساب؟</span>
-        <a href="#" id="toggleLink" onclick="toggleMode(event)" style="color:var(--green);font-weight:600;"> أنشئ حسابًا</a>
-      </p>
+        <link rel="stylesheet" href="assets/css/main.css">
 
-    </div>
-  </div>
+        <link rel="manifest" href="manifest.json">
+        <link rel="apple-touch-icon" href="assets/images/.webp">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+    </head>
+    <body>
 
-  <script src="assets/js/app.js"></script>
-  <script>
-    let authMode = 'login';
 
-    function toggleMode(e) {
-      e.preventDefault();
-      authMode = authMode === 'login' ? 'signup' : 'login';
-      const isSignup = authMode === 'signup';
-      document.getElementById('formTitle').textContent = isSignup ? 'إنشاء متجرك' : 'تسجيل الدخول إلى متجرك';
-      document.getElementById('submitBtn').textContent  = isSignup ? 'إنشاء حساب' : 'تسجيل الدخول';
-      document.getElementById('toggleText').textContent = isSignup ? 'لديك حساب بالفعل؟' : 'ليس لديك حساب؟';
-      document.getElementById('toggleLink').textContent = isSignup ? ' تسجيل الدخول' : ' أنشئ حسابًا';
-      document.getElementById('storeNameGroup').style.display = isSignup ? 'block' : 'none';
-      hideError();
-    }
-
-    async function handleAuth() {
-      const email    = document.getElementById('emailInput').value.trim();
-      const password = document.getElementById('passwordInput').value;
-
-      if (!email || !password) {
-        showError('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
-        return;
-      }
-
-      const btn = document.getElementById('submitBtn');
-      btn.textContent = 'يرجى الانتظار...';
-      btn.disabled = true;
-      hideError();
-
-      try {
-        if (authMode === 'login') {
-          await signIn(email, password);
-        } else {
-          const storeName = document.getElementById('storeNameInput').value.trim();
-          if (!storeName) {
-            showError('يرجى إدخال اسم المتجر.');
-            btn.textContent = 'إنشاء حساب';
-            btn.disabled = false;
-            return;
-          }
-          await signUp(email, password, storeName);
-        }
-        window.location.href = 'dashboard.html';
-      } catch (err) {
-        showError(err.message || 'حدث خطأ. يرجى المحاولة مرة أخرى.');
-        btn.textContent = authMode === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب';
-        btn.disabled = false;
-      }
-    }
-
-    function showError(msg) {
-      const el = document.getElementById('errorMsg');
-      el.textContent = msg;
-      el.classList.add('show');
-    }
-    function hideError() {
-      document.getElementById('errorMsg').classList.remove('show');
-    }
-
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') handleAuth();
-    });
-  </script>
-  <p class="developer-sign">توقيع المطور: الفارس بن مجاهد الزكواني للتواصل: 93281000</p>
-</body>
+      <script src="assets/js/main.js"></script>
+    </body>
 </html>
