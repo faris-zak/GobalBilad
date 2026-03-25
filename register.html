@@ -8,127 +8,315 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/components.css">
     <style>
-        .role-selector { display:flex; gap:1rem; margin-bottom:2rem; }
-        .role-card { flex:1; border:2px solid var(--border); border-radius:var(--radius-md); padding:1.25rem; text-align:center; cursor:pointer; transition:var(--transition-fast); }
-        .role-card:hover { border-color:var(--primary-light); }
-        .role-card.selected { border-color:var(--primary); background:rgba(59,130,246,.05); }
-        .role-card .role-icon { font-size:2rem; display:block; margin-bottom:.5rem; }
-        .role-card h3 { font-size:1rem; margin-bottom:.25rem; }
-        .role-card p { font-size:.85rem; color:var(--text-muted); }
-        .form-section { display:none; }
-        .form-section.active { display:block; }
+        .register-shell {
+            min-height: calc(100vh - 180px);
+            padding: 2rem 0 4rem;
+        }
+
+        .register-layout {
+            max-width: 1080px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        .register-main {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1.2rem;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .register-head {
+            background:
+                radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.3), transparent 45%),
+                linear-gradient(145deg, #0ea5a6, #0f766e 60%, #155e75);
+            color: #fff;
+            padding: 1.7rem;
+        }
+
+        .register-head h2 {
+            font-size: 1.7rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .register-head p {
+            opacity: 0.95;
+            line-height: 1.8;
+        }
+
+        .register-body {
+            padding: 1.25rem 1.25rem 1.5rem;
+        }
+
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            border: 1px solid rgba(14, 165, 166, 0.3);
+            background: rgba(14, 165, 166, 0.08);
+            color: #0f766e;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.38rem 0.78rem;
+            margin-bottom: 0.95rem;
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.9rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .role-card {
+            border: 2px solid var(--border);
+            border-radius: 0.95rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            background: var(--bg-main);
+            text-align: center;
+        }
+
+        .role-card:hover {
+            border-color: #14b8a6;
+            transform: translateY(-2px);
+        }
+
+        .role-card.selected {
+            border-color: #0f766e;
+            background: rgba(20, 184, 166, 0.08);
+            box-shadow: 0 10px 18px rgba(15, 118, 110, 0.12);
+        }
+
+        .role-card .role-icon {
+            font-size: 1.9rem;
+            display: block;
+            margin-bottom: 0.45rem;
+        }
+
+        .role-card h3 {
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .role-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .step-card {
+            border: 1px solid var(--border);
+            border-radius: 0.95rem;
+            padding: 1rem;
+            background: #fff;
+        }
+
+        .step-card h3 {
+            margin-bottom: 0.9rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+            border-right: 4px solid #0ea5a6;
+            padding-right: 0.6rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+
+        .register-aside {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1.2rem;
+            box-shadow: var(--shadow-sm);
+            padding: 1.25rem;
+        }
+
+        .register-aside h3 {
+            font-size: 1.05rem;
+            margin-bottom: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .aside-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .aside-list li {
+            padding: 0.55rem 0;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            line-height: 1.7;
+        }
+
+        .aside-list li:last-child {
+            border-bottom: none;
+        }
+
+        .aside-login {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 920px) {
+            .register-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .role-selector {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
 <div id="navbar-container"></div>
 
 <main class="container">
-    <div class="auth-card" style="max-width:560px;">
-        <div class="auth-header">
-            <h2>تسجيل حساب جديد</h2>
-            <p>اختر نوع الحساب الذي تريد إنشاءه</p>
-        </div>
+    <section class="register-shell">
+        <div class="register-layout">
+            <article class="register-main">
+                <header class="register-head">
+                    <h2>تسجيل جديد للتاجر أو عميل التوصيل</h2>
+                    <p>ابدأ باختيار نوع الحساب، ثم أكمل بياناتك لإرسال طلب التسجيل للمراجعة.</p>
+                </header>
 
-        <!-- Role selector -->
-        <div class="role-selector">
-            <div class="role-card" id="role-store-card" onclick="selectRole('store')">
-                <span class="role-icon">🏪</span>
-                <h3>صاحب متجر</h3>
-                <p>أريد بيع منتجاتي</p>
-            </div>
-            <div class="role-card" id="role-driver-card" onclick="selectRole('driver')">
-                <span class="role-icon">🚚</span>
-                <h3>مندوب توصيل</h3>
-                <p>أريد توصيل الطلبات</p>
-            </div>
-        </div>
+                <div class="register-body">
+                    <span class="mode-badge">✨ تسجيل جديد</span>
 
-        <!-- Step 1: Account credentials -->
-        <div id="step-credentials" class="form-section active">
-            <h3 style="margin-bottom:1rem;">بيانات الحساب</h3>
-            <form id="credentials-form">
-                <div class="input-group">
-                    <label class="input-label">البريد الإلكتروني</label>
-                    <input type="email" id="reg-email" class="input-field" required placeholder="example@email.com">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">كلمة المرور</label>
-                    <input type="password" id="reg-password" class="input-field" required placeholder="8 أحرف على الأقل" minlength="8">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">تأكيد كلمة المرور</label>
-                    <input type="password" id="reg-password-confirm" class="input-field" required placeholder="أعد كتابة كلمة المرور">
-                </div>
-                <button type="submit" class="btn btn-primary btn-block" id="btn-next">التالي ←</button>
-            </form>
-        </div>
+                    <!-- Role selector -->
+                    <div class="role-selector">
+                        <div class="role-card" id="role-store-card" onclick="selectRole('store')">
+                            <span class="role-icon">🏪</span>
+                            <h3>تسجيل تاجر</h3>
+                            <p>فتح متجر وعرض المنتجات</p>
+                        </div>
+                        <div class="role-card" id="role-driver-card" onclick="selectRole('driver')">
+                            <span class="role-icon">🚚</span>
+                            <h3>تسجيل عميل توصيل</h3>
+                            <p>استقبال الطلبات والتوصيل</p>
+                        </div>
+                    </div>
 
-        <!-- Step 2a: Store details -->
-        <div id="step-store" class="form-section">
-            <h3 style="margin-bottom:1rem;">بيانات المتجر</h3>
-            <form id="store-form">
-                <div class="input-group">
-                    <label class="input-label">اسم المتجر</label>
-                    <input type="text" id="store-name" class="input-field" required placeholder="مثال: بقالة النور">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">اسمك الكامل (المالك)</label>
-                    <input type="text" id="store-owner" class="input-field" required placeholder="محمد علي">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">رقم الهاتف</label>
-                    <input type="tel" id="store-phone" class="input-field" required placeholder="9xxxxxxxx">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">رقم الواتساب (للطلبات)</label>
-                    <input type="tel" id="store-whatsapp" class="input-field" placeholder="9xxxxxxxx (اتركه فارغاً إن كان نفس الهاتف)">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">نوع / فئة المتجر</label>
-                    <input type="text" id="store-category" class="input-field" placeholder="مواد غذائية، خضار، مخبوزات...">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">وصف مختصر للمتجر</label>
-                    <textarea id="store-desc" class="input-field" rows="2" placeholder="أفضل المواد الغذائية في المعمورة..."></textarea>
-                </div>
-                <div style="display:flex;gap:.75rem;">
-                    <button type="submit" class="btn btn-primary" id="btn-register-store">إرسال الطلب</button>
-                    <button type="button" class="btn btn-outline" onclick="goBack()">رجوع</button>
-                </div>
-            </form>
-        </div>
+                    <!-- Step 1: Account credentials -->
+                    <section id="step-credentials" class="form-section active step-card">
+                        <h3>الخطوة 1: بيانات الحساب</h3>
+                        <form id="credentials-form">
+                            <div class="input-group">
+                                <label class="input-label">البريد الإلكتروني</label>
+                                <input type="email" id="reg-email" class="input-field" required placeholder="example@email.com">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">كلمة المرور</label>
+                                <input type="password" id="reg-password" class="input-field" required placeholder="8 أحرف على الأقل" minlength="8">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">تأكيد كلمة المرور</label>
+                                <input type="password" id="reg-password-confirm" class="input-field" required placeholder="أعد كتابة كلمة المرور">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-next">التالي ←</button>
+                        </form>
+                    </section>
 
-        <!-- Step 2b: Driver details -->
-        <div id="step-driver" class="form-section">
-            <h3 style="margin-bottom:1rem;">بيانات المندوب</h3>
-            <form id="driver-form">
-                <div class="input-group">
-                    <label class="input-label">الاسم الكامل</label>
-                    <input type="text" id="driver-name" class="input-field" required placeholder="عبدالله محمد">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">رقم الهاتف</label>
-                    <input type="tel" id="driver-phone" class="input-field" required placeholder="9xxxxxxxx">
-                </div>
-                <div style="display:flex;gap:.75rem;">
-                    <button type="submit" class="btn btn-primary" id="btn-register-driver">إرسال الطلب</button>
-                    <button type="button" class="btn btn-outline" onclick="goBack()">رجوع</button>
-                </div>
-            </form>
-        </div>
+                    <!-- Step 2a: Store details -->
+                    <section id="step-store" class="form-section step-card">
+                        <h3>الخطوة 2: بيانات المتجر</h3>
+                        <form id="store-form">
+                            <div class="input-group">
+                                <label class="input-label">اسم المتجر</label>
+                                <input type="text" id="store-name" class="input-field" required placeholder="مثال: بقالة النور">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">اسمك الكامل (المالك)</label>
+                                <input type="text" id="store-owner" class="input-field" required placeholder="محمد علي">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">رقم الهاتف</label>
+                                <input type="tel" id="store-phone" class="input-field" required placeholder="9xxxxxxxx">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">رقم الواتساب (للطلبات)</label>
+                                <input type="tel" id="store-whatsapp" class="input-field" placeholder="9xxxxxxxx (اتركه فارغاً إن كان نفس الهاتف)">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">نوع / فئة المتجر</label>
+                                <input type="text" id="store-category" class="input-field" placeholder="مواد غذائية، خضار، مخبوزات...">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">وصف مختصر للمتجر</label>
+                                <textarea id="store-desc" class="input-field" rows="2" placeholder="أفضل المواد الغذائية في المعمورة..."></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="btn-register-store">إرسال الطلب</button>
+                                <button type="button" class="btn btn-outline" onclick="goBack()">رجوع</button>
+                            </div>
+                        </form>
+                    </section>
 
-        <!-- Success state -->
-        <div id="step-success" class="form-section" style="text-align:center;padding:2rem 0;">
-            <p style="font-size:2.5rem;">✅</p>
-            <h3 style="margin:.75rem 0 .5rem;">تم إرسال طلبك بنجاح!</h3>
-            <p style="color:var(--text-muted);">سيتم مراجعة طلبك من قِبَل الإدارة وإعلامك في أقرب وقت.</p>
-            <a href="index.html" class="btn btn-primary" style="margin-top:1.5rem;">العودة للرئيسية</a>
-        </div>
+                    <!-- Step 2b: Driver details -->
+                    <section id="step-driver" class="form-section step-card">
+                        <h3>الخطوة 2: بيانات عميل التوصيل</h3>
+                        <form id="driver-form">
+                            <div class="input-group">
+                                <label class="input-label">الاسم الكامل</label>
+                                <input type="text" id="driver-name" class="input-field" required placeholder="عبدالله محمد">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">رقم الهاتف</label>
+                                <input type="tel" id="driver-phone" class="input-field" required placeholder="9xxxxxxxx">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="btn-register-driver">إرسال الطلب</button>
+                                <button type="button" class="btn btn-outline" onclick="goBack()">رجوع</button>
+                            </div>
+                        </form>
+                    </section>
 
-        <p style="text-align:center;margin-top:1.5rem;font-size:.9rem;color:var(--text-muted);">
-            لديك حساب بالفعل؟ <a href="login.html" style="color:var(--primary);">تسجيل الدخول</a>
-        </p>
-    </div>
+                    <!-- Success state -->
+                    <section id="step-success" class="form-section step-card" style="text-align:center;padding:2rem 0;">
+                        <p style="font-size:2.5rem;">✅</p>
+                        <h3 style="margin:.75rem 0 .5rem; border-right:none; padding-right:0;">تم إرسال طلبك بنجاح!</h3>
+                        <p style="color:var(--text-muted);">سيتم مراجعة طلبك من قِبَل الإدارة وإعلامك في أقرب وقت.</p>
+                        <a href="index.html" class="btn btn-primary" style="margin-top:1.5rem;">العودة للرئيسية</a>
+                    </section>
+                </div>
+            </article>
+
+            <aside class="register-aside">
+                <h3>كيف تعمل عملية التسجيل؟</h3>
+                <ul class="aside-list">
+                    <li>1) اختر نوع الحساب: تاجر أو عميل توصيل.</li>
+                    <li>2) أدخل بريدك وكلمة المرور لإنشاء الحساب.</li>
+                    <li>3) أكمل بياناتك المهنية الأساسية.</li>
+                    <li>4) نراجع الطلب ونتواصل معك عند التفعيل.</li>
+                </ul>
+
+                <div class="aside-login">
+                    لديك حساب بالفعل؟ <a href="login.html" style="color:var(--primary); font-weight:700;">تسجيل الدخول</a>
+                </div>
+            </aside>
+        </div>
+    </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
