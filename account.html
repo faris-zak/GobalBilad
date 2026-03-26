@@ -525,7 +525,7 @@
             return;
           }
 
-          await upsertUserProfile({
+          const upsertedProfile = await upsertUserProfile({
             user_id: currentUser.id,
             full_name: fullNameEl.value.trim(),
             phone: phoneEl.value.trim(),
@@ -537,7 +537,7 @@
             location_source: locationSource
           });
 
-          const savedProfile = await getUserProfile(currentUser.id);
+          const savedProfile = upsertedProfile || await getUserProfile(currentUser.id);
           const persistedLat = toFiniteNumber(savedProfile?.latitude);
           const persistedLng = toFiniteNumber(savedProfile?.longitude);
           if (persistedLat === null || persistedLng === null) {

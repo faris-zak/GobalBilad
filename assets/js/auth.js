@@ -69,25 +69,30 @@ async function getUserProfile(userId) {
 
 async function upsertUserProfile(profile) {
   const client = getSupabaseClient();
-  const { error } = await client.from('user_profiles').upsert(
-    {
-      user_id: profile.user_id,
-      full_name: profile.full_name,
-      phone: profile.phone,
-      city: profile.city,
-      address: profile.address,
-      latitude: profile.latitude,
-      longitude: profile.longitude,
-      location_validated: profile.location_validated,
-      location_source: profile.location_source,
-      updated_at: new Date().toISOString()
-    },
-    { onConflict: 'user_id' }
-  );
+  const { data, error } = await client
+    .from('user_profiles')
+    .upsert(
+      {
+        user_id: profile.user_id,
+        full_name: profile.full_name,
+        phone: profile.phone,
+        city: profile.city,
+        address: profile.address,
+        latitude: profile.latitude,
+        longitude: profile.longitude,
+        location_validated: profile.location_validated,
+        location_source: profile.location_source,
+        updated_at: new Date().toISOString()
+      },
+      { onConflict: 'user_id' }
+    )
+    .select('user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source')
+    .single();
 
   if (error) {
     throw error;
   }
+  return data;
 }
 
 async function deleteAccountProfile(userId) {
