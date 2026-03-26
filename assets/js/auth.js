@@ -55,21 +55,47 @@ async function logout() {
 
 async function getUserProfile(userId) {
   const client = getSupabaseClient();
-  const { data, error } = await client
+  const fullSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at';
+  const baseSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source';
+
+  let { data, error } = await client
     .from('user_profiles')
-    .select('user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at')
+    .select(fullSelect)
     .eq('user_id', userId)
     .maybeSingle();
+
+  if (error && error.code === '42703') {
+    const fallback = await client
+      .from('user_profiles')
+      .select(baseSelect)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    data = fallback.data;
+    error = fallback.error;
+  }
 
   if (error) {
     throw error;
   }
+
+  if (data && typeof data.role === 'undefined') {
+    data.role = 'user';
+  }
+
+  if (data && typeof data.account_status === 'undefined') {
+    data.account_status = 'active';
+  }
+
   return data;
 }
 
 async function upsertUserProfile(profile) {
   const client = getSupabaseClient();
-  const { data, error } = await client
+  const fullSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at';
+  const baseSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source';
+
+  let { data, error } = await client
     .from('user_profiles')
     .upsert(
       {
@@ -86,12 +112,46 @@ async function upsertUserProfile(profile) {
       },
       { onConflict: 'user_id' }
     )
-    .select('user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at')
+    .select(fullSelect)
     .single();
+
+  if (error && error.code === '42703') {
+    const fallback = await client
+      .from('user_profiles')
+      .upsert(
+        {
+          user_id: profile.user_id,
+          full_name: profile.full_name,
+          phone: profile.phone,
+          city: profile.city,
+          address: profile.address,
+          latitude: profile.latitude,
+          longitude: profile.longitude,
+          location_validated: profile.location_validated,
+          location_source: profile.location_source,
+          updated_at: new Date().toISOString()
+        },
+        { onConflict: 'user_id' }
+      )
+      .select(baseSelect)
+      .single();
+
+    data = fallback.data;
+    error = fallback.error;
+  }
 
   if (error) {
     throw error;
   }
+
+  if (data && typeof data.role === 'undefined') {
+    data.role = 'user';
+  }
+
+  if (data && typeof data.account_status === 'undefined') {
+    data.account_status = 'active';
+  }
+
   return data;
 }
 

@@ -422,7 +422,8 @@
           }
         } catch (err) {
           console.error('Account load failed:', err);
-          showMessage('err', 'تعذر تحميل بيانات الحساب.');
+          const details = err && err.message ? ` (${err.message})` : '';
+          showMessage('err', `تعذر تحميل بيانات الحساب.${details}`);
         }
       }
 
