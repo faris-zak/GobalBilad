@@ -187,6 +187,7 @@
       let locationSource = 'map_pin';
       let map = null;
       let mapMarker = null;
+      let skipNextAutoLock = true;
 
       const MAP_DEFAULT_CENTER = { lat: 22.796495, lng: 58.150668 };
       const MAP_DEFAULT_ZOOM = 14;
@@ -320,6 +321,10 @@
         });
 
         map.on('moveend', () => {
+          if (skipNextAutoLock) {
+            skipNextAutoLock = false;
+            return;
+          }
           scheduleAutoLockCenter();
         });
       }
@@ -390,6 +395,11 @@
             const savedLng = toFiniteNumber(profile.longitude);
             if (savedLat !== null && savedLng !== null) {
               setCoordinates(savedLat, savedLng, { resetValidation: false });
+              if (map) {
+                map.setView([savedLat, savedLng], MAP_DEFAULT_ZOOM);
+              }
+            } else if (map) {
+              map.setView([MAP_DEFAULT_CENTER.lat, MAP_DEFAULT_CENTER.lng], MAP_DEFAULT_ZOOM);
             }
 
             if (profile.location_validated) {
