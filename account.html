@@ -211,9 +211,29 @@
         return { lat, lng };
       }
 
+      function normalizeArabicDigits(text) {
+        const arabicIndic = '٠١٢٣٤٥٦٧٨٩';
+        const easternArabicIndic = '۰۱۲۳۴۵۶۷۸۹';
+        return String(text)
+          .replace(/[٠-٩]/g, (d) => String(arabicIndic.indexOf(d)))
+          .replace(/[۰-۹]/g, (d) => String(easternArabicIndic.indexOf(d)));
+      }
+
       function toFiniteNumber(value) {
-        const num = Number(value);
-        return Number.isFinite(num) ? num : null;
+        if (value === null || value === undefined) return null;
+        if (typeof value === 'number') {
+          return Number.isFinite(value) ? value : null;
+        }
+
+        const normalized = normalizeArabicDigits(value).trim();
+        if (!normalized) return null;
+
+        const withDotDecimal = normalized.replace(',', '.');
+        const num = Number(withDotDecimal);
+        if (Number.isFinite(num)) return num;
+
+        const parsed = Number.parseFloat(withDotDecimal);
+        return Number.isFinite(parsed) ? parsed : null;
       }
 
       function setCoordinates(lat, lng, options = {}) {
@@ -391,8 +411,8 @@
             addressEl.value = profile.address || '';
             locationSource = profile.location_source || 'map_pin';
 
-            const savedLat = toFiniteNumber(profile.latitude);
-            const savedLng = toFiniteNumber(profile.longitude);
+            const savedLat = toFiniteNumber(profile.latitude ?? profile.lat);
+            const savedLng = toFiniteNumber(profile.longitude ?? profile.lng ?? profile.lon);
             if (savedLat !== null && savedLng !== null) {
               setCoordinates(savedLat, savedLng, { resetValidation: false });
               if (map) {
