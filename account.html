@@ -66,17 +66,10 @@
       .msg.err { display: block; background: #fef3f2; color: #b42318; border: 1px solid #fecdca; }
       @media (min-width: 700px) { .row.two { grid-template-columns: 1fr 1fr; } }
     </style>
+    <script src="components/site-header.js"></script>
   </head>
   <body>
-    <header class="navbar">
-      <div class="nav-inner">
-        <a href="index.html" class="logo">
-          <span class="logo-icon">🛒</span>
-          <span class="logo-text">جوب البلاد</span>
-        </a>
-        <a href="stores.html" class="btn btn-outline">المتاجر</a>
-      </div>
-    </header>
+    <site-header></site-header>
 
     <main class="account-wrap">
       <section class="account-card">
@@ -147,8 +140,8 @@
           </div>
 
           <div class="actions">
-            <button id="saveBtn" class="btn btn-primary" type="submit">حفظ البيانات</button>
-            <button id="logoutBtn" class="btn btn-outline" type="button">تسجيل الخروج</button>
+            <button id="/" class="btn btn-primary" type="submit">حفظ</button>
+            <button id="logoutBtn" class="btn btn-outline" type="button">تسجيل خروج</button>
             <button id="deleteBtn" class="btn btn-danger" type="button">حذف الحساب</button>
           </div>
 
@@ -567,14 +560,14 @@
           setCoordinates(persistedLat, persistedLng, { resetValidation: false });
           locationSource = savedProfile?.location_source || locationSource;
           locationValidated = true;
-          showMessage('ok', 'تم حفظ البيانات بنجاح.');
+          showMessage('ok', 'تم حفظ بنجاح.');
         } catch (err) {
           console.error('Save failed:', err);
           const details = [err?.code, err?.message].filter(Boolean).join(' | ');
           showMessage('err', `تعذر حفظ البيانات.${details ? ` ${details}` : ''}`);
         } finally {
           saveBtn.disabled = false;
-          saveBtn.textContent = 'حفظ البيانات';
+          saveBtn.textContent = 'حفظ';
         }
       });
 
