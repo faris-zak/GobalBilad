@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة الإدارة | جوب البلاد</title>
+  <meta name="description" content="لوحة إدارة جوب البلاد لمتابعة المستخدمين ورسائل التواصل." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <script src="components/site-header.js"></script>
+</head>
+<body class="admin-page">
+  <site-header></site-header>
+
+  <main class="admin-main">
+    <section class="admin-shell reveal">
+      <header class="admin-hero">
+        <div>
+          <p class="admin-eyebrow">منطقة محمية</p>
+          <h1>لوحة الإدارة</h1>
+          <p>إدارة المستخدمين واستقبال رسائل صفحة تواصل معنا.</p>
+        </div>
+        <button id="refreshDashboardBtn" class="btn btn-outline" type="button">تحديث البيانات</button>
+      </header>
+
+      <section class="admin-kpis" aria-label="ملخص سريع">
+        <article class="admin-kpi-card">
+          <span>إجمالي المستخدمين</span>
+          <strong id="kpiUsers">0</strong>
+        </article>
+        <article class="admin-kpi-card">
+          <span>الحسابات المحظورة</span>
+          <strong id="kpiBanned">0</strong>
+        </article>
+        <article class="admin-kpi-card">
+          <span>رسائل جديدة</span>
+          <strong id="kpiNewMessages">0</strong>
+        </article>
+      </section>
+
+      <p id="adminStatus" class="admin-status" aria-live="polite"></p>
+
+      <div class="admin-grid">
+        <section class="admin-panel admin-users-panel" aria-label="إدارة المستخدمين">
+          <div class="admin-panel-head">
+            <h2>المستخدمون</h2>
+          </div>
+
+          <div class="admin-filters">
+            <label class="admin-filter-field">
+              <span>بحث</span>
+              <input id="usersSearchInput" type="search" placeholder="الاسم / البريد / الهاتف" />
+            </label>
+            <label class="admin-filter-field">
+              <span>الدور</span>
+              <select id="usersRoleFilter">
+                <option value="">الكل</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+              </select>
+            </label>
+            <label class="admin-filter-field">
+              <span>الحالة</span>
+              <select id="usersStatusFilter">
+                <option value="">الكل</option>
+                <option value="active">نشط</option>
+                <option value="banned">محظور</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="usersList" class="admin-list"></div>
+        </section>
+
+        <section class="admin-panel admin-messages-panel" aria-label="رسائل التواصل">
+          <div class="admin-panel-head">
+            <h2>رسائل التواصل</h2>
+            <label class="admin-filter-field admin-filter-inline">
+              <span>الحالة</span>
+              <select id="messagesStatusFilter">
+                <option value="">الكل</option>
+                <option value="new">جديدة</option>
+                <option value="read">مقروءة</option>
+                <option value="resolved">مغلقة</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="messagesList" class="admin-list"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>

@@ -18,11 +18,24 @@ async function enhanceAuthLinks() {
       return;
     }
 
+    const user = typeof getCurrentUser === 'function' ? await getCurrentUser() : null;
+    const profile = user && typeof getUserProfile === 'function' ? await getUserProfile(user.id) : null;
+
     const loginLinks = document.querySelectorAll('a[href="login.html"], a[href="/login"], a[href="/login.html"]');
     loginLinks.forEach((link) => {
       link.href = '/account';
       link.textContent = 'حسابي';
     });
+
+    if (profile?.role === 'admin' && profile?.account_status !== 'banned') {
+      const nav = document.getElementById('siteNav');
+      if (nav && !nav.querySelector('a[href="/admin"]')) {
+        const adminLink = document.createElement('a');
+        adminLink.href = '/admin';
+        adminLink.textContent = 'لوحة الإدارة';
+        nav.insertBefore(adminLink, nav.querySelector('.nav-cta-mobile'));
+      }
+    }
   } catch (err) {
     console.error('Auth link enhancement failed:', err);
   }
@@ -61,7 +74,24 @@ function initContactForm() {
   const successMessage = document.getElementById('successMessage');
   const submitBtn = form.querySelector('button[type="submit"]');
 
-  form.addEventListener('submit', (event) => {
+  async function submitContactForm(payload) {
+    const response = await fetch('/api/contact-messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.message || 'تعذر إرسال الرسالة الآن.');
+    }
+
+    return data;
+  }
+
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     if (!form.checkValidity()) {
@@ -74,15 +104,36 @@ function initContactForm() {
     }
 
     if (successMessage) {
-      successMessage.classList.add('show');
+      successMessage.classList.remove('show', 'is-error');
+      successMessage.textContent = '';
     }
 
-    form.reset();
+    const formData = new FormData(form);
 
-    setTimeout(() => {
+    try {
+      await submitContactForm({
+        name: formData.get('name'),
+        email: formData.get('email') || '',
+        phone: formData.get('phone'),
+        requestType: formData.get('requestType'),
+        message: formData.get('message')
+      });
+
+      if (successMessage) {
+        successMessage.textContent = 'تم إرسال رسالتك بنجاح';
+        successMessage.classList.add('show');
+      }
+
+      form.reset();
+    } catch (error) {
+      if (successMessage) {
+        successMessage.textContent = error.message || 'تعذر إرسال الرسالة حالياً. حاول مرة أخرى.';
+        successMessage.classList.add('show', 'is-error');
+      }
+    } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
       }
-    }, 600);
+    }
   });
 }

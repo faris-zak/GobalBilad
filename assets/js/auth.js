@@ -57,7 +57,7 @@ async function getUserProfile(userId) {
   const client = getSupabaseClient();
   const { data, error } = await client
     .from('user_profiles')
-    .select('user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source')
+    .select('user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at')
     .eq('user_id', userId)
     .maybeSingle();
 
@@ -86,7 +86,7 @@ async function upsertUserProfile(profile) {
       },
       { onConflict: 'user_id' }
     )
-    .select('user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source')
+    .select('user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at')
     .single();
 
   if (error) {
