@@ -3,8 +3,11 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/login.html',
+  '/account.html',
+  '/auth-callback.html',
   '/assets/css/main.css',
   '/assets/js/main.js',
+  '/assets/js/auth.js',
   '/assets/images/gb-icon.png',
   '/assets/images/gb-banner.webp',
   'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap'

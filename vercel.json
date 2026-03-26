@@ -1,9 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/stores",    "destination": "/stores.html" },
-    { "source": "/store",     "destination": "/store.html" },
-    { "source": "/product",   "destination": "/product.html" },
-    { "source": "/dashboard", "destination": "/dashboard.html" },
-    { "source": "/login",     "destination": "/login.html" }
-  ]
-}

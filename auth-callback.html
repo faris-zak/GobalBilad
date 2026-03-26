@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ar-OM" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>جاري تسجيل الدخول...</title>
+    <link rel="stylesheet" href="assets/css/main.css" />
+  </head>
+  <body>
+    <main class="hero" style="max-width:680px; min-height:78vh; justify-content:center;">
+      <section class="hero-card" style="display:block; text-align:center;">
+        <h1 class="hero-title" style="font-size:clamp(24px,4.5vw,34px); margin-bottom:10px;">جاري تجهيز حسابك</h1>
+        <p class="hero-subtitle" style="margin:0 auto 12px;">يرجى الانتظار لحظات...</p>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/auth.js"></script>
+    <script>
+      async function finishLogin() {
+        try {
+          const session = await checkSession();
+          if (session) {
+            window.location.replace('/account');
+            return;
+          }
+        } catch (err) {
+          console.error('Callback session check failed:', err);
+        }
+        window.location.replace('/login');
+      }
+
+      finishLogin();
+    </script>
+  </body>
+</html>

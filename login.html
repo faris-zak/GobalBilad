@@ -55,8 +55,59 @@
         <script defer src="/_vercel/insights/script.js"></script>
     </head>
     <body>
+      <main class="hero" style="max-width: 680px; min-height: 78vh; justify-content: center;">
+        <section class="hero-card" style="display:block; padding: 28px;">
+          <h1 class="hero-title" style="font-size: clamp(28px, 5vw, 38px); margin-bottom: 10px;">تسجيل دخول العميل</h1>
+          <p class="hero-subtitle" style="margin-bottom: 20px; max-width: none;">
+            سجل دخولك باستخدام Google للوصول إلى حسابك وتحديث بياناتك بسهولة.
+          </p>
 
+          <p id="loginError" style="display:none; margin-bottom: 14px; color: #b42318; background:#fee4e2; border:1px solid #fecdca; border-radius:8px; padding:10px;"></p>
 
+          <button id="googleLoginBtn" class="btn btn-primary btn-large" style="width:100%; justify-content:center;">
+            المتابعة باستخدام Google
+          </button>
+
+          <a href="index.html" class="btn btn-outline" style="margin-top:12px; width:100%; justify-content:center;">العودة للرئيسية</a>
+        </section>
+      </main>
+
+      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      <script src="assets/js/auth.js"></script>
       <script src="assets/js/main.js"></script>
+      <script>
+        const loginBtn = document.getElementById('googleLoginBtn');
+        const errorBox = document.getElementById('loginError');
+
+        async function initLoginPage() {
+          try {
+            const session = await checkSession();
+            if (session) {
+              window.location.href = '/account';
+              return;
+            }
+          } catch (err) {
+            console.error('Session check failed:', err);
+          }
+
+          loginBtn.addEventListener('click', async () => {
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'جاري تحويلك...';
+            errorBox.style.display = 'none';
+
+            try {
+              await loginWithGoogle();
+            } catch (err) {
+              console.error('Google login failed:', err);
+              errorBox.textContent = 'تعذر تسجيل الدخول عبر Google. حاول مرة أخرى.';
+              errorBox.style.display = 'block';
+              loginBtn.disabled = false;
+              loginBtn.textContent = 'المتابعة باستخدام Google';
+            }
+          });
+        }
+
+        initLoginPage();
+      </script>
     </body>
 </html>
