@@ -25,8 +25,7 @@
       .location-status.ok { color: #067647; }
       .location-status.warn { color: #b54708; }
       .location-status.err { color: #b42318; }
-      .map-panel { margin-top: 12px; border: 1px dashed var(--border); border-radius: var(--radius-sm); padding: 10px; display: none; }
-      .map-panel.open { display: block; }
+      .map-panel { margin-top: 12px; border: 1px dashed var(--border); border-radius: var(--radius-sm); padding: 10px; display: block; }
       .map-canvas { width: 100%; height: 300px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
       .btn-danger { background: #d92d20; color: #fff; border: none; }
       .btn-danger:hover { background: #b42318; }
@@ -88,16 +87,16 @@
               <p class="account-sub" style="margin: 6px 0 0;">نستخدم الموقع مرة واحدة للتحقق من التغطية وتقدير التوصيل، بدون تتبع مستمر.</p>
               <div class="location-actions">
                 <button id="useGpsBtn" class="btn btn-outline" type="button">استخدام موقعي الحالي</button>
-                <button id="setCoordsBtn" class="btn btn-outline" type="button">اختيار الموقع من الخريطة</button>
+                <button id="centerServiceBtn" class="btn btn-outline" type="button">الانتقال لمركز نطاق الخدمة</button>
               </div>
               <div class="row two" style="margin-top: 10px;">
                 <div class="field">
                   <label for="latitude">خط العرض</label>
-                  <input id="latitude" type="number" step="any" placeholder="23.6" />
+                  <input id="latitude" type="number" step="any" placeholder="23.6" readonly />
                 </div>
                 <div class="field">
                   <label for="longitude">خط الطول</label>
-                  <input id="longitude" type="number" step="any" placeholder="58.4" />
+                  <input id="longitude" type="number" step="any" placeholder="58.4" readonly />
                 </div>
               </div>
               <div class="location-actions">
@@ -105,11 +104,9 @@
               </div>
               <div id="mapPanel" class="map-panel">
                 <div id="mapCanvas" class="map-canvas"></div>
-                <div class="location-actions">
-                  <button id="confirmMapPinBtn" class="btn btn-outline" type="button">اعتماد موقع المؤشر</button>
-                </div>
+                <p class="account-sub" style="margin: 8px 0 0;">حرّك المؤشر أو اضغط على الخريطة لتحديد موقعك بدقة.</p>
               </div>
-              <p id="locationStatus" class="location-status" aria-live="polite">يمكنك استخدام GPS أو إدخال الإحداثيات يدويًا.</p>
+              <p id="locationStatus" class="location-status" aria-live="polite">استخدم الخريطة مباشرة أو زر GPS ثم تحقّق من الموقع.</p>
             </div>
           </div>
 
@@ -140,17 +137,17 @@
       const logoutBtn = document.getElementById('logoutBtn');
       const deleteBtn = document.getElementById('deleteBtn');
       const useGpsBtn = document.getElementById('useGpsBtn');
-      const setCoordsBtn = document.getElementById('setCoordsBtn');
+      const centerServiceBtn = document.getElementById('centerServiceBtn');
       const validateLocationBtn = document.getElementById('validateLocationBtn');
       const latitudeEl = document.getElementById('latitude');
       const longitudeEl = document.getElementById('longitude');
       const locationStatusEl = document.getElementById('locationStatus');
       const mapPanelEl = document.getElementById('mapPanel');
       const mapCanvasEl = document.getElementById('mapCanvas');
-      const confirmMapPinBtn = document.getElementById('confirmMapPinBtn');
 
       let currentUser = null;
       let locationValidated = false;
+      let locationSource = 'map_pin';
       let map = null;
       let mapMarker = null;
 
@@ -178,9 +175,12 @@
 
       function setCoordinates(lat, lng, options = {}) {
         const shouldUpdateMap = options.updateMap !== false;
+        const resetValidation = options.resetValidation !== false;
         latitudeEl.value = String(lat);
         longitudeEl.value = String(lng);
-        locationValidated = false;
+        if (resetValidation) {
+          locationValidated = false;
+        }
 
         if (shouldUpdateMap && map && mapMarker) {
           mapMarker.setLatLng([lat, lng]);
@@ -235,10 +235,25 @@
         mapMarker.on('dragend', async () => {
           const markerLatLng = mapMarker.getLatLng();
           setCoordinates(markerLatLng.lat, markerLatLng.lng, { updateMap: false });
+          locationSource = 'map_pin';
           setLocationStatus('warn', 'تم تحديث الإحداثيات من الخريطة. اضغط التحقق من الموقع.');
 
           try {
             await reverseGeocode(markerLatLng.lat, markerLatLng.lng);
+          } catch (err) {
+            console.error('Reverse geocoding failed:', err);
+          }
+        });
+
+        map.on('click', async (event) => {
+          const { lat, lng } = event.latlng;
+          mapMarker.setLatLng([lat, lng]);
+          setCoordinates(lat, lng, { updateMap: false });
+          locationSource = 'map_pin';
+          setLocationStatus('warn', 'تم تحديد نقطة جديدة على الخريطة. اضغط التحقق من الموقع.');
+
+          try {
+            await reverseGeocode(lat, lng);
           } catch (err) {
             console.error('Reverse geocoding failed:', err);
           }
@@ -278,8 +293,11 @@
             phoneEl.value = profile.phone || '';
             cityEl.value = profile.city || '';
             addressEl.value = profile.address || '';
-            latitudeEl.value = profile.latitude ?? '';
-            longitudeEl.value = profile.longitude ?? '';
+            locationSource = profile.location_source || 'map_pin';
+
+            if (typeof profile.latitude === 'number' && typeof profile.longitude === 'number') {
+              setCoordinates(profile.latitude, profile.longitude, { resetValidation: false });
+            }
 
             if (profile.location_validated) {
               locationValidated = true;
@@ -304,6 +322,7 @@
         navigator.geolocation.getCurrentPosition(
           async (pos) => {
             setCoordinates(pos.coords.latitude, pos.coords.longitude);
+            locationSource = 'gps';
             setLocationStatus('warn', 'تم التقاط الموقع. اضغط التحقق من الموقع.');
 
             try {
@@ -327,28 +346,11 @@
         );
       });
 
-      setCoordsBtn.addEventListener('click', () => {
-        locationValidated = false;
-        mapPanelEl.classList.toggle('open');
-        if (mapPanelEl.classList.contains('open')) {
-          ensureMapReady();
-          setLocationStatus('warn', 'حرّك المؤشر على الخريطة ثم اضغط اعتماد موقع المؤشر.');
-        } else {
-          setLocationStatus('warn', 'يمكنك إدخال الإحداثيات يدويًا أو إعادة فتح الخريطة.');
-        }
-      });
-
-      confirmMapPinBtn.addEventListener('click', async () => {
+      centerServiceBtn.addEventListener('click', () => {
         ensureMapReady();
-        const markerLatLng = mapMarker.getLatLng();
-        setCoordinates(markerLatLng.lat, markerLatLng.lng, { updateMap: false });
-        setLocationStatus('warn', 'تم اعتماد موقع المؤشر. اضغط التحقق من الموقع.');
-
-        try {
-          await reverseGeocode(markerLatLng.lat, markerLatLng.lng);
-        } catch (err) {
-          console.error('Reverse geocoding failed:', err);
-        }
+        setCoordinates(MAP_DEFAULT_CENTER.lat, MAP_DEFAULT_CENTER.lng);
+        locationSource = 'map_pin';
+        setLocationStatus('warn', 'تم الانتقال إلى مركز نطاق الخدمة. حرّك المؤشر لموقعك الفعلي ثم تحقّق.');
       });
 
       latitudeEl.addEventListener('input', () => {
@@ -394,7 +396,12 @@
         if (!currentUser) return;
 
         const coords = readLatLng();
-        if (coords && !locationValidated) {
+        if (!coords) {
+          showMessage('err', 'الرجاء تحديد الموقع على الخريطة أو عبر GPS قبل الحفظ.');
+          return;
+        }
+
+        if (!locationValidated) {
           showMessage('err', 'الرجاء التحقق من الموقع قبل الحفظ.');
           return;
         }
@@ -409,10 +416,10 @@
             phone: phoneEl.value.trim(),
             city: cityEl.value.trim(),
             address: addressEl.value.trim(),
-            latitude: coords ? coords.lat : null,
-            longitude: coords ? coords.lng : null,
-            location_validated: !!coords && locationValidated,
-            location_source: coords ? 'account_form' : null
+            latitude: coords.lat,
+            longitude: coords.lng,
+            location_validated: true,
+            location_source: locationSource
           });
           showMessage('ok', 'تم حفظ البيانات بنجاح.');
         } catch (err) {
@@ -448,6 +455,7 @@
         }
       });
 
+      ensureMapReady();
       loadAccount();
     </script>
   </body>

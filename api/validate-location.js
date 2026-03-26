@@ -1,5 +1,5 @@
 const GEOFENCE_CENTER = { lat: 22.796495, lng: 58.150668 };
-const GEOFENCE_RADIUS_KM = 3.5;
+const GEOFENCE_RADIUS_KM = 1;
 
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
