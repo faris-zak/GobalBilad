@@ -225,10 +225,28 @@
         const seed = readLatLng() || MAP_DEFAULT_CENTER;
         map = L.map(mapCanvasEl).setView([seed.lat, seed.lng], MAP_DEFAULT_ZOOM);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        const satelliteLayer = L.tileLayer(
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+          {
+            maxZoom: 19,
+            attribution: 'Tiles &copy; Esri'
+          }
+        );
+
+        const streetsLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
           attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+        });
+
+        satelliteLayer.addTo(map);
+        L.control.layers(
+          {
+            'قمر صناعي': satelliteLayer,
+            'خريطة عادية': streetsLayer
+          },
+          null,
+          { collapsed: true }
+        ).addTo(map);
 
         mapMarker = L.marker([seed.lat, seed.lng], { draggable: true }).addTo(map);
 
