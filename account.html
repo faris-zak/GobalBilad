@@ -210,6 +210,11 @@
         return { lat, lng };
       }
 
+      function toFiniteNumber(value) {
+        const num = Number(value);
+        return Number.isFinite(num) ? num : null;
+      }
+
       function setCoordinates(lat, lng, options = {}) {
         const shouldUpdateMap = options.updateMap !== false;
         const resetValidation = options.resetValidation !== false;
@@ -381,8 +386,10 @@
             addressEl.value = profile.address || '';
             locationSource = profile.location_source || 'map_pin';
 
-            if (typeof profile.latitude === 'number' && typeof profile.longitude === 'number') {
-              setCoordinates(profile.latitude, profile.longitude, { resetValidation: false });
+            const savedLat = toFiniteNumber(profile.latitude);
+            const savedLng = toFiniteNumber(profile.longitude);
+            if (savedLat !== null && savedLng !== null) {
+              setCoordinates(savedLat, savedLng, { resetValidation: false });
             }
 
             if (profile.location_validated) {
@@ -508,7 +515,7 @@
             return;
           }
 
-          await upsertUserProfile({
+          const saved = await upsertUserProfile({
             user_id: currentUser.id,
             full_name: fullNameEl.value.trim(),
             phone: phoneEl.value.trim(),
@@ -519,6 +526,15 @@
             location_validated: true,
             location_source: locationSource
           });
+
+          const persistedLat = toFiniteNumber(saved.latitude);
+          const persistedLng = toFiniteNumber(saved.longitude);
+          if (persistedLat === null || persistedLng === null) {
+            throw new Error('SAVE_NOT_PERSISTED: Coordinates were not returned after save');
+          }
+
+          setCoordinates(persistedLat, persistedLng, { resetValidation: false });
+          locationValidated = true;
           showMessage('ok', 'تم حفظ البيانات بنجاح.');
         } catch (err) {
           console.error('Save failed:', err);
