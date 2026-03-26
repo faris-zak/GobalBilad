@@ -149,7 +149,7 @@
           <div class="actions">
             <button id="saveBtn" class="btn btn-primary" type="submit">حفظ البيانات</button>
             <button id="logoutBtn" class="btn btn-outline" type="button">تسجيل الخروج</button>
-            <button id="deleteBtn" class="btn btn-danger" type="button">حذف بيانات الحساب</button>
+            <button id="deleteBtn" class="btn btn-danger" type="button">حذف الحساب</button>
           </div>
 
           <p id="accountMsg" class="msg"></p>
@@ -556,7 +556,7 @@
 
       deleteBtn.addEventListener('click', async () => {
         if (!currentUser) return;
-        const approved = window.confirm('سيتم حذف بيانات ملفك الشخصي. هل تريد المتابعة؟');
+        const approved = window.confirm('سيتم حذف جميع بيانات ملفك الشخصي. هل تريد المتابعة؟');
         if (!approved) return;
 
         try {
