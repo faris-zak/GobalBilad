@@ -515,7 +515,7 @@
             return;
           }
 
-          const saved = await upsertUserProfile({
+          await upsertUserProfile({
             user_id: currentUser.id,
             full_name: fullNameEl.value.trim(),
             phone: phoneEl.value.trim(),
@@ -527,13 +527,15 @@
             location_source: locationSource
           });
 
-          const persistedLat = toFiniteNumber(saved.latitude);
-          const persistedLng = toFiniteNumber(saved.longitude);
+          const savedProfile = await getUserProfile(currentUser.id);
+          const persistedLat = toFiniteNumber(savedProfile?.latitude);
+          const persistedLng = toFiniteNumber(savedProfile?.longitude);
           if (persistedLat === null || persistedLng === null) {
             throw new Error('SAVE_NOT_PERSISTED: Coordinates were not returned after save');
           }
 
           setCoordinates(persistedLat, persistedLng, { resetValidation: false });
+          locationSource = savedProfile?.location_source || locationSource;
           locationValidated = true;
           showMessage('ok', 'تم حفظ البيانات بنجاح.');
         } catch (err) {

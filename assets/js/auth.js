@@ -69,7 +69,7 @@ async function getUserProfile(userId) {
 
 async function upsertUserProfile(profile) {
   const client = getSupabaseClient();
-  const { data, error } = await client.from('user_profiles').upsert(
+  const { error } = await client.from('user_profiles').upsert(
     {
       user_id: profile.user_id,
       full_name: profile.full_name,
@@ -83,19 +83,11 @@ async function upsertUserProfile(profile) {
       updated_at: new Date().toISOString()
     },
     { onConflict: 'user_id' }
-  )
-    .select('user_id, latitude, longitude, location_validated, updated_at')
-    .maybeSingle();
+  );
 
   if (error) {
     throw error;
   }
-
-  if (!data || !data.user_id) {
-    throw new Error('WRITE_NOT_CONFIRMED: Profile update was not confirmed by database');
-  }
-
-  return data;
 }
 
 async function deleteAccountProfile(userId) {
