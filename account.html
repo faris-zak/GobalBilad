@@ -538,7 +538,8 @@
           showMessage('ok', 'تم حفظ البيانات بنجاح.');
         } catch (err) {
           console.error('Save failed:', err);
-          showMessage('err', 'تعذر حفظ البيانات. تأكد من إعداد جدول user_profiles وسياسات RLS.');
+          const details = [err?.code, err?.message].filter(Boolean).join(' | ');
+          showMessage('err', `تعذر حفظ البيانات.${details ? ` ${details}` : ''}`);
         } finally {
           saveBtn.disabled = false;
           saveBtn.textContent = 'حفظ البيانات';
