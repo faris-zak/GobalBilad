@@ -1,5 +1,25 @@
 import { adminClient, json, normalizeString } from './_supabase-admin.js';
 
+function parseBody(rawBody) {
+  if (!rawBody) {
+    return {};
+  }
+
+  if (typeof rawBody === 'string') {
+    try {
+      return JSON.parse(rawBody);
+    } catch (_err) {
+      return {};
+    }
+  }
+
+  if (typeof rawBody === 'object') {
+    return rawBody;
+  }
+
+  return {};
+}
+
 function validatePayload(body) {
   const sender_name = normalizeString(body?.name);
   const sender_email = normalizeString(body?.email);
@@ -42,7 +62,8 @@ export default async function handler(req, res) {
     return json(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Use POST /api/contact-messages' });
   }
 
-  const payload = validatePayload(req.body);
+  const body = parseBody(req.body);
+  const payload = validatePayload(body);
   if (payload.error) {
     return json(res, 400, payload);
   }

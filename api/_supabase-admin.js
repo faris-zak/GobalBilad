@@ -4,8 +4,8 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error('Missing Supabase environment variables for admin API');
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY for server API');
 }
 
 const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
@@ -15,12 +15,26 @@ const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   }
 });
 
-const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false
+let authClient = null;
+
+function getAuthClient() {
+  if (authClient) {
+    return authClient;
   }
-});
+
+  if (!SUPABASE_ANON_KEY) {
+    throw new Error('Missing SUPABASE_ANON_KEY for authenticated endpoints');
+  }
+
+  authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  });
+
+  return authClient;
+}
 
 function json(res, status, payload) {
   return res.status(status).json(payload);
@@ -47,7 +61,15 @@ export async function requireAuth(req, res) {
     return null;
   }
 
-  const { data, error } = await authClient.auth.getUser(token);
+  let client;
+  try {
+    client = getAuthClient();
+  } catch (err) {
+    json(res, 500, { error: 'SERVER_MISCONFIGURED', message: err.message });
+    return null;
+  }
+
+  const { data, error } = await client.auth.getUser(token);
   if (error || !data?.user) {
     json(res, 401, { error: 'UNAUTHORIZED', message: 'Invalid or expired token' });
     return null;
