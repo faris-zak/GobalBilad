@@ -18,6 +18,12 @@
       .field textarea { min-height: 92px; resize: vertical; }
       .field input[readonly] { background: #f8f8f8; color: #666; }
       .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+      .location-box { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; background: #fcfcfc; }
+      .location-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+      .location-status { margin-top: 10px; font-size: 14px; color: var(--text-mid); }
+      .location-status.ok { color: #067647; }
+      .location-status.warn { color: #b54708; }
+      .location-status.err { color: #b42318; }
       .btn-danger { background: #d92d20; color: #fff; border: none; }
       .btn-danger:hover { background: #b42318; }
       .msg { display: none; margin-top: 12px; border-radius: 8px; padding: 10px; font-size: 14px; }
@@ -72,6 +78,31 @@
             </div>
           </div>
 
+          <div class="row">
+            <div class="location-box">
+              <strong>تحديد الموقع</strong>
+              <p class="account-sub" style="margin: 6px 0 0;">نستخدم الموقع مرة واحدة للتحقق من التغطية وتقدير التوصيل، بدون تتبع مستمر.</p>
+              <div class="location-actions">
+                <button id="useGpsBtn" class="btn btn-outline" type="button">استخدام موقعي الحالي</button>
+                <button id="setCoordsBtn" class="btn btn-outline" type="button">إدخال الإحداثيات يدويًا</button>
+              </div>
+              <div class="row two" style="margin-top: 10px;">
+                <div class="field">
+                  <label for="latitude">خط العرض</label>
+                  <input id="latitude" type="number" step="any" placeholder="23.6" />
+                </div>
+                <div class="field">
+                  <label for="longitude">خط الطول</label>
+                  <input id="longitude" type="number" step="any" placeholder="58.4" />
+                </div>
+              </div>
+              <div class="location-actions">
+                <button id="validateLocationBtn" class="btn btn-primary" type="button">التحقق من الموقع</button>
+              </div>
+              <p id="locationStatus" class="location-status" aria-live="polite">يمكنك استخدام GPS أو إدخال الإحداثيات يدويًا.</p>
+            </div>
+          </div>
+
           <div class="actions">
             <button id="saveBtn" class="btn btn-primary" type="submit">حفظ البيانات</button>
             <button id="logoutBtn" class="btn btn-outline" type="button">تسجيل الخروج</button>
@@ -97,12 +128,49 @@
       const saveBtn = document.getElementById('saveBtn');
       const logoutBtn = document.getElementById('logoutBtn');
       const deleteBtn = document.getElementById('deleteBtn');
+      const useGpsBtn = document.getElementById('useGpsBtn');
+      const setCoordsBtn = document.getElementById('setCoordsBtn');
+      const validateLocationBtn = document.getElementById('validateLocationBtn');
+      const latitudeEl = document.getElementById('latitude');
+      const longitudeEl = document.getElementById('longitude');
+      const locationStatusEl = document.getElementById('locationStatus');
 
       let currentUser = null;
+      let locationValidated = false;
 
       function showMessage(type, text) {
         accountMsg.className = `msg ${type}`;
         accountMsg.textContent = text;
+      }
+
+      function setLocationStatus(type, text) {
+        locationStatusEl.className = `location-status ${type}`;
+        locationStatusEl.textContent = text;
+      }
+
+      function readLatLng() {
+        const lat = Number(latitudeEl.value);
+        const lng = Number(longitudeEl.value);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          return null;
+        }
+        return { lat, lng };
+      }
+
+      async function validateLocationWithApi(lat, lng) {
+        const response = await fetch('/api/validate-location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ latitude: lat, longitude: lng })
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const reason = data.message || 'فشل التحقق من الموقع.';
+          throw new Error(reason);
+        }
+
+        return data;
       }
 
       async function loadAccount() {
@@ -122,6 +190,13 @@
             phoneEl.value = profile.phone || '';
             cityEl.value = profile.city || '';
             addressEl.value = profile.address || '';
+            latitudeEl.value = profile.latitude ?? '';
+            longitudeEl.value = profile.longitude ?? '';
+
+            if (profile.location_validated) {
+              locationValidated = true;
+              setLocationStatus('ok', 'تم تحميل موقع محفوظ ومتحقق منه.');
+            }
           }
         } catch (err) {
           console.error('Account load failed:', err);
@@ -129,9 +204,89 @@
         }
       }
 
+      useGpsBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+          setLocationStatus('err', 'المتصفح لا يدعم GPS. استخدم الإدخال اليدوي.');
+          return;
+        }
+
+        locationValidated = false;
+        setLocationStatus('warn', 'جاري تحديد موقعك...');
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            latitudeEl.value = String(pos.coords.latitude);
+            longitudeEl.value = String(pos.coords.longitude);
+            setLocationStatus('warn', 'تم التقاط الموقع. اضغط التحقق من الموقع.');
+          },
+          (error) => {
+            if (error.code === error.PERMISSION_DENIED) {
+              setLocationStatus('err', 'تم رفض الإذن. يمكنك إدخال الإحداثيات يدويًا.');
+              return;
+            }
+            if (error.code === error.TIMEOUT) {
+              setLocationStatus('err', 'انتهت مهلة GPS. حاول مجددًا أو أدخل الإحداثيات يدويًا.');
+              return;
+            }
+            setLocationStatus('err', 'تعذر الحصول على الموقع. استخدم الإدخال اليدوي.');
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+        );
+      });
+
+      setCoordsBtn.addEventListener('click', () => {
+        locationValidated = false;
+        setLocationStatus('warn', 'أدخل خط العرض وخط الطول ثم اضغط التحقق من الموقع.');
+        latitudeEl.focus();
+      });
+
+      latitudeEl.addEventListener('input', () => {
+        locationValidated = false;
+      });
+
+      longitudeEl.addEventListener('input', () => {
+        locationValidated = false;
+      });
+
+      validateLocationBtn.addEventListener('click', async () => {
+        const coords = readLatLng();
+        if (!coords) {
+          locationValidated = false;
+          setLocationStatus('err', 'الرجاء إدخال إحداثيات صحيحة.');
+          return;
+        }
+
+        validateLocationBtn.disabled = true;
+        validateLocationBtn.textContent = 'جاري التحقق...';
+
+        try {
+          const result = await validateLocationWithApi(coords.lat, coords.lng);
+          locationValidated = !!result.eligible;
+
+          if (result.eligible) {
+            setLocationStatus('ok', `الموقع داخل نطاق الخدمة. المسافة عن المركز: ${Number(result.distanceKm).toFixed(2)} كم.`);
+          } else {
+            setLocationStatus('err', `الموقع خارج نطاق الخدمة حاليًا. المسافة عن المركز: ${Number(result.distanceKm).toFixed(2)} كم.`);
+          }
+        } catch (err) {
+          locationValidated = false;
+          console.error('Location validation failed:', err);
+          setLocationStatus('err', 'تعذر التحقق عبر الخادم الآن. يمكنك تعديل الإحداثيات والمحاولة مرة أخرى.');
+        } finally {
+          validateLocationBtn.disabled = false;
+          validateLocationBtn.textContent = 'التحقق من الموقع';
+        }
+      });
+
       accountForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!currentUser) return;
+
+        const coords = readLatLng();
+        if (coords && !locationValidated) {
+          showMessage('err', 'الرجاء التحقق من الموقع قبل الحفظ.');
+          return;
+        }
 
         saveBtn.disabled = true;
         saveBtn.textContent = 'جاري الحفظ...';
@@ -142,7 +297,11 @@
             full_name: fullNameEl.value.trim(),
             phone: phoneEl.value.trim(),
             city: cityEl.value.trim(),
-            address: addressEl.value.trim()
+            address: addressEl.value.trim(),
+            latitude: coords ? coords.lat : null,
+            longitude: coords ? coords.lng : null,
+            location_validated: !!coords && locationValidated,
+            location_source: coords ? 'account_form' : null
           });
           showMessage('ok', 'تم حفظ البيانات بنجاح.');
         } catch (err) {
