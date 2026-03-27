@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const STATIC_CACHE = `gobalbilad-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `gobalbilad-runtime-${CACHE_VERSION}`;
 
@@ -12,6 +12,7 @@ const STATIC_ASSETS = [
   '/login.html',
   '/account.html',
   '/admin.html',
+  '/apply-role.html',
   '/auth-callback.html',
   '/assets/css/main.css',
   '/assets/js/main.js',
@@ -110,6 +111,12 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests and unsupported protocols
   if (request.method !== 'GET' || !url.protocol.startsWith('http')) return;
+
+  // Never cache API routes to avoid stale dashboard/application data
+  if (url.origin === self.location.origin && url.pathname.startsWith('/api/')) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   // Network-first for HTML navigation and API calls
   if (request.mode === 'navigate' || url.hostname.includes('supabase')) {

@@ -264,11 +264,22 @@ async function loadApplications() {
 async function refreshDashboard() {
   setAdminStatus('', 'جاري تحديث البيانات...');
 
-  await Promise.all([loadUsers(), loadApplications(), loadMessages()]);
+  const results = await Promise.allSettled([loadUsers(), loadApplications(), loadMessages()]);
+
+  const applicationsFailed = results[1]?.status === 'rejected';
+  if (applicationsFailed) {
+    console.error('Applications load failed:', results[1].reason);
+    setAdminStatus('err', 'تعذر تحميل طلبات الانضمام. تأكد من تحديث قاعدة البيانات وإعادة تحميل الصفحة.');
+  }
+
   renderUsers();
   renderApplications();
   renderMessages();
   updateKpis();
+
+  if (applicationsFailed) {
+    return;
+  }
 
   setAdminStatus('ok', 'تم تحديث لوحة الإدارة بنجاح.');
 }
