@@ -2,6 +2,7 @@
   const NAV_LINKS = [
     { href: 'index.html', label: 'الرئيسية' },
     { href: 'about-us.html', label: 'من نحن' },
+    { href: 'apply-role.html', label: 'سجّل كتاجر أو مندوب' },
     { href: 'terms-of-service.html', label: 'شروط الخدمة' },
     { href: 'privacy-policy.html', label: 'سياسة الخصوصية' },
     { href: 'contact-us.html', label: 'تواصل معنا' }

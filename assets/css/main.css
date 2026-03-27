@@ -1875,7 +1875,8 @@ img { max-width: 100%; display: block; }
 }
 
 .admin-user-row,
-.admin-message-row {
+.admin-message-row,
+.admin-application-row {
   border: 1px solid #e4ebf5;
   border-radius: 14px;
   padding: 0.85rem;
@@ -1894,6 +1895,28 @@ img { max-width: 100%; display: block; }
 .admin-message-body {
   margin: 0.35rem 0 0;
   color: #4b5565;
+  word-break: break-word;
+}
+
+.admin-application-details {
+  margin-top: 0.6rem;
+}
+
+.admin-application-details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #344054;
+}
+
+.admin-application-details pre {
+  margin: 0.5rem 0 0;
+  padding: 0.6rem;
+  border-radius: 10px;
+  border: 1px solid #d9e2ef;
+  background: #fff;
+  color: #1f2a37;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
   word-break: break-word;
 }
 
@@ -1933,6 +1956,18 @@ img { max-width: 100%; display: block; }
   border-color: #cceef0;
   background: #e7fcfd;
   color: #087f80;
+}
+
+.admin-badge-trader {
+  border-color: #f9d7a7;
+  background: #fff8ed;
+  color: #b54708;
+}
+
+.admin-badge-delivery {
+  border-color: #d9d6fe;
+  background: #f4f3ff;
+  color: #5925dc;
 }
 
 .admin-badge-active {
@@ -1976,7 +2011,7 @@ img { max-width: 100%; display: block; }
 
 @media (min-width: 640px) {
   .admin-kpis {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .admin-filters {
@@ -1984,13 +2019,20 @@ img { max-width: 100%; display: block; }
   }
 }
 
+@media (min-width: 840px) {
+  .admin-kpis {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 @media (min-width: 980px) {
   .admin-grid {
-    grid-template-columns: 1.25fr 1fr;
+    grid-template-columns: 1.1fr 1fr 1fr;
     align-items: start;
   }
 
   .admin-users-panel,
+  .admin-applications-panel,
   .admin-messages-panel {
     min-height: 560px;
   }

@@ -22,6 +22,11 @@ async function checkSession() {
   return data.session;
 }
 
+async function getAccessToken() {
+  const session = await checkSession();
+  return session?.access_token || null;
+}
+
 async function getCurrentUser() {
   const client = getSupabaseClient();
   const { data, error } = await client.auth.getUser();
@@ -55,7 +60,7 @@ async function logout() {
 
 async function getUserProfile(userId) {
   const client = getSupabaseClient();
-  const fullSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at';
+  const fullSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at, requested_role, application_status, application_payload, application_submitted_at, application_reviewed_at, application_reviewed_by, application_rejection_reason';
   const baseSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source';
 
   let { data, error } = await client
@@ -87,12 +92,16 @@ async function getUserProfile(userId) {
     data.account_status = 'active';
   }
 
+  if (data && typeof data.application_status === 'undefined') {
+    data.application_status = 'none';
+  }
+
   return data;
 }
 
 async function upsertUserProfile(profile) {
   const client = getSupabaseClient();
-  const fullSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at';
+  const fullSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source, role, account_status, banned_at, requested_role, application_status, application_payload, application_submitted_at, application_reviewed_at, application_reviewed_by, application_rejection_reason';
   const baseSelect = 'user_id, full_name, phone, city, address, latitude, longitude, location_validated, location_source';
 
   let { data, error } = await client
@@ -150,6 +159,10 @@ async function upsertUserProfile(profile) {
 
   if (data && typeof data.account_status === 'undefined') {
     data.account_status = 'active';
+  }
+
+  if (data && typeof data.application_status === 'undefined') {
+    data.application_status = 'none';
   }
 
   return data;

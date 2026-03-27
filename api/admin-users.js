@@ -1,6 +1,6 @@
 import { adminClient, getPagination, json, normalizeString, requireAdmin } from './_supabase-admin.js';
 
-const ALLOWED_ROLES = new Set(['user', 'admin']);
+const ALLOWED_ROLES = new Set(['user', 'trader', 'delivery', 'admin']);
 const ALLOWED_STATUSES = new Set(['active', 'banned']);
 
 async function listUsers(req, res) {
@@ -89,7 +89,7 @@ async function patchUser(req, res, actingUserId) {
   }
 
   if (nextRole && !ALLOWED_ROLES.has(nextRole)) {
-    return json(res, 400, { error: 'INVALID_ROLE', message: 'role must be user or admin' });
+    return json(res, 400, { error: 'INVALID_ROLE', message: 'role must be user, trader, delivery, or admin' });
   }
 
   if (nextStatus && !ALLOWED_STATUSES.has(nextStatus)) {

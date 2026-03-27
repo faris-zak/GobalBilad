@@ -13,6 +13,12 @@
       .account-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
       .account-title { font-family: var(--font-display); font-size: clamp(26px, 4.5vw, 34px); margin-bottom: 6px; }
       .account-sub { color: var(--text-mid); margin-bottom: 20px; }
+      .application-status-box { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; background: #fcfcfc; }
+      .application-status-box.pending { border-color: #fedf89; background: #fffaeb; color: #b54708; }
+      .application-status-box.approved { border-color: #abefc6; background: #ecfdf3; color: #067647; }
+      .application-status-box.rejected { border-color: #fecdca; background: #fef3f2; color: #b42318; }
+      .application-status-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+      .application-status-text { margin-top: 8px; font-size: 14px; }
       .row { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
       .field label { display: block; font-weight: 600; margin-bottom: 6px; }
       .field input, .field textarea { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-family: var(--font-body); font-size: 15px; }
@@ -75,6 +81,14 @@
       <section class="account-card">
         <h1 class="account-title">حسابي</h1>
         <p class="account-sub">حدّث بياناتك الشخصية كعميل.</p>
+
+        <section id="applicationStatusBox" class="application-status-box" aria-live="polite">
+          <div class="application-status-head">
+            <strong>حالة طلب الدور</strong>
+            <a id="applyRoleLink" class="btn btn-outline btn-sm" href="/apply-role">تقديم طلب</a>
+          </div>
+          <p id="applicationStatusText" class="application-status-text">لا يوجد طلب حالياً.</p>
+        </section>
 
         <form id="accountForm">
           <div class="row">
@@ -174,6 +188,9 @@
       const locationStatusEl = document.getElementById('locationStatus');
       const mapPanelEl = document.getElementById('mapPanel');
       const mapCanvasEl = document.getElementById('mapCanvas');
+      const applicationStatusBoxEl = document.getElementById('applicationStatusBox');
+      const applicationStatusTextEl = document.getElementById('applicationStatusText');
+      const applyRoleLinkEl = document.getElementById('applyRoleLink');
 
       let currentUser = null;
       let locationValidated = false;
@@ -193,6 +210,56 @@
       function setLocationStatus(type, text) {
         locationStatusEl.className = `location-status ${type}`;
         locationStatusEl.textContent = text;
+      }
+
+      function renderApplicationStatus(profile) {
+        const role = profile?.role || 'user';
+        const applicationStatus = profile?.application_status || 'none';
+        const reason = profile?.application_rejection_reason || '';
+
+        applicationStatusBoxEl.className = 'application-status-box';
+
+        if (profile?.account_status === 'banned') {
+          applicationStatusBoxEl.classList.add('rejected');
+          applicationStatusTextEl.textContent = 'الحساب محظور حالياً ولا يمكن تقديم طلب جديد.';
+          applyRoleLinkEl.style.display = 'none';
+          return;
+        }
+
+        if (role === 'trader' || role === 'delivery') {
+          applicationStatusBoxEl.classList.add('approved');
+          applicationStatusTextEl.textContent = `تم تفعيل دورك الحالي: ${role === 'trader' ? 'تاجر' : 'مندوب توصيل'}.`;
+          applyRoleLinkEl.style.display = 'none';
+          return;
+        }
+
+        if (applicationStatus === 'pending') {
+          applicationStatusBoxEl.classList.add('pending');
+          applicationStatusTextEl.textContent = 'طلبك قيد المراجعة من الإدارة.';
+          applyRoleLinkEl.style.display = 'none';
+          return;
+        }
+
+        if (applicationStatus === 'approved') {
+          applicationStatusBoxEl.classList.add('approved');
+          applicationStatusTextEl.textContent = 'تمت الموافقة على طلبك وسيتم تفعيل الدور قريباً.';
+          applyRoleLinkEl.style.display = 'none';
+          return;
+        }
+
+        if (applicationStatus === 'rejected') {
+          applicationStatusBoxEl.classList.add('rejected');
+          applicationStatusTextEl.textContent = reason
+            ? `تم رفض الطلب السابق. السبب: ${reason}`
+            : 'تم رفض الطلب السابق. يمكنك إعادة التقديم.';
+          applyRoleLinkEl.style.display = '';
+          applyRoleLinkEl.textContent = 'إعادة التقديم';
+          return;
+        }
+
+        applicationStatusTextEl.textContent = 'لا يوجد طلب حالياً. يمكنك تقديم طلب كتاجر أو مندوب.';
+        applyRoleLinkEl.style.display = '';
+        applyRoleLinkEl.textContent = 'تقديم طلب';
       }
 
       function readLatLng() {
@@ -403,6 +470,7 @@
             cityEl.value = profile.city || '';
             addressEl.value = profile.address || '';
             locationSource = profile.location_source || 'map_pin';
+            renderApplicationStatus(profile);
 
             const savedLat = toFiniteNumber(profile.latitude ?? profile.lat);
             const savedLng = toFiniteNumber(profile.longitude ?? profile.lng ?? profile.lon);
@@ -419,6 +487,8 @@
               locationValidated = true;
               setLocationStatus('ok', 'تم تحميل موقع محفوظ ومتحقق منه.');
             }
+          } else {
+            renderApplicationStatus(null);
           }
         } catch (err) {
           console.error('Account load failed:', err);

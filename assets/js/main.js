@@ -36,6 +36,21 @@ async function enhanceAuthLinks() {
         nav.insertBefore(adminLink, nav.querySelector('.nav-cta-mobile'));
       }
     }
+
+    const canApplyForRole =
+      profile?.account_status !== 'banned' &&
+      profile?.role === 'user' &&
+      (profile?.application_status === 'none' || profile?.application_status === 'rejected' || !profile?.application_status);
+
+    document
+      .querySelectorAll('a[href="apply-role.html"], a[href="/apply-role"], a[href="/apply-role.html"]')
+      .forEach((link) => {
+        if (!canApplyForRole) {
+          link.remove();
+          return;
+        }
+        link.href = '/apply-role';
+      });
   } catch (err) {
     console.error('Auth link enhancement failed:', err);
   }

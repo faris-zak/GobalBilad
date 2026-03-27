@@ -38,6 +38,10 @@
           <span>رسائل جديدة</span>
           <strong id="kpiNewMessages">0</strong>
         </article>
+        <article class="admin-kpi-card">
+          <span>طلبات الأدوار المعلقة</span>
+          <strong id="kpiPendingApplications">0</strong>
+        </article>
       </section>
 
       <p id="adminStatus" class="admin-status" aria-live="polite"></p>
@@ -59,6 +63,8 @@
                 <option value="">الكل</option>
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
+                <option value="trader">Trader</option>
+                <option value="delivery">Delivery</option>
               </select>
             </label>
             <label class="admin-filter-field">
@@ -72,6 +78,35 @@
           </div>
 
           <div id="usersList" class="admin-list"></div>
+        </section>
+
+        <section class="admin-panel admin-applications-panel" aria-label="طلبات الانضمام">
+          <div class="admin-panel-head">
+            <h2>طلبات الانضمام (تاجر/مندوب)</h2>
+          </div>
+
+          <div class="admin-filters">
+            <label class="admin-filter-field">
+              <span>حالة الطلب</span>
+              <select id="applicationsStatusFilter">
+                <option value="">الكل</option>
+                <option value="pending">قيد المراجعة</option>
+                <option value="approved">مقبول</option>
+                <option value="rejected">مرفوض</option>
+              </select>
+            </label>
+            <label class="admin-filter-field">
+              <span>نوع الطلب</span>
+              <select id="applicationsRoleFilter">
+                <option value="">الكل</option>
+                <option value="trader">تاجر</option>
+                <option value="delivery">مندوب</option>
+              </select>
+            </label>
+            <div></div>
+          </div>
+
+          <div id="applicationsList" class="admin-list"></div>
         </section>
 
         <section class="admin-panel admin-messages-panel" aria-label="رسائل التواصل">

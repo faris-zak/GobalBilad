@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ar-OM" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>جوب البلاد - التسجيل كتاجر أو مندوب</title>
+    <meta name="description" content="تقديم طلب الانضمام كتاجر أو مندوب توصيل" />
+    <link rel="icon" href="assets/images/gb-icon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <style>
+      .apply-wrap { max-width: 940px; margin: 0 auto; padding: 34px 24px 70px; }
+      .apply-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+      .apply-title { font-family: var(--font-display); font-size: clamp(26px, 4.5vw, 36px); margin-bottom: 6px; }
+      .apply-sub { color: var(--text-mid); margin-bottom: 20px; }
+      .status-box { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; background: #fcfcfc; }
+      .status-box.pending { border-color: #fedf89; background: #fffaeb; color: #b54708; }
+      .status-box.approved { border-color: #abefc6; background: #ecfdf3; color: #067647; }
+      .status-box.rejected { border-color: #fecdca; background: #fef3f2; color: #b42318; }
+      .row { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 14px; }
+      .row.two { grid-template-columns: 1fr; }
+      .field label { display: block; font-weight: 600; margin-bottom: 6px; }
+      .field input, .field textarea, .field select { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-family: var(--font-body); font-size: 15px; }
+      .field textarea { min-height: 88px; resize: vertical; }
+      .section-box { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px; }
+      .section-title { font-family: var(--font-display); font-size: 22px; margin-bottom: 6px; }
+      .muted { color: var(--text-mid); font-size: 14px; }
+      .checks { display: grid; gap: 10px; margin: 8px 0; }
+      .check-row { display: flex; align-items: center; gap: 8px; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+      .msg { display: none; margin-top: 12px; border-radius: 8px; padding: 10px; font-size: 14px; }
+      .msg.ok { display: block; background: #ecfdf3; color: #067647; border: 1px solid #abefc6; }
+      .msg.err { display: block; background: #fef3f2; color: #b42318; border: 1px solid #fecdca; }
+      @media (min-width: 760px) { .row.two { grid-template-columns: 1fr 1fr; } }
+    </style>
+    <script src="components/site-header.js"></script>
+  </head>
+  <body>
+    <site-header></site-header>
+
+    <main class="apply-wrap">
+      <section class="apply-card">
+        <h1 class="apply-title">طلب الانضمام</h1>
+        <p class="apply-sub">التسجيل سهل، والمراجعة صارمة. أكمل البيانات بدقة وسيتم الرد بعد التحقق.</p>
+
+        <div id="statusBox" class="status-box" role="status" aria-live="polite">جاري تحميل حالة الطلب...</div>
+
+        <form id="applyForm">
+          <div class="section-box">
+            <h2 class="section-title">اختر نوع الطلب</h2>
+            <div class="row two">
+              <label class="check-row"><input type="radio" name="requestedRole" value="trader" required /> تاجر</label>
+              <label class="check-row"><input type="radio" name="requestedRole" value="delivery" required /> مندوب توصيل</label>
+            </div>
+          </div>
+
+          <section id="traderSection" class="section-box" hidden>
+            <h2 class="section-title">بيانات التاجر</h2>
+            <div class="row two">
+              <div class="field">
+                <label for="storeName">اسم المتجر</label>
+                <input id="storeName" type="text" maxlength="120" />
+              </div>
+              <div class="field">
+                <label for="ownerName">اسم المالك</label>
+                <input id="ownerName" type="text" maxlength="120" />
+              </div>
+            </div>
+            <div class="row two">
+              <div class="field">
+                <label for="commercialRegistration">السجل التجاري</label>
+                <input id="commercialRegistration" type="text" maxlength="60" />
+              </div>
+              <div class="field">
+                <label for="traderPhone">رقم الهاتف (واتساب)</label>
+                <input id="traderPhone" type="tel" maxlength="30" />
+              </div>
+            </div>
+            <div class="row two">
+              <div class="field">
+                <label for="traderEmail">البريد الإلكتروني</label>
+                <input id="traderEmail" type="email" maxlength="160" />
+              </div>
+              <div class="field">
+                <label for="googleMapsLink">موقع المتجر (رابط خرائط Google)</label>
+                <input id="googleMapsLink" type="url" maxlength="400" placeholder="https://maps.google.com/..." />
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="needsProductEntryHelp">هل تريد المساعدة في إدخال المنتجات؟</label>
+                <select id="needsProductEntryHelp">
+                  <option value="">اختر</option>
+                  <option value="true">نعم</option>
+                  <option value="false">لا</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section id="deliverySection" class="section-box" hidden>
+            <h2 class="section-title">بيانات مندوب التوصيل</h2>
+            <div class="row two">
+              <div class="field">
+                <label for="deliveryFullName">الاسم الكامل</label>
+                <input id="deliveryFullName" type="text" maxlength="120" />
+              </div>
+              <div class="field">
+                <label for="deliveryPhone">رقم الهاتف</label>
+                <input id="deliveryPhone" type="tel" maxlength="30" />
+              </div>
+            </div>
+            <div class="row two">
+              <div class="field">
+                <label for="deliveryEmail">البريد الإلكتروني</label>
+                <input id="deliveryEmail" type="email" maxlength="160" />
+              </div>
+              <div class="field">
+                <label for="isAvailable">هل أنت متفرغ؟</label>
+                <select id="isAvailable">
+                  <option value="">اختر</option>
+                  <option value="true">نعم</option>
+                  <option value="false">لا</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="availabilitySchedule">أيام وأوقات التفرغ (اختياري)</label>
+                <textarea id="availabilitySchedule" maxlength="300" placeholder="مثال: السبت إلى الخميس من 4م إلى 11م"></textarea>
+              </div>
+            </div>
+            <div class="row two">
+              <div class="field">
+                <label for="knowsArea">هل لديك معرفة بالمنطقة؟</label>
+                <select id="knowsArea">
+                  <option value="">اختر</option>
+                  <option value="true">نعم</option>
+                  <option value="false">لا</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="canPeakHours">هل تستطيع العمل في أوقات الذروة؟</label>
+                <select id="canPeakHours">
+                  <option value="">اختر</option>
+                  <option value="true">نعم</option>
+                  <option value="false">لا</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="checks">
+              <p class="muted">الشروط (يجب الموافقة على جميع البنود):</p>
+              <label class="check-row"><input id="decIsOmani" type="checkbox" /> عماني الجنسية</label>
+              <label class="check-row"><input id="decOver18" type="checkbox" /> العمر 18+</label>
+              <label class="check-row"><input id="decHasVehicle" type="checkbox" /> يمتلك وسيلة نقل</label>
+              <label class="check-row"><input id="decCommitted" type="checkbox" /> متفرغ</label>
+              <label class="check-row"><input id="decFromAlMaamoura" type="checkbox" /> من سكان المعمورة</label>
+            </div>
+          </section>
+
+          <div class="actions">
+            <button id="submitBtn" class="btn btn-primary" type="submit">إرسال الطلب</button>
+            <a class="btn btn-outline" href="/account">العودة إلى الحساب</a>
+          </div>
+
+          <p id="formMsg" class="msg" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/auth.js"></script>
+    <script>
+      const form = document.getElementById('applyForm');
+      const statusBox = document.getElementById('statusBox');
+      const formMsg = document.getElementById('formMsg');
+      const submitBtn = document.getElementById('submitBtn');
+      const traderSection = document.getElementById('traderSection');
+      const deliverySection = document.getElementById('deliverySection');
+
+      let currentUser = null;
+      let currentProfile = null;
+
+      function setStatus(type, text) {
+        statusBox.className = `status-box ${type || ''}`.trim();
+        statusBox.textContent = text;
+      }
+
+      function setMessage(type, text) {
+        formMsg.className = `msg ${type}`;
+        formMsg.textContent = text;
+      }
+
+      function boolFromSelect(value) {
+        if (value === 'true') return true;
+        if (value === 'false') return false;
+        return null;
+      }
+
+      function getSelectedRole() {
+        return form.querySelector('input[name="requestedRole"]:checked')?.value || '';
+      }
+
+      function updateSections() {
+        const role = getSelectedRole();
+        traderSection.hidden = role !== 'trader';
+        deliverySection.hidden = role !== 'delivery';
+      }
+
+      function buildPayload() {
+        const role = getSelectedRole();
+        if (!role) {
+          throw new Error('اختر نوع الطلب أولاً.');
+        }
+
+        if (role === 'trader') {
+          return {
+            requestedRole: 'trader',
+            application: {
+              storeName: document.getElementById('storeName').value,
+              ownerName: document.getElementById('ownerName').value,
+              commercialRegistration: document.getElementById('commercialRegistration').value,
+              whatsappPhone: document.getElementById('traderPhone').value,
+              email: document.getElementById('traderEmail').value,
+              googleMapsLink: document.getElementById('googleMapsLink').value,
+              needsProductEntryHelp: document.getElementById('needsProductEntryHelp').value
+            }
+          };
+        }
+
+        return {
+          requestedRole: 'delivery',
+          application: {
+            fullName: document.getElementById('deliveryFullName').value,
+            phone: document.getElementById('deliveryPhone').value,
+            email: document.getElementById('deliveryEmail').value,
+            isAvailable: document.getElementById('isAvailable').value,
+            availabilitySchedule: document.getElementById('availabilitySchedule').value,
+            knowsArea: document.getElementById('knowsArea').value,
+            canPeakHours: document.getElementById('canPeakHours').value,
+            declaration: {
+              isOmani: document.getElementById('decIsOmani').checked,
+              over18: document.getElementById('decOver18').checked,
+              hasVehicle: document.getElementById('decHasVehicle').checked,
+              committed: document.getElementById('decCommitted').checked,
+              fromAlMaamoura: document.getElementById('decFromAlMaamoura').checked
+            }
+          }
+        };
+      }
+
+      function canSubmit(profile) {
+        const status = profile?.application_status || 'none';
+        const role = profile?.role || 'user';
+        return role === 'user' && (status === 'none' || status === 'rejected');
+      }
+
+      function renderProfileState(profile) {
+        currentProfile = profile;
+        if ((profile?.account_status || 'active') === 'banned') {
+          setStatus('rejected', 'حسابك محظور ولا يمكن تقديم طلب جديد.');
+          submitBtn.disabled = true;
+          return;
+        }
+
+        if (!profile?.location_validated) {
+          setStatus('rejected', 'يجب التحقق من الموقع من صفحة الحساب قبل تقديم الطلب.');
+          submitBtn.disabled = true;
+          return;
+        }
+
+        if ((profile?.role || 'user') !== 'user') {
+          setStatus('approved', 'تم تفعيل دورك بالفعل، ولا يمكنك تقديم طلب جديد حاليًا.');
+          submitBtn.disabled = true;
+          return;
+        }
+
+        const applicationStatus = profile?.application_status || 'none';
+        if (applicationStatus === 'pending') {
+          setStatus('pending', 'طلبك قيد المراجعة من الإدارة.');
+          submitBtn.disabled = true;
+          return;
+        }
+
+        if (applicationStatus === 'approved') {
+          setStatus('approved', 'تمت الموافقة على طلبك.');
+          submitBtn.disabled = true;
+          return;
+        }
+
+        if (applicationStatus === 'rejected') {
+          const reason = profile?.application_rejection_reason ? ` السبب: ${profile.application_rejection_reason}` : '';
+          setStatus('rejected', `تم رفض الطلب السابق. يمكنك إعادة التقديم بعد التعديل.${reason}`);
+          submitBtn.disabled = false;
+          return;
+        }
+
+        setStatus('', 'يمكنك الآن تقديم طلب جديد.');
+        submitBtn.disabled = false;
+      }
+
+      async function fetchApplicationState(token) {
+        const response = await fetch('/api/role-application', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.message || 'تعذر تحميل حالة الطلب.');
+        }
+        return data;
+      }
+
+      async function submitApplication(token, payload) {
+        const response = await fetch('/api/role-application', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.message || 'تعذر إرسال الطلب.');
+        }
+        return data;
+      }
+
+      async function bootstrap() {
+        try {
+          const session = await checkSession();
+          if (!session) {
+            window.location.replace('/login');
+            return;
+          }
+
+          currentUser = session.user;
+          const profile = await getUserProfile(currentUser.id);
+
+          const token = await getAccessToken();
+          const state = await fetchApplicationState(token);
+          const mergedProfile = {
+            ...profile,
+            role: state.role || profile?.role,
+            account_status: state.account_status || profile?.account_status,
+            requested_role: state.application?.requested_role ?? profile?.requested_role,
+            application_status: state.application?.application_status ?? profile?.application_status,
+            application_payload: state.application?.application_payload ?? profile?.application_payload,
+            application_submitted_at: state.application?.application_submitted_at ?? profile?.application_submitted_at,
+            application_rejection_reason: state.application?.application_rejection_reason ?? profile?.application_rejection_reason
+          };
+
+          renderProfileState(mergedProfile);
+
+          const profileEmail = currentUser.email || '';
+          const profileName = profile?.full_name || '';
+          const profilePhone = profile?.phone || '';
+          document.getElementById('traderEmail').value = profileEmail;
+          document.getElementById('deliveryEmail').value = profileEmail;
+          document.getElementById('deliveryFullName').value = profileName;
+          document.getElementById('traderPhone').value = profilePhone;
+          document.getElementById('deliveryPhone').value = profilePhone;
+
+          const presetRole = mergedProfile?.requested_role;
+          if ((presetRole === 'trader' || presetRole === 'delivery') && canSubmit(mergedProfile)) {
+            const radio = form.querySelector(`input[name="requestedRole"][value="${presetRole}"]`);
+            if (radio) radio.checked = true;
+            updateSections();
+          }
+        } catch (err) {
+          console.error('Role apply bootstrap failed:', err);
+          setStatus('rejected', err.message || 'تعذر تحميل الصفحة الآن.');
+          submitBtn.disabled = true;
+        }
+      }
+
+      form.addEventListener('change', (event) => {
+        if (event.target && event.target.name === 'requestedRole') {
+          updateSections();
+        }
+      });
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!currentUser || !canSubmit(currentProfile)) {
+          setMessage('err', 'لا يمكنك إرسال طلب جديد في الوقت الحالي.');
+          return;
+        }
+
+        const token = await getAccessToken();
+        if (!token) {
+          window.location.replace('/login');
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'جاري الإرسال...';
+        setMessage('ok', '');
+
+        try {
+          const payload = buildPayload();
+          await submitApplication(token, payload);
+          setMessage('ok', 'تم إرسال الطلب بنجاح. سيظهر القرار بعد مراجعة الإدارة.');
+          currentProfile = { ...(currentProfile || {}), application_status: 'pending' };
+          renderProfileState(currentProfile);
+        } catch (err) {
+          setMessage('err', err.message || 'تعذر إرسال الطلب.');
+        } finally {
+          if (!submitBtn.disabled) {
+            submitBtn.textContent = 'إرسال الطلب';
+            return;
+          }
+
+          if (currentProfile?.application_status !== 'pending') {
+            submitBtn.disabled = false;
+          }
+          submitBtn.textContent = 'إرسال الطلب';
+        }
+      });
+
+      bootstrap();
+    </script>
+  </body>
+</html>

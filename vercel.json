@@ -7,6 +7,7 @@
     { "source": "/privacy-policy", "destination": "/privacy-policy.html" },
     { "source": "/terms-of-service", "destination": "/terms-of-service.html" },
     { "source": "/contact-us", "destination": "/contact-us.html" },
-    { "source": "/auth-callback", "destination": "/auth-callback.html" }
+    { "source": "/auth-callback", "destination": "/auth-callback.html" },
+    { "source": "/apply-role", "destination": "/apply-role.html" }
   ]
 }
