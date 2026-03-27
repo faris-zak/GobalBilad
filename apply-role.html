@@ -330,6 +330,15 @@
         return data;
       }
 
+      async function resolveAccessToken() {
+        if (typeof getAccessToken === 'function') {
+          return getAccessToken();
+        }
+
+        const session = await checkSession();
+        return session?.access_token || null;
+      }
+
       async function bootstrap() {
         try {
           const session = await checkSession();
@@ -341,7 +350,10 @@
           currentUser = session.user;
           const profile = await getUserProfile(currentUser.id);
 
-          const token = await getAccessToken();
+          const token = await resolveAccessToken();
+          if (!token) {
+            throw new Error('تعذر الحصول على جلسة دخول صالحة.');
+          }
           const state = await fetchApplicationState(token);
           const mergedProfile = {
             ...profile,
@@ -392,7 +404,7 @@
           return;
         }
 
-        const token = await getAccessToken();
+        const token = await resolveAccessToken();
         if (!token) {
           window.location.replace('/login');
           return;
