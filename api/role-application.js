@@ -225,7 +225,10 @@ async function handlePost(req, res, auth) {
   }
 
   if ((profile.role || 'user') !== 'user') {
-    return json(res, 409, { error: 'ROLE_ALREADY_ASSIGNED', message: 'تم تفعيل دورك مسبقًا.' });
+    return json(res, 409, {
+      error: 'ROLE_ALREADY_ASSIGNED',
+      message: `لا يمكن إرسال الطلب لأن الدور الحالي هو ${(profile.role || 'user')}.`
+    });
   }
 
   if ((profile.application_status || 'none') === 'pending') {

@@ -255,6 +255,13 @@
         return role === 'user' && (status === 'none' || status === 'rejected');
       }
 
+      function roleLabel(role) {
+        if (role === 'admin') return 'admin';
+        if (role === 'trader') return 'trader';
+        if (role === 'delivery') return 'delivery';
+        return 'user';
+      }
+
       function renderProfileState(profile) {
         currentProfile = profile;
         if ((profile?.account_status || 'active') === 'banned') {
@@ -269,8 +276,16 @@
           return;
         }
 
-        if ((profile?.role || 'user') !== 'user') {
-          setStatus('approved', 'تم تفعيل دورك بالفعل، ولا يمكنك تقديم طلب جديد حاليًا.');
+        const role = profile?.role || 'user';
+
+        if (role === 'admin') {
+          setStatus('rejected', `لا يمكن تقديم الطلب من حساب إداري. الدور الحالي: ${roleLabel(role)}.`);
+          submitBtn.disabled = true;
+          return;
+        }
+
+        if (role === 'trader' || role === 'delivery') {
+          setStatus('approved', `تم تفعيل دورك بالفعل (${roleLabel(role)}), ولا يمكنك تقديم طلب جديد حاليًا.`);
           submitBtn.disabled = true;
           return;
         }
