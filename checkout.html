@@ -44,14 +44,16 @@
 
           <fieldset class="checkout-delivery-group">
             <legend>طريقة الاستلام</legend>
-            <label class="checkout-radio">
-              <input type="radio" name="deliveryType" value="pickup" checked />
-              <span>استلام من المتجر</span>
-            </label>
-            <label class="checkout-radio">
-              <input type="radio" name="deliveryType" value="delivery" />
-              <span>توصيل</span>
-            </label>
+            <div class="checkout-delivery-options">
+              <label class="checkout-radio">
+                <input type="radio" name="deliveryType" value="pickup" checked />
+                <span>🏪 استلام من المتجر</span>
+              </label>
+              <label class="checkout-radio">
+                <input type="radio" name="deliveryType" value="delivery" />
+                <span>🚚 توصيل</span>
+              </label>
+            </div>
           </fieldset>
 
           <div id="deliveryFields" class="delivery-fields is-hidden">

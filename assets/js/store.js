@@ -21,17 +21,24 @@ function updateCartMeta(storeId) {
   const cartCount = window.CartUtils.getCartCount(storeId);
   const badge = document.getElementById('storeCartCount');
   const checkoutBtn = document.getElementById('goToCheckoutBtn');
+  const floatingCart = document.getElementById('floatingCart');
+  const floatingCount = document.getElementById('floatingCartCount');
+  const floatingHref = document.getElementById('floatingCartBtn');
 
-  if (badge) {
-    badge.textContent = String(cartCount);
-  }
+  if (badge) badge.textContent = String(cartCount);
+  if (floatingCount) floatingCount.textContent = String(cartCount);
+
+  const isEmpty = cartCount < 1;
+  if (floatingCart) floatingCart.classList.toggle('is-hidden', isEmpty);
 
   if (checkoutBtn) {
-    const isDisabled = cartCount < 1;
-    checkoutBtn.classList.toggle('is-disabled', isDisabled);
-    checkoutBtn.setAttribute('aria-disabled', String(isDisabled));
-    checkoutBtn.setAttribute('tabindex', isDisabled ? '-1' : '0');
-    checkoutBtn.href = isDisabled ? '#' : (checkoutBtn.dataset.href || checkoutBtn.href);
+    checkoutBtn.classList.toggle('is-disabled', isEmpty);
+    checkoutBtn.setAttribute('aria-disabled', String(isEmpty));
+    checkoutBtn.setAttribute('tabindex', isEmpty ? '-1' : '0');
+    checkoutBtn.href = isEmpty ? '#' : (checkoutBtn.dataset.href || checkoutBtn.href);
+  }
+  if (floatingHref && checkoutBtn) {
+    floatingHref.href = isEmpty ? '#' : (checkoutBtn.dataset.href || '');
   }
 }
 
@@ -66,12 +73,11 @@ function renderProducts(store, items) {
 
   productsGrid.innerHTML = items.map((item) => `
     <article class="product-card reveal">
-      <div class="product-card-img" aria-hidden="true">🛍️</div>
+      <div class="product-card-img" aria-hidden="true">🛒</div>
       <div class="product-card-body">
         <h3 class="product-card-name">${escapeHtml(item.name)}</h3>
-        <p class="product-card-desc">منتج محلي متاح الآن من نفس المتجر.</p>
+        <div class="product-card-price">${formatPrice(item.price)}</div>
         <div class="product-card-footer">
-          <div class="product-card-price">${formatPrice(item.price)}</div>
           <button
             class="btn btn-primary btn-add-cart"
             type="button"
@@ -98,6 +104,15 @@ function renderProducts(store, items) {
       });
 
       updateCartMeta(store.id);
+
+      // Brief visual feedback on the button
+      btn.textContent = '✓ تمت الإضافة';
+      btn.classList.add('added');
+      setTimeout(() => {
+        btn.textContent = 'أضف للسلة';
+        btn.classList.remove('added');
+      }, 1200);
+
       showMessage('تمت إضافة المنتج إلى السلة');
     });
   });

@@ -23,9 +23,8 @@ function renderStores(items) {
         <div class="store-card-icon" aria-hidden="true">🏪</div>
         <div class="store-card-info">
           <h3 class="store-card-name">${safeName}</h3>
-          <p class="store-card-desc">تصفح منتجات المتجر ثم أكمل الطلب بسهولة.</p>
         </div>
-        <span class="store-card-arrow" aria-hidden="true">←</span>
+        <span class="store-card-btn">دخول المتجر</span>
       </a>
     `;
   }).join('');
