@@ -59,11 +59,8 @@
           </fieldset>
 
           <div id="deliveryFields" class="delivery-fields is-hidden">
-            <div class="form-group">
-              <label for="locationLink">رابط الموقع (Google Maps)</label>
-              <input id="locationLink" name="locationLink" type="url" placeholder="https://maps.google.com/..." />
-            </div>
-            <button id="detectLocationBtn" type="button" class="btn btn-outline btn-block">استخدام موقعي الحالي</button>
+            <input type="hidden" id="locationLink" name="locationLink" />
+            <div id="locationStatus" class="location-status"></div>
           </div>
 
           <button class="btn btn-primary btn-block" type="submit">تأكيد الطلب وفتح واتساب</button>

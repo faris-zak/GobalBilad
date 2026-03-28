@@ -102,21 +102,37 @@ function setDeliveryVisibility(deliveryType) {
   wrap.classList.toggle('is-hidden', !show);
 }
 
-async function detectLocationAndFill() {
+async function fillLocationFromProfile() {
   const locationInput = document.getElementById('locationLink');
-  if (!locationInput || !navigator.geolocation) {
-    return;
+  const statusDiv = document.getElementById('locationStatus');
+  if (!locationInput || !statusDiv) return;
+
+  locationInput.value = '';
+  statusDiv.className = 'location-status location-loading';
+  statusDiv.innerHTML = 'جاري تحميل بيانات موقعك...';
+
+  try {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('user_profiles')
+      .select('latitude, longitude, location_validated')
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (data?.location_validated && data.latitude != null && data.longitude != null) {
+      const link = getGoogleMapsLink(data.latitude, data.longitude);
+      locationInput.value = link;
+      statusDiv.className = 'location-status location-ok';
+      statusDiv.innerHTML = `✅ سيتم التوصيل إلى موقعك المحفوظ. <a href="${link}" target="_blank" rel="noopener">عرض على الخريطة</a>`;
+    } else {
+      statusDiv.className = 'location-status location-warn';
+      statusDiv.innerHTML = `⚠️ لم تقم بتأكيد موقعك في حسابك بعد. <a href="/account.html">اضبط موقعك الآن ←</a>`;
+    }
+  } catch (_) {
+    statusDiv.className = 'location-status location-warn';
+    statusDiv.innerHTML = `⚠️ تعذر تحميل بيانات موقعك. <a href="/account.html">تحقق من إعدادات حسابك ←</a>`;
   }
-
-  const coords = await new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => resolve(position.coords),
-      (err) => reject(err),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  });
-
-  locationInput.value = getGoogleMapsLink(coords.latitude, coords.longitude);
 }
 
 async function submitOrder(event) {
@@ -156,7 +172,7 @@ async function submitOrder(event) {
 
   if (deliveryType === 'delivery' && !locationLink) {
     if (notice) {
-      notice.textContent = 'يرجى إضافة رابط الموقع للتوصيل.';
+      notice.innerHTML = 'يجب تأكيد موقعك في <a href="/account.html" style="text-decoration:underline;font-weight:600;">صفحة الحساب</a> أولاً لإتمام التوصيل.';
       notice.classList.add('show', 'is-error');
     }
     return;
@@ -273,7 +289,6 @@ async function prefillFromProfile() {
 async function setupCheckout() {
   const storeId = getStoreId();
   const form = document.getElementById('checkoutForm');
-  const detectBtn = document.getElementById('detectLocationBtn');
   const deliveryInputs = document.querySelectorAll('input[name="deliveryType"]');
 
   if (!window.CartUtils || !storeId) {
@@ -312,30 +327,14 @@ async function setupCheckout() {
   deliveryInputs.forEach((input) => {
     input.addEventListener('change', () => {
       setDeliveryVisibility(input.value);
+      if (input.value === 'delivery') fillLocationFromProfile();
     });
   });
 
   const selected = form.querySelector('input[name="deliveryType"]:checked');
-  setDeliveryVisibility(selected ? selected.value : 'pickup');
-
-  if (detectBtn) {
-    detectBtn.addEventListener('click', async () => {
-      const notice = document.getElementById('checkoutNotice');
-      try {
-        await detectLocationAndFill();
-        if (notice) {
-          notice.textContent = 'تم تحديد الموقع وإضافة الرابط تلقائياً.';
-          notice.classList.remove('is-error');
-          notice.classList.add('show');
-        }
-      } catch (_err) {
-        if (notice) {
-          notice.textContent = 'تعذر تحديد الموقع. أضف رابط خرائط Google يدوياً.';
-          notice.classList.add('show', 'is-error');
-        }
-      }
-    });
-  }
+  const initialType = selected ? selected.value : 'pickup';
+  setDeliveryVisibility(initialType);
+  if (initialType === 'delivery') fillLocationFromProfile();
 }
 
 window.addEventListener('load', setupCheckout);

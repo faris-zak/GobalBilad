@@ -1070,6 +1070,34 @@ img { max-width: 100%; display: block; }
   display: none;
 }
 
+.location-status {
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+.location-status a {
+  text-decoration: underline;
+  font-weight: 600;
+}
+.location-loading {
+  color: var(--text-light);
+  background: var(--bg);
+}
+.location-ok {
+  background: #ecfdf3;
+  color: #067647;
+  border: 1px solid #abefc6;
+}
+.location-warn {
+  background: #fffaeb;
+  color: #b54708;
+  border: 1px solid #fedf89;
+}
+.location-warn a {
+  color: #b54708;
+}
+
 .btn-block {
   width: 100%;
   justify-content: center;
