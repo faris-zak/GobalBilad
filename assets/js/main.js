@@ -37,6 +37,16 @@ async function enhanceAuthLinks() {
       }
     }
 
+    if (profile?.role === 'trader' && profile?.account_status !== 'banned') {
+      const nav = document.getElementById('siteNav');
+      if (nav && !nav.querySelector('a[href="/trader"]')) {
+        const traderLink = document.createElement('a');
+        traderLink.href = '/trader';
+        traderLink.textContent = 'لوحة التاجر';
+        nav.insertBefore(traderLink, nav.querySelector('.nav-cta-mobile'));
+      }
+    }
+
     const canApplyForRole =
       profile?.account_status !== 'banned' &&
       profile?.role === 'user' &&
