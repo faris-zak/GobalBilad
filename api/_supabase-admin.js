@@ -78,6 +78,24 @@ export async function requireAuth(req, res) {
   return { user: data.user, token };
 }
 
+/**
+ * Like requireAuth but does NOT send a 401 — returns null if unauthenticated.
+ * Use for endpoints that work for both auth and anon but record the user when present.
+ */
+export async function optionalAuth(req) {
+  const token = readBearerToken(req);
+  if (!token) return null;
+  let client;
+  try {
+    client = getAuthClient();
+  } catch (_) {
+    return null;
+  }
+  const { data, error } = await client.auth.getUser(token);
+  if (error || !data?.user) return null;
+  return data.user;
+}
+
 export async function requireAdmin(req, res) {
   const authResult = await requireAuth(req, res);
   if (!authResult) {

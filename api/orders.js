@@ -1,4 +1,4 @@
-import { adminClient, json, normalizeString } from './_supabase-admin.js';
+import { adminClient, json, normalizeString, optionalAuth } from './_supabase-admin.js';
 
 function parseBody(rawBody) {
   if (!rawBody) {
@@ -109,10 +109,13 @@ export default async function handler(req, res) {
 
   const total = Number(items.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(3));
 
+  const authUser = await optionalAuth(req);
+
   const { data: createdOrder, error: insertError } = await adminClient
     .from('orders')
     .insert({
       store_id: store.id,
+      user_id: authUser?.id ?? null,
       customer_name: customerName.slice(0, 180),
       customer_phone: customerPhone.slice(0, 80),
       delivery_type: deliveryType,

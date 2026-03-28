@@ -170,9 +170,13 @@ async function submitOrder(event) {
   }
 
   try {
+    const token = await getAccessToken();
     const response = await fetch('/api/orders', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
       body: JSON.stringify({
         storeId,
         name,
