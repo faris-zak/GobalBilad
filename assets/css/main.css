@@ -1118,6 +1118,68 @@ img { max-width: 100%; display: block; }
   color: #c53030;
 }
 
+/* Checkout profile summary (read-only signed-in card) */
+.checkout-profile-summary {
+  margin-bottom: 18px;
+}
+.profile-loading {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  padding: 10px 0;
+}
+.checkout-profile-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.checkout-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+.profile-field-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-dark);
+}
+.profile-field-phone {
+  font-size: 0.875rem;
+  color: var(--text-mid);
+  direction: ltr;
+  text-align: right;
+}
+.profile-missing {
+  color: #b42318;
+  font-style: italic;
+}
+.profile-edit-link {
+  font-size: 0.8rem;
+  color: var(--green);
+  text-decoration: underline;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.profile-incomplete-warn {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #b54708;
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+.profile-incomplete-warn a {
+  color: inherit;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
 /* =============================================
    PRODUCT PAGE (product.html)
    ============================================= */

@@ -34,17 +34,13 @@
       </section>
 
       <section class="checkout-card reveal" aria-label="بيانات الطلب">
-        <h2 class="checkout-subtitle">بيانات العميل</h2>
+        <h2 class="checkout-subtitle">بيانات الطلب</h2>
         <form id="checkoutForm" class="checkout-form" novalidate>
-          <div class="form-group">
-            <label for="name">الاسم</label>
-            <input id="name" name="name" type="text" autocomplete="name" required />
+          <div id="profileSummary" class="checkout-profile-summary">
+            <div class="profile-loading">جاري تحميل بياناتك...</div>
           </div>
-
-          <div class="form-group">
-            <label for="phone">رقم الهاتف</label>
-            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required />
-          </div>
+          <input type="hidden" id="name" name="name" />
+          <input type="hidden" id="phone" name="phone" />
 
           <fieldset class="checkout-delivery-group">
             <legend>طريقة الاستلام</legend>

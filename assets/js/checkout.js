@@ -102,36 +102,57 @@ function setDeliveryVisibility(deliveryType) {
   wrap.classList.toggle('is-hidden', !show);
 }
 
-async function fillLocationFromProfile() {
+async function fetchProfile() {
+  try {
+    const client = getSupabaseClient();
+    const { data } = await client
+      .from('user_profiles')
+      .select('full_name, phone, latitude, longitude, location_validated')
+      .maybeSingle();
+    return data || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function renderProfileSummary(profile) {
+  const wrap = document.getElementById('profileSummary');
+  const nameInput = document.getElementById('name');
+  const phoneInput = document.getElementById('phone');
+  if (!wrap) return;
+
+  const name = profile?.full_name?.trim() || '';
+  const phone = profile?.phone?.trim() || '';
+  if (nameInput) nameInput.value = name;
+  if (phoneInput) phoneInput.value = phone;
+
+  const incomplete = !name || !phone;
+  wrap.innerHTML = `
+    <div class="checkout-profile-card">
+      <div class="checkout-profile-info">
+        <span class="profile-field-name">${name ? escapeHtml(name) : '<span class="profile-missing">لم يتم إدخال الاسم</span>'}</span>
+        <span class="profile-field-phone">${phone ? escapeHtml(phone) : '<span class="profile-missing">لم يتم إدخال رقم الهاتف</span>'}</span>
+      </div>
+      <a href="/account.html" class="profile-edit-link">تعديل ←</a>
+    </div>
+    ${incomplete ? '<p class="profile-incomplete-warn">⚠️ يرجى <a href="/account.html">إكمال بيانات حسابك</a> (الاسم ورقم الهاتف) قبل إتمام الطلب.</p>' : ''}
+  `;
+}
+
+function applyLocationStatus(profile) {
   const locationInput = document.getElementById('locationLink');
   const statusDiv = document.getElementById('locationStatus');
   if (!locationInput || !statusDiv) return;
 
   locationInput.value = '';
-  statusDiv.className = 'location-status location-loading';
-  statusDiv.innerHTML = 'جاري تحميل بيانات موقعك...';
-
-  try {
-    const client = getSupabaseClient();
-    const { data, error } = await client
-      .from('user_profiles')
-      .select('latitude, longitude, location_validated')
-      .maybeSingle();
-
-    if (error) throw error;
-
-    if (data?.location_validated && data.latitude != null && data.longitude != null) {
-      const link = getGoogleMapsLink(data.latitude, data.longitude);
-      locationInput.value = link;
-      statusDiv.className = 'location-status location-ok';
-      statusDiv.innerHTML = `✅ سيتم التوصيل إلى موقعك المحفوظ. <a href="${link}" target="_blank" rel="noopener">عرض على الخريطة</a>`;
-    } else {
-      statusDiv.className = 'location-status location-warn';
-      statusDiv.innerHTML = `⚠️ لم تقم بتأكيد موقعك في حسابك بعد. <a href="/account.html">اضبط موقعك الآن ←</a>`;
-    }
-  } catch (_) {
+  if (profile?.location_validated && profile.latitude != null && profile.longitude != null) {
+    const link = getGoogleMapsLink(profile.latitude, profile.longitude);
+    locationInput.value = link;
+    statusDiv.className = 'location-status location-ok';
+    statusDiv.innerHTML = `✅ سيتم التوصيل إلى موقعك المحفوظ. <a href="${link}" target="_blank" rel="noopener">عرض على الخريطة</a>`;
+  } else {
     statusDiv.className = 'location-status location-warn';
-    statusDiv.innerHTML = `⚠️ تعذر تحميل بيانات موقعك. <a href="/account.html">تحقق من إعدادات حسابك ←</a>`;
+    statusDiv.innerHTML = `⚠️ لم تقم بتأكيد موقعك في حسابك بعد. <a href="/account.html">اضبط موقعك الآن ←</a>`;
   }
 }
 
@@ -164,7 +185,7 @@ async function submitOrder(event) {
 
   if (!name || name.length < 2 || !phone || phone.length < 6) {
     if (notice) {
-      notice.textContent = 'يرجى إدخال الاسم ورقم الهاتف بشكل صحيح.';
+      notice.innerHTML = 'يرجى <a href="/account.html" style="text-decoration:underline;font-weight:600;">إكمال بيانات حسابك</a> (الاسم ورقم الهاتف) أولاً.';
       notice.classList.add('show', 'is-error');
     }
     return;
@@ -266,25 +287,7 @@ function showAuthWall(storeId) {
   });
 }
 
-async function prefillFromProfile() {
-  const nameInput = document.getElementById('name');
-  const phoneInput = document.getElementById('phone');
-  if (!nameInput && !phoneInput) return;
-
-  try {
-    const client = getSupabaseClient();
-    const { data, error } = await client
-      .from('user_profiles')
-      .select('full_name, phone')
-      .maybeSingle();
-
-    if (error || !data) return;
-    if (nameInput && !nameInput.value && data.full_name) nameInput.value = data.full_name;
-    if (phoneInput && !phoneInput.value && data.phone) phoneInput.value = data.phone;
-  } catch (_) {
-    // Non-critical — silently ignore
-  }
-}
+async function prefillFromProfile() {}
 
 async function setupCheckout() {
   const storeId = getStoreId();
@@ -316,7 +319,9 @@ async function setupCheckout() {
     return;
   }
 
-  await prefillFromProfile();
+  // Single profile fetch — used for both the read-only summary and delivery location.
+  const profile = await fetchProfile();
+  renderProfileSummary(profile);
 
   if (!form) {
     return;
@@ -327,14 +332,14 @@ async function setupCheckout() {
   deliveryInputs.forEach((input) => {
     input.addEventListener('change', () => {
       setDeliveryVisibility(input.value);
-      if (input.value === 'delivery') fillLocationFromProfile();
+      if (input.value === 'delivery') applyLocationStatus(profile);
     });
   });
 
   const selected = form.querySelector('input[name="deliveryType"]:checked');
   const initialType = selected ? selected.value : 'pickup';
   setDeliveryVisibility(initialType);
-  if (initialType === 'delivery') fillLocationFromProfile();
+  if (initialType === 'delivery') applyLocationStatus(profile);
 }
 
 window.addEventListener('load', setupCheckout);
