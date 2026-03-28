@@ -540,7 +540,7 @@
       document.getElementById('createStoreCard').style.display = 'none';
       document.getElementById('existingStoreCard').style.display = 'none';
 
-      const { ok, data } = await apiFetch('/api/trader-store');
+      const { ok, data } = await apiFetch('/api/trader?resource=store');
       document.getElementById('storeLoading').style.display = 'none';
 
       if (!ok) {
@@ -585,7 +585,7 @@
 
       const btn = document.getElementById('createStoreBtn');
       btn.disabled = true;
-      const { ok, data } = await apiFetch('/api/trader-store', 'POST', { name, whatsapp_phone });
+      const { ok, data } = await apiFetch('/api/trader?resource=store', 'POST', { name, whatsapp_phone });
       btn.disabled = false;
 
       if (!ok) { notice(data.message || 'فشل إنشاء المتجر', 'err'); return; }
@@ -602,7 +602,7 @@
       const is_active = document.getElementById('editStoreActive').checked;
       if (!name || !whatsapp_phone) { notice('يرجى إدخال اسم المتجر ورقم الواتساب', 'err'); return; }
 
-      const { ok, data } = await apiFetch('/api/trader-store', 'PATCH', { name, whatsapp_phone, is_active });
+      const { ok, data } = await apiFetch('/api/trader?resource=store', 'PATCH', { name, whatsapp_phone, is_active });
       if (!ok) { notice(data.message || 'فشل تحديث المتجر', 'err'); return; }
       notice('تم تحديث بيانات المتجر ✓');
       currentStore = data.store;
@@ -616,7 +616,7 @@
       loading.style.display = '';
       document.getElementById('productsList').innerHTML = '';
 
-      const { ok, data } = await apiFetch('/api/trader-products');
+      const { ok, data } = await apiFetch('/api/trader?resource=products');
       loading.style.display = 'none';
 
       if (!ok) { notice('فشل تحميل المنتجات', 'err'); return; }
@@ -688,7 +688,7 @@
       if (!name) { notice('يرجى إدخال اسم المنتج', 'err'); return; }
       if (isNaN(price) || price < 0) { notice('يرجى إدخال سعر صحيح', 'err'); return; }
 
-      const { ok, data } = await apiFetch('/api/trader-products', 'POST', { name, price, is_available: true });
+      const { ok, data } = await apiFetch('/api/trader?resource=products', 'POST', { name, price, is_available: true });
       if (!ok) { notice(data.message || 'فشل إضافة المنتج', 'err'); return; }
       notice('تمت إضافة المنتج ✓');
       document.getElementById('newProductName').value = '';
@@ -703,7 +703,7 @@
       if (!name) { notice('يرجى إدخال اسم المنتج', 'err'); return; }
       if (isNaN(price) || price < 0) { notice('يرجى إدخال سعر صحيح', 'err'); return; }
 
-      const { ok, data } = await apiFetch('/api/trader-products?id=' + id, 'PATCH', { name, price, is_available });
+      const { ok, data } = await apiFetch('/api/trader?resource=products&id=' + id, 'PATCH', { name, price, is_available });
       if (!ok) { notice(data.message || 'فشل تحديث المنتج', 'err'); return; }
       notice('تم تحديث المنتج ✓');
       closeProductEdit(id);
@@ -712,7 +712,7 @@
 
     async function deleteProduct(id) {
       if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
-      const { ok, data } = await apiFetch('/api/trader-products?id=' + id, 'DELETE');
+      const { ok, data } = await apiFetch('/api/trader?resource=products&id=' + id, 'DELETE');
       if (!ok) { notice(data.message || 'فشل حذف المنتج', 'err'); return; }
       notice('تم حذف المنتج');
       document.getElementById('pr-' + id)?.remove();
@@ -733,7 +733,7 @@
       loading.style.display = '';
       document.getElementById('ordersList').innerHTML = '';
 
-      const url = '/api/trader-orders' + (currentOrderFilter ? '?status=' + currentOrderFilter : '');
+      const url = '/api/trader?resource=orders' + (currentOrderFilter ? '&status=' + currentOrderFilter : '');
       const { ok, data } = await apiFetch(url);
       loading.style.display = 'none';
 
@@ -787,7 +787,7 @@
 
     async function updateOrderStatus(id, status, btn) {
       btn.disabled = true;
-      const { ok, data } = await apiFetch('/api/trader-orders', 'PATCH', { id, status });
+      const { ok, data } = await apiFetch('/api/trader?resource=orders', 'PATCH', { id, status });
       if (!ok) {
         notice(data.message || 'فشل تحديث الطلب', 'err');
         btn.disabled = false;
