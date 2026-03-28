@@ -246,6 +246,26 @@ function showAuthWall(storeId) {
   });
 }
 
+async function prefillFromProfile() {
+  const nameInput = document.getElementById('name');
+  const phoneInput = document.getElementById('phone');
+  if (!nameInput && !phoneInput) return;
+
+  try {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('user_profiles')
+      .select('full_name, phone')
+      .maybeSingle();
+
+    if (error || !data) return;
+    if (nameInput && !nameInput.value && data.full_name) nameInput.value = data.full_name;
+    if (phoneInput && !phoneInput.value && data.phone) phoneInput.value = data.phone;
+  } catch (_) {
+    // Non-critical — silently ignore
+  }
+}
+
 async function setupCheckout() {
   const storeId = getStoreId();
   const form = document.getElementById('checkoutForm');
@@ -276,6 +296,8 @@ async function setupCheckout() {
     showAuthWall(storeId);
     return;
   }
+
+  await prefillFromProfile();
 
   if (!form) {
     return;
