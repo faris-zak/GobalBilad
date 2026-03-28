@@ -46,10 +46,10 @@ function buildCardWaUrl(phone, name, requestedRole, status, rejectionReason) {
   const roleLabel = requestedRole === 'trader' ? 'تاجر' : 'مندوب توصيل';
   let message = '';
   if (status === 'approved') {
-    message = `🎉 مبروك ${name}!\n\n ✅ تمت الموافقة على طلبك في جوب البلاد.\nيمكنك الآن تسجيل الدخول والاستمتاع بدورك الجديد كـ${roleLabel}.`;
+    message = `🎉 مبروك ${name}!\n\n ✅ تمت الموافقة على طلبك في جوب البلاد.\n\nيمكنك الآن تسجيل الدخول والاستمتاع بدورك الجديد كـ${roleLabel}.`;
   } else if (status === 'rejected') {
     const reasonText = rejectionReason ? `\nالسبب: ${rejectionReason}` : '';
-    message = `نأسف ${name}، تم رفض طلبك في جوب البلاد.${reasonText}\nيمكنك إعادة التقديم من خلال حسابك في أي وقت.`;
+    message = `❌ نأسف ${name}، تم رفض طلبك في جوب البلاد.${reasonText}.\n\nيمكنك إعادة التقديم من خلال حسابك في أي وقت.`;
   }
 
   const base = `https://api.whatsapp.com/send?phone=${normalised}`;
@@ -201,6 +201,82 @@ function renderMessages() {
   }).join('');
 }
 
+// Human-readable labels for every known application_payload key.
+const PAYLOAD_LABELS = {
+  // trader
+  storeName: 'اسم المتجر',
+  ownerName: 'اسم المالك',
+  commercialRegistration: 'السجل التجاري',
+  whatsappPhone: 'واتساب المتجر',
+  email: 'البريد الإلكتروني',
+  googleMapsLink: 'رابط الموقع',
+  needsProductEntryHelp: 'يحتاج مساعدة لإدخال المنتجات',
+  // delivery
+  fullName: 'الاسم الكامل',
+  phone: 'رقم الهاتف',
+  isAvailable: 'متاح حالياً',
+  availabilitySchedule: 'أوقات التفرغ',
+  knowsArea: 'يعرف المنطقة',
+  canPeakHours: 'يقبل أوقات الذروة',
+  // declaration subkeys
+  isOmani: 'عماني الجنسية',
+  over18: 'عمره فوق 18',
+  hasVehicle: 'يمتلك وسيلة نقل',
+  committed: 'ملتزم بشروط الخدمة',
+  fromAlMaamoura: 'من منطقة المعمورة'
+};
+
+function renderPayloadFields(payload) {
+  if (!payload || typeof payload !== 'object') return '';
+
+  const rows = [];
+
+  function addRow(key, value) {
+    const label = PAYLOAD_LABELS[key] || key;
+    let display;
+    if (typeof value === 'boolean') {
+      display = value ? '<span class="payload-bool payload-bool-yes">✅ نعم</span>' : '<span class="payload-bool payload-bool-no">❌ لا</span>';
+    } else if (value === null || value === undefined || value === '') {
+      display = '<span class="payload-empty">—</span>';
+    } else if (typeof value === 'object') {
+      // nested object (e.g. declaration) — recurse
+      return;
+    } else {
+      display = `<span>${escapeHtml(String(value))}</span>`;
+    }
+    rows.push(`<tr><th>${escapeHtml(label)}</th><td>${display}</td></tr>`);
+  }
+
+  // Top-level fields first
+  for (const [key, value] of Object.entries(payload)) {
+    if (key === 'declaration' && value && typeof value === 'object') continue;
+    addRow(key, value);
+  }
+
+  // Declaration block (checkboxes)
+  if (payload.declaration && typeof payload.declaration === 'object') {
+    rows.push('<tr class="payload-section-row"><th colspan="2">الإقرارات</th></tr>');
+    for (const [key, value] of Object.entries(payload.declaration)) {
+      addRow(key, value);
+    }
+  }
+
+  if (!rows.length) return '';
+  return `<table class="payload-table">${rows.join('')}</table>`;
+}
+
+function formatApplicationDate(isoString) {
+  if (!isoString) return '-';
+  try {
+    return new Date(isoString).toLocaleString('ar-OM', {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  } catch (_) {
+    return isoString;
+  }
+}
+
 function renderApplications() {
   if (!applicationsListEl) {
     return;
@@ -214,9 +290,9 @@ function renderApplications() {
 
   applicationsListEl.innerHTML = applications.map((application) => {
     const displayName = application.full_name || application.application_payload?.fullName || application.application_payload?.ownerName || 'بدون اسم';
-    const roleLabel = application.requested_role === 'trader' ? 'تاجر' : 'مندوب';
-    const payloadPreview = application.application_payload ? escapeHtml(JSON.stringify(application.application_payload)) : '-';
+    const roleLabel = application.requested_role === 'trader' ? 'تاجر' : 'مندوب توصيل';
     const canReview = application.application_status === 'pending';
+    const payloadHtml = renderPayloadFields(application.application_payload);
 
     const waUrl = buildCardWaUrl(
       application.phone || '',
@@ -229,22 +305,42 @@ function renderApplications() {
       ? `<a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-sm admin-wa-btn">📲 واتساب</a>`
       : `<span class="admin-wa-no-phone">لا يوجد رقم هاتف</span>`;
 
+    const statusLabel = {
+      pending: 'قيد المراجعة',
+      approved: 'مقبول',
+      rejected: 'مرفوض'
+    }[application.application_status] || application.application_status;
+
     return `
       <article class="admin-application-row"
         data-app-user-id="${escapeHtml(application.user_id)}">
-        <div class="admin-message-head">
-          <h3>${escapeHtml(displayName)}</h3>
-          <span class="${messageStatusClass(application.application_status)}">${escapeHtml(application.application_status)}</span>
+
+        <div class="app-card-head">
+          <div class="app-card-identity">
+            <h3>${escapeHtml(displayName)}</h3>
+            <span class="app-role-badge app-role-${escapeHtml(application.requested_role || 'user')}">${escapeHtml(roleLabel)}</span>
+          </div>
+          <span class="${messageStatusClass(application.application_status)} app-status-badge">${escapeHtml(statusLabel)}</span>
         </div>
-        <p class="admin-message-line" dir="ltr">user_id: ${escapeHtml(application.user_id)}</p>
-        <p class="admin-message-type">نوع الطلب: <strong>${escapeHtml(roleLabel)}</strong></p>
-        <p class="admin-message-line">الدور الحالي: <span class="${userBadgeClass(application.role || 'user')}">${escapeHtml(application.role || 'user')}</span></p>
+
+        <div class="app-card-meta">
+          <span class="app-meta-item">📧 <span dir="ltr">${escapeHtml(application.application_payload?.email || '-')}</span></span>
+          <span class="app-meta-item">📞 <span dir="ltr">${escapeHtml(application.phone || application.application_payload?.phone || application.application_payload?.whatsappPhone || '-')}</span></span>
+          <span class="app-meta-item">🗂 الدور الحالي: <span class="${userBadgeClass(application.role || 'user')}">${escapeHtml(application.role || 'user')}</span></span>
+          <span class="app-meta-item">🕐 ${escapeHtml(formatApplicationDate(application.application_submitted_at))}</span>
+        </div>
+
+        ${payloadHtml ? `
         <details class="admin-application-details">
-          <summary>عرض بيانات الطلب</summary>
-          <pre>${payloadPreview}</pre>
-        </details>
-        <p class="admin-message-line">تاريخ التقديم: ${escapeHtml(application.application_submitted_at || '-')}</p>
-        ${application.application_rejection_reason ? `<p class="admin-message-line">سبب الرفض: ${escapeHtml(application.application_rejection_reason)}</p>` : ''}
+          <summary>تفاصيل بيانات الطلب</summary>
+          <div class="payload-table-wrap">${payloadHtml}</div>
+        </details>` : ''}
+
+        ${application.application_rejection_reason ? `
+        <div class="app-rejection-reason">
+          <strong>سبب الرفض:</strong> ${escapeHtml(application.application_rejection_reason)}
+        </div>` : ''}
+
         <div class="admin-user-actions">
           <button class="btn btn-primary btn-sm" data-action="application-approve" type="button" ${canReview ? '' : 'disabled'}>قبول الطلب</button>
           <button class="btn btn-outline btn-sm" data-action="application-reject" type="button" ${canReview ? '' : 'disabled'}>رفض الطلب</button>
