@@ -18,7 +18,8 @@
         const isActive =
           page === href ||
           (page === '' && href === 'index.html') ||
-          (page === 'about-us.html' && href === 'about.html');
+          (page === 'about-us.html' && href === 'about.html') ||
+          (page === 'carts.html' && href === 'carts.html');
         return `<a href="${href}"${isActive ? ' class="active"' : ''}>${label}</a>`;
       }).join('\n              ');
 
@@ -31,7 +32,7 @@
             </a>
             <nav class="site-nav" id="siteNav" aria-label="التنقل الرئيسي">
               ${navItems}
-              <a href="stores.html" class="nav-cart-link" aria-label="سلة الطلبات">
+              <a href="carts.html" class="nav-cart-link" aria-label="سلة الطلبات">
                 سلة الطلبات
                 <span class="cart-badge" id="headerCartBadge">0</span>
               </a>

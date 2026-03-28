@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ar-OM" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>سلة الطلبات | جوب البلاد</title>
+  <meta name="description" content="تصفح سلالك النشطة وأكمل طلبك من أي متجر." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+
+  <style>
+    .carts-container { max-width: 680px; margin: 0 auto; padding: 0 16px 80px; }
+
+    .carts-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .cart-entry {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .cart-entry:hover { border-color: var(--green); box-shadow: 0 6px 24px rgba(26,107,60,0.1); }
+
+    .cart-entry-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .cart-entry-icon {
+      width: 52px; height: 52px;
+      background: var(--green-light);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .cart-entry-meta { flex: 1; min-width: 0; }
+    .cart-entry-name {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-dark);
+      margin-bottom: 2px;
+    }
+    .cart-entry-summary {
+      font-size: 13px;
+      color: var(--text-mid);
+    }
+
+    .cart-entry-items {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 6px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .cart-entry-items li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      gap: 8px;
+    }
+    .cart-item-qty {
+      background: var(--green-light);
+      color: var(--green);
+      border-radius: 99px;
+      padding: 1px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .cart-item-price {
+      color: var(--text-mid);
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .cart-entry-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+    .cart-entry-total {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-dark);
+    }
+    .cart-entry-total span { color: var(--green); }
+
+    .cart-entry-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-clear-cart {
+      padding: 8px 14px;
+      font-size: 13px;
+      border: 1px solid #fecdca;
+      border-radius: 99px;
+      background: #fef3f2;
+      color: #b42318;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-weight: 600;
+      transition: background 0.18s;
+    }
+    .btn-clear-cart:hover { background: #fee4e2; }
+
+    .btn-checkout-cart {
+      padding: 10px 22px;
+      font-size: 14px;
+      border-radius: 99px;
+      background: var(--green);
+      color: var(--white);
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s, transform 0.18s;
+    }
+    .btn-checkout-cart:hover { background: var(--green-mid); transform: translateY(-1px); }
+
+    .carts-empty {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-mid);
+    }
+    .carts-empty-icon { font-size: 52px; margin-bottom: 12px; }
+    .carts-empty p { font-size: 15px; margin-bottom: 20px; }
+  </style>
+
+  <script src="components/site-header.js"></script>
+  <script src="assets/js/cart.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+</head>
+<body>
+  <site-header></site-header>
+
+  <header class="page-header reveal">
+    <div class="page-header-inner">
+      <h1>سلة الطلبات</h1>
+      <p>سلالك النشطة من جميع المتاجر — اختر أياً منها لإتمام الطلب.</p>
+    </div>
+  </header>
+
+  <main class="carts-container">
+    <div id="cartsList" class="carts-list" aria-live="polite">
+      <div class="carts-empty">
+        <div class="carts-empty-icon">🧺</div>
+        <p>جاري تحميل السلال...</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-icon">🛒</span>
+        <span class="logo-text">GobalBilad</span>
+      </div>
+      <p class="footer-tagline">ندعم المجتمعات المحلية في عُمان، طلبًا بعد طلب.</p>
+      <p class="footer-copy">© 2026 GobalBilad. صُنع بحب في عُمان.</p>
+    </div>
+  </footer>
+
+  <script>
+    function escapeHtml(v) {
+      return String(v || '')
+        .replaceAll('&','&amp;').replaceAll('<','&lt;')
+        .replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+    }
+    function formatPrice(v) {
+      return `${Number(v || 0).toFixed(3)} ر.ع`;
+    }
+
+    function getAllCarts() {
+      const carts = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k || !k.startsWith('cart_')) continue;
+        try {
+          const parsed = JSON.parse(localStorage.getItem(k));
+          const storeId = k.slice(5); // strip 'cart_'
+          if (!Array.isArray(parsed?.items) || !parsed.items.length) continue;
+          carts.push({
+            storeId,
+            storeName: parsed.storeName || 'متجر',
+            items: parsed.items.filter(it => it.qty > 0)
+          });
+        } catch (_) {}
+      }
+      return carts;
+    }
+
+    function renderCarts() {
+      const list = document.getElementById('cartsList');
+      if (!list) return;
+
+      const carts = getAllCarts();
+
+      if (!carts.length) {
+        list.innerHTML = `
+          <div class="carts-empty">
+            <div class="carts-empty-icon">🧺</div>
+            <p>لا توجد سلال نشطة حالياً.</p>
+            <a href="stores.html" class="btn btn-primary">تصفح المتاجر</a>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = carts.map(cart => {
+        const total = cart.items.reduce((s, it) => s + it.price * it.qty, 0);
+        const itemCount = cart.items.reduce((s, it) => s + it.qty, 0);
+        const checkoutUrl = `checkout.html?store=${encodeURIComponent(cart.storeId)}`;
+
+        const itemsHtml = cart.items.map(it => `
+          <li>
+            <span>${escapeHtml(it.name)}</span>
+            <span class="cart-item-qty">× ${it.qty}</span>
+            <span class="cart-item-price">${formatPrice(it.price * it.qty)}</span>
+          </li>`).join('');
+
+        return `
+          <article class="cart-entry reveal" data-store-id="${escapeHtml(cart.storeId)}">
+            <div class="cart-entry-head">
+              <div class="cart-entry-icon" aria-hidden="true">🏪</div>
+              <div class="cart-entry-meta">
+                <div class="cart-entry-name">${escapeHtml(cart.storeName)}</div>
+                <div class="cart-entry-summary">${itemCount} منتج في السلة</div>
+              </div>
+            </div>
+            <ul class="cart-entry-items">${itemsHtml}</ul>
+            <div class="cart-entry-footer">
+              <div class="cart-entry-total">الإجمالي: <span>${formatPrice(total)}</span></div>
+              <div class="cart-entry-actions">
+                <button type="button" class="btn-clear-cart" data-store-id="${escapeHtml(cart.storeId)}">حذف السلة</button>
+                <a href="${checkoutUrl}" class="btn-checkout-cart">إتمام الطلب ←</a>
+              </div>
+            </div>
+          </article>`;
+      }).join('');
+
+      // Wire up clear buttons
+      list.querySelectorAll('.btn-clear-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const storeId = btn.dataset.storeId;
+          if (!storeId || !window.CartUtils) return;
+          if (!confirm(`هل أنت متأكد من حذف سلة "${escapeHtml(getAllCarts().find(c => c.storeId === storeId)?.storeName || '')}"؟`)) return;
+          window.CartUtils.clearCart(storeId);
+          renderCarts();
+        });
+      });
+
+      if (typeof initRevealOnScroll === 'function') initRevealOnScroll();
+    }
+
+    window.addEventListener('load', renderCarts);
+    window.addEventListener('cart:updated', renderCarts);
+  </script>
+</body>
+</html>
