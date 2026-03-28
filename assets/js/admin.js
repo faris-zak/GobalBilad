@@ -46,7 +46,7 @@ function buildCardWaUrl(phone, name, requestedRole, status, rejectionReason) {
   const roleLabel = requestedRole === 'trader' ? 'تاجر' : 'مندوب توصيل';
   let message = '';
   if (status === 'approved') {
-    message = `🎉 مبروك ${name}! تمت الموافقة على طلبك في جوب البلاد.\nيمكنك الآن تسجيل الدخول والاستمتاع بدورك الجديد كـ${roleLabel}.`;
+    message = `✅ مبروك ${name}!\n\n تمت الموافقة على طلبك في جوب البلاد.\nيمكنك الآن تسجيل الدخول والاستمتاع بدورك الجديد كـ${roleLabel}.`;
   } else if (status === 'rejected') {
     const reasonText = rejectionReason ? `\nالسبب: ${rejectionReason}` : '';
     message = `نأسف ${name}، تم رفض طلبك في جوب البلاد.${reasonText}\nيمكنك إعادة التقديم من خلال حسابك في أي وقت.`;
