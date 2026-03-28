@@ -12,6 +12,7 @@
     { "source": "/contact-us", "destination": "/contact-us.html" },
     { "source": "/auth-callback", "destination": "/auth-callback.html" },
     { "source": "/apply-role", "destination": "/apply-role.html" },
-    { "source": "/trader", "destination": "/trader.html" }
+    { "source": "/trader", "destination": "/trader.html" },
+    { "source": "/carts", "destination": "/carts.html" }
   ]
 }
