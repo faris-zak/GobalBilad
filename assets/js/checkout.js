@@ -228,13 +228,31 @@ function refreshView(storeId) {
   renderCart(cart);
 }
 
-function setupCheckout() {
+function showAuthWall(storeId) {
+  const formCard = document.querySelector('.checkout-card[aria-label="بيانات الطلب"]');
+  if (!formCard) return;
+
+  formCard.innerHTML = `
+    <div class="checkout-auth-wall">
+      <div class="checkout-auth-icon">🔐</div>
+      <h2 class="checkout-subtitle">تسجيل الدخول مطلوب</h2>
+      <p class="checkout-auth-text">يجب تسجيل الدخول لإتمام الطلب وحفظ بياناتك بأمان.</p>
+      <a href="login.html" class="btn btn-primary btn-block" id="authWallLoginBtn">المتابعة باستخدام Google</a>
+    </div>
+  `;
+
+  document.getElementById('authWallLoginBtn').addEventListener('click', () => {
+    sessionStorage.setItem('loginRedirect', location.href);
+  });
+}
+
+async function setupCheckout() {
   const storeId = getStoreId();
   const form = document.getElementById('checkoutForm');
   const detectBtn = document.getElementById('detectLocationBtn');
   const deliveryInputs = document.querySelectorAll('input[name="deliveryType"]');
 
-  if (!window.CartUtils || !storeId || !form) {
+  if (!window.CartUtils || !storeId) {
     return;
   }
 
@@ -243,7 +261,25 @@ function setupCheckout() {
     return;
   }
 
+  // Always render cart preview — even for unauthenticated users.
   refreshView(storeId);
+
+  // Auth gate: must be signed in to complete checkout.
+  let session = null;
+  try {
+    session = await checkSession();
+  } catch (_err) {
+    // checkSession unavailable (e.g. script load failed) — proceed without gate.
+  }
+
+  if (!session) {
+    showAuthWall(storeId);
+    return;
+  }
+
+  if (!form) {
+    return;
+  }
 
   form.addEventListener('submit', submitOrder);
 

@@ -21,6 +21,12 @@
         try {
           const session = await checkSession();
           if (session) {
+            const redirect = sessionStorage.getItem('loginRedirect');
+            if (redirect) {
+              sessionStorage.removeItem('loginRedirect');
+              window.location.replace(redirect);
+              return;
+            }
             window.location.replace('/account');
             return;
           }
