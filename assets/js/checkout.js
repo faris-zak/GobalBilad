@@ -294,6 +294,9 @@ async function setupCheckout() {
   const form = document.getElementById('checkoutForm');
   const deliveryInputs = document.querySelectorAll('input[name="deliveryType"]');
 
+  // Point the back link to the specific store page
+  const backLink = document.getElementById('backToStoreLink');
+  if (backLink && storeId) backLink.href = `store.html?id=${encodeURIComponent(storeId)}`;
   if (!window.CartUtils || !storeId) {
     return;
   }
