@@ -200,7 +200,7 @@ async function submitOrder(event) {
     });
 
     const whatsappPhone = String(data?.store?.whatsapp_phone || cart.storePhone || '').replace(/\D/g, '');
-    const waUrl = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(message)}`;
+    const waUrl = `https://api.whatsapp.com/send?phone=${whatsappPhone}&text=${encodeURIComponent(message)}`;
 
     window.CartUtils.clearCart(storeId);
     refreshView(storeId);
