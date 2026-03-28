@@ -15,6 +15,8 @@ const applicationsRoleFilter = document.getElementById('applicationsRoleFilter')
 const messagesStatusFilter = document.getElementById('messagesStatusFilter');
 const refreshDashboardBtn = document.getElementById('refreshDashboardBtn');
 const seedStoresBtn = document.getElementById('seedStoresBtn');
+const adminWaNoticeEl = document.getElementById('adminWaNotice');
+const adminWaLinkEl = document.getElementById('adminWaLink');
 
 let dashboardState = {
   users: [],
@@ -29,6 +31,38 @@ function setAdminStatus(type, text) {
 
   adminStatusEl.className = `admin-status ${type || ''}`.trim();
   adminStatusEl.textContent = text || '';
+}
+
+function buildWaNotificationUrl(phone, name, requestedRole, decision, reason) {
+  // Normalise phone: strip non-digits, ensure Omani country code (968) when no leading + code.
+  const digits = String(phone || '').replace(/\D/g, '');
+  if (!digits) return null;
+  const normalised = digits.startsWith('968') ? digits : digits.startsWith('0') ? `968${digits.slice(1)}` : `968${digits}`;
+
+  const roleLabel = requestedRole === 'trader' ? 'تاجر' : 'مندوب توصيل';
+  let message;
+  if (decision === 'approve') {
+    message = `🎉 مبروك ${name}! تمت الموافقة على طلبك في جوب البلاد.\nيمكنك الآن تسجيل الدخول والاستمتاع بدورك الجديد كـ${roleLabel}.`;
+  } else {
+    const reasonText = reason ? `\nالسبب: ${reason}` : '';
+    message = `نأسف ${name}، تم رفض طلبك في جوب البلاد.${reasonText}\nيمكنك إعادة التقديم من خلال حسابك في أي وقت.`;
+  }
+
+  return `https://wa.me/${normalised}?text=${encodeURIComponent(message)}`;
+}
+
+function showWaNotice(phone, name, requestedRole, decision, reason) {
+  if (!adminWaNoticeEl || !adminWaLinkEl) return;
+
+  const url = buildWaNotificationUrl(phone, name, requestedRole, decision, reason);
+  if (!url) {
+    adminWaNoticeEl.hidden = true;
+    return;
+  }
+
+  adminWaLinkEl.href = url;
+  adminWaLinkEl.textContent = decision === 'approve' ? '📲 إرسال تهنئة للمتقدم' : '📲 إرسال إشعار الرفض للمتقدم';
+  adminWaNoticeEl.hidden = false;
 }
 
 async function getAccessTokenOrThrow() {
@@ -194,7 +228,11 @@ function renderApplications() {
     const canReview = application.application_status === 'pending';
 
     return `
-      <article class="admin-application-row" data-app-user-id="${escapeHtml(application.user_id)}">
+      <article class="admin-application-row"
+        data-app-user-id="${escapeHtml(application.user_id)}"
+        data-app-phone="${escapeHtml(application.phone || '')}"
+        data-app-name="${escapeHtml(displayName)}"
+        data-app-role="${escapeHtml(application.requested_role || '')}">
         <div class="admin-message-head">
           <h3>${escapeHtml(displayName)}</h3>
           <span class="${messageStatusClass(application.application_status)}">${escapeHtml(application.application_status)}</span>
@@ -394,11 +432,19 @@ async function handleApplicationsClick(event) {
     return;
   }
 
+  // Hide any previous WA notice before each new action.
+  if (adminWaNoticeEl) adminWaNoticeEl.hidden = true;
+
+  const applicantPhone = row.getAttribute('data-app-phone') || '';
+  const applicantName = row.getAttribute('data-app-name') || '';
+  const applicantRole = row.getAttribute('data-app-role') || '';
+
   button.disabled = true;
   try {
     if (action === 'application-approve') {
       await reviewApplication(userId, 'approve');
       setAdminStatus('ok', 'تم قبول الطلب بنجاح.');
+      showWaNotice(applicantPhone, applicantName, applicantRole, 'approve', '');
     } else {
       const reason = window.prompt('سبب الرفض (إجباري):');
       if (!reason) {
@@ -407,6 +453,7 @@ async function handleApplicationsClick(event) {
       }
       await reviewApplication(userId, 'reject', reason);
       setAdminStatus('ok', 'تم رفض الطلب وتسجيل السبب.');
+      showWaNotice(applicantPhone, applicantName, applicantRole, 'reject', reason);
     }
 
     await refreshDashboard();
