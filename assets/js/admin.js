@@ -14,6 +14,7 @@ const applicationsStatusFilter = document.getElementById('applicationsStatusFilt
 const applicationsRoleFilter = document.getElementById('applicationsRoleFilter');
 const messagesStatusFilter = document.getElementById('messagesStatusFilter');
 const refreshDashboardBtn = document.getElementById('refreshDashboardBtn');
+const seedStoresBtn = document.getElementById('seedStoresBtn');
 
 let dashboardState = {
   users: [],
@@ -305,6 +306,14 @@ async function reviewApplication(userId, decision, reason = '') {
   });
 }
 
+async function runSeedHelper() {
+  const payload = await apiFetch('/api/admin-seed-helper', {
+    method: 'POST'
+  });
+
+  return payload?.result || null;
+}
+
 async function handleUsersClick(event) {
   const button = event.target.closest('button[data-action]');
   if (!button) {
@@ -462,6 +471,31 @@ function bindEvents() {
   refreshDashboardBtn.addEventListener('click', () => {
     refreshDashboard().catch((error) => setAdminStatus('err', error.message || 'تعذر تحديث اللوحة.'));
   });
+
+  if (seedStoresBtn) {
+    seedStoresBtn.addEventListener('click', async () => {
+      seedStoresBtn.disabled = true;
+      setAdminStatus('', 'جاري تهيئة بيانات المتاجر...');
+
+      try {
+        const result = await runSeedHelper();
+        await refreshDashboard();
+
+        const createdStores = result?.createdStores ?? 0;
+        const existingStores = result?.existingStores ?? 0;
+        const createdProducts = result?.createdProducts ?? 0;
+
+        setAdminStatus(
+          'ok',
+          `تمت التهيئة بنجاح: متاجر جديدة ${createdStores}، متاجر موجودة ${existingStores}، منتجات جديدة ${createdProducts}.`
+        );
+      } catch (error) {
+        setAdminStatus('err', error.message || 'تعذر تهيئة بيانات المتاجر.');
+      } finally {
+        seedStoresBtn.disabled = false;
+      }
+    });
+  }
 }
 
 window.addEventListener('load', async () => {

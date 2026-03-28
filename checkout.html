@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar-OM" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إتمام الطلب | جوب البلاد</title>
+  <meta name="description" content="أكمل بيانات الطلب وحدد طريقة الاستلام في جوب البلاد." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+
+  <script src="components/site-header.js"></script>
+  <script src="assets/js/cart.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/checkout.js" defer></script>
+</head>
+<body>
+  <site-header></site-header>
+
+  <main class="checkout-main">
+    <div class="checkout-container">
+      <section class="checkout-card reveal" aria-labelledby="checkoutStoreName">
+        <h1 id="checkoutStoreName" class="checkout-title">المتجر</h1>
+        <a class="back-link" href="stores.html">← العودة للمتاجر</a>
+        <div id="checkoutCartItems" class="checkout-items" aria-live="polite"></div>
+        <div class="checkout-total-row">
+          <span>الإجمالي</span>
+          <strong id="checkoutTotal">0.000 ر.ع</strong>
+        </div>
+      </section>
+
+      <section class="checkout-card reveal" aria-label="بيانات الطلب">
+        <h2 class="checkout-subtitle">بيانات العميل</h2>
+        <form id="checkoutForm" class="checkout-form" novalidate>
+          <div class="form-group">
+            <label for="name">الاسم</label>
+            <input id="name" name="name" type="text" autocomplete="name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="phone">رقم الهاتف</label>
+            <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required />
+          </div>
+
+          <fieldset class="checkout-delivery-group">
+            <legend>طريقة الاستلام</legend>
+            <label class="checkout-radio">
+              <input type="radio" name="deliveryType" value="pickup" checked />
+              <span>استلام من المتجر</span>
+            </label>
+            <label class="checkout-radio">
+              <input type="radio" name="deliveryType" value="delivery" />
+              <span>توصيل</span>
+            </label>
+          </fieldset>
+
+          <div id="deliveryFields" class="delivery-fields is-hidden">
+            <div class="form-group">
+              <label for="locationLink">رابط الموقع (Google Maps)</label>
+              <input id="locationLink" name="locationLink" type="url" placeholder="https://maps.google.com/..." />
+            </div>
+            <button id="detectLocationBtn" type="button" class="btn btn-outline btn-block">استخدام موقعي الحالي</button>
+          </div>
+
+          <button class="btn btn-primary btn-block" type="submit">تأكيد الطلب وفتح واتساب</button>
+          <p id="checkoutNotice" class="checkout-notice" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-icon">🛒</span>
+        <span class="logo-text">GobalBilad</span>
+      </div>
+      <p class="footer-tagline">ندعم المجتمعات المحلية في عُمان، طلبًا بعد طلب.</p>
+      <p class="footer-copy">© 2026 GobalBilad. صُنع بحب في عُمان.</p>
+    </div>
+  </footer>
+</body>
+</html>

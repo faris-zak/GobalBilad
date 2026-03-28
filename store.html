@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar-OM" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>منتجات المتجر | جوب البلاد</title>
+  <meta name="description" content="تصفح منتجات المتجر وأضفها للسلة في جوب البلاد." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+
+  <script src="components/site-header.js"></script>
+  <script src="assets/js/cart.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/store.js" defer></script>
+</head>
+<body>
+  <site-header></site-header>
+
+  <main>
+    <section class="store-hero reveal">
+      <div class="store-hero-inner">
+        <div class="store-hero-icon" aria-hidden="true">🏪</div>
+        <div class="store-hero-info">
+          <a class="back-link" href="stores.html">← الرجوع للمتاجر</a>
+          <h1 id="storeTitle">المتجر</h1>
+          <p id="storeSubtitle">جاري تحميل بيانات المتجر...</p>
+          <div class="store-actions">
+            <a id="goToCheckoutBtn" class="btn btn-primary" href="#">إتمام الطلب (<span id="storeCartCount">0</span>)</a>
+          </div>
+          <p id="storeNotice" class="store-notice" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="products-container">
+      <h2 class="products-title">المنتجات</h2>
+      <div id="productsGrid" class="products-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-icon">🛒</span>
+        <span class="logo-text">GobalBilad</span>
+      </div>
+      <p class="footer-tagline">ندعم المجتمعات المحلية في عُمان، طلبًا بعد طلب.</p>
+      <p class="footer-copy">© 2026 GobalBilad. صُنع بحب في عُمان.</p>
+    </div>
+  </footer>
+</body>
+</html>

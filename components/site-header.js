@@ -1,6 +1,7 @@
 (function () {
   const NAV_LINKS = [
     { href: 'index.html', label: 'الرئيسية' },
+    { href: 'stores.html', label: 'المتاجر' },
     { href: 'about-us.html', label: 'من نحن' },
     { href: 'apply-role.html', label: 'سجّل كتاجر أو مندوب' },
     { href: 'terms-of-service.html', label: 'شروط الخدمة' },
@@ -30,6 +31,10 @@
             </a>
             <nav class="site-nav" id="siteNav" aria-label="التنقل الرئيسي">
               ${navItems}
+              <a href="stores.html" class="nav-cart-link" aria-label="سلة الطلبات">
+                سلة الطلبات
+                <span class="cart-badge" id="headerCartBadge">0</span>
+              </a>
               <a href="login.html" class="nav-cta-mobile">تسجيل دخول</a>
             </nav>
             <div class="site-header-end">
@@ -43,6 +48,7 @@
       `;
 
       this._initHamburger();
+      this._initCartBadge();
     }
 
     _initHamburger() {
@@ -68,6 +74,41 @@
       document.addEventListener('click', (e) => {
         if (!this.contains(e.target)) close();
       });
+    }
+
+    _initCartBadge() {
+      const badge = this.querySelector('#headerCartBadge');
+      if (!badge) return;
+
+      const getTotalCount = () => {
+        let count = 0;
+        for (let i = 0; i < localStorage.length; i += 1) {
+          const key = localStorage.key(i);
+          if (!key || !key.startsWith('cart_')) continue;
+
+          try {
+            const parsed = JSON.parse(localStorage.getItem(key));
+            if (!Array.isArray(parsed?.items)) continue;
+            parsed.items.forEach((item) => {
+              const qty = Number.parseInt(String(item?.qty || 0), 10);
+              if (Number.isInteger(qty) && qty > 0) {
+                count += qty;
+              }
+            });
+          } catch (_err) {
+            // Ignore malformed cart payloads.
+          }
+        }
+        return count;
+      };
+
+      const refresh = () => {
+        badge.textContent = String(getTotalCount());
+      };
+
+      refresh();
+      window.addEventListener('storage', refresh);
+      window.addEventListener('cart:updated', refresh);
     }
   }
 
