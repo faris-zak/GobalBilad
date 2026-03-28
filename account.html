@@ -103,6 +103,10 @@
 
       .order-total-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px; font-size: 0.95rem; }
       .order-total-row strong { color: var(--green); font-size: 1.05rem; }
+
+      .order-cancel-btn { align-self: flex-start; margin-top: 2px; padding: 5px 14px; font-size: 0.8rem; border: 1px solid #fecdca; border-radius: 20px; background: #fef3f2; color: #b42318; cursor: pointer; font-family: var(--font-body); }
+      .order-cancel-btn:hover { background: #fee4e2; }
+      .order-cancel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
     <script src="components/site-header.js"></script>
   </head>
@@ -732,6 +736,36 @@
       const ORDER_STATUS = { pending: 'قيد الانتظار', confirmed: 'تم التأكيد', cancelled: 'ملغي' };
       const ORDER_STATUS_CLASS = { pending: 'order-status-pending', confirmed: 'order-status-confirmed', cancelled: 'order-status-cancelled' };
 
+      async function cancelOrder(btn, accessToken) {
+        const orderId = btn.dataset.id;
+        if (!orderId) return;
+        if (!confirm('هل أنت متأكد من إلغاء هذا الطلب؟')) return;
+
+        btn.disabled = true;
+        btn.textContent = 'جاري الإلغاء...';
+
+        try {
+          const res = await fetch(`/api/my-orders?id=${encodeURIComponent(orderId)}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.message || 'فشل الإلغاء');
+
+          // Remove the card from the DOM
+          btn.closest('.order-card')?.remove();
+
+          const list = document.getElementById('ordersList');
+          if (list && !list.querySelector('.order-card')) {
+            list.innerHTML = '<p class="orders-empty">لا توجد طلبات مسجلة حتى الآن.</p>';
+          }
+        } catch (err) {
+          btn.disabled = false;
+          btn.textContent = 'إلغاء الطلب';
+          alert('تعذر الإلغاء: ' + err.message);
+        }
+      }
+
       async function loadOrders(accessToken) {
         const section = document.getElementById('ordersSection');
         const list = document.getElementById('ordersList');
@@ -785,8 +819,13 @@
                   <span>الإجمالي</span>
                   <strong>${formatPrice(o.total_price)}</strong>
                 </div>
+                ${o.status === 'pending' ? `<button type="button" class="order-cancel-btn" data-id="${escapeHtml(o.id)}">إلغاء الطلب</button>` : ''}
               </article>`;
           }).join('');
+
+          list.querySelectorAll('.order-cancel-btn').forEach(btn => {
+            btn.addEventListener('click', () => cancelOrder(btn, accessToken));
+          });
         } catch (err) {
           section.hidden = false;
           list.innerHTML = `<p class="orders-empty orders-error">تعذر تحميل الطلبات: ${escapeHtml(err.message)}</p>`;
