@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const STATIC_CACHE = `gobalbilad-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `gobalbilad-runtime-${CACHE_VERSION}`;
 
@@ -14,10 +14,17 @@ const STATIC_ASSETS = [
   '/admin.html',
   '/apply-role.html',
   '/auth-callback.html',
+  '/stores.html',
+  '/store.html',
+  '/checkout.html',
   '/assets/css/main.css',
   '/assets/js/main.js',
   '/assets/js/auth.js',
   '/assets/js/admin.js',
+  '/assets/js/cart.js',
+  '/assets/js/stores.js',
+  '/assets/js/store.js',
+  '/assets/js/checkout.js',
   '/components/site-header.js',
   '/assets/images/gb-icon.png',
   '/assets/images/gb-banner.webp',
