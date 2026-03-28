@@ -52,8 +52,8 @@ function buildCardWaUrl(phone, name, requestedRole, status, rejectionReason) {
     message = `نأسف ${name}، تم رفض طلبك في جوب البلاد.${reasonText}\nيمكنك إعادة التقديم من خلال حسابك في أي وقت.`;
   }
 
-  const base = `https://wa.me/${normalised}`;
-  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+  const base = `https://api.whatsapp.com/send?phone=${normalised}`;
+  return message ? `${base}&text=${encodeURIComponent(message)}` : base;
 }
 
 async function getAccessTokenOrThrow() {
