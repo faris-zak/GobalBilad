@@ -13,6 +13,7 @@
     { "source": "/auth-callback", "destination": "/auth-callback.html" },
     { "source": "/apply-role", "destination": "/apply-role.html" },
     { "source": "/trader", "destination": "/trader.html" },
-    { "source": "/carts", "destination": "/carts.html" }
+    { "source": "/carts", "destination": "/carts.html" },
+    { "source": "/driver", "destination": "/driver-dashboard.html" }
   ]
 }

@@ -1,6 +1,12 @@
-import { adminClient, getPagination, json, normalizeString, requireTrader } from './_supabase-admin.js';
+import { adminClient, getPagination, json, normalizeString, requireTrader, requireDelivery } from './_supabase-admin.js';
 
-const ALLOWED_ORDER_STATUSES = new Set(['pending', 'confirmed', 'cancelled']);
+const ALLOWED_ORDER_STATUSES = new Set(['pending', 'confirmed', 'cancelled', 'ready_for_shipping', 'out_for_delivery', 'delivered']);
+
+const TRADER_STATUS_TRANSITIONS = {
+  confirmed:          'pending',
+  cancelled:          'pending',
+  ready_for_shipping: 'confirmed',
+};
 
 // ─── Shared helpers ──────────────────────────────────────────────────────────
 
@@ -217,8 +223,10 @@ async function updateOrderStatus(req, res, storeId) {
   const newStatus = normalizeString(req.body?.status).toLowerCase();
 
   if (!orderId) return json(res, 400, { error: 'MISSING_ID', message: 'Order id is required' });
-  if (newStatus !== 'confirmed' && newStatus !== 'cancelled') {
-    return json(res, 400, { error: 'INVALID_STATUS', message: 'Status must be confirmed or cancelled' });
+
+  const requiredCurrent = TRADER_STATUS_TRANSITIONS[newStatus];
+  if (!requiredCurrent) {
+    return json(res, 400, { error: 'INVALID_STATUS', message: 'Status must be confirmed, cancelled, or ready_for_shipping' });
   }
 
   const { data: order, error: lookupErr } = await adminClient
@@ -230,7 +238,9 @@ async function updateOrderStatus(req, res, storeId) {
 
   if (lookupErr) return json(res, 500, { error: 'ORDER_LOOKUP_FAILED', message: lookupErr.message });
   if (!order) return json(res, 404, { error: 'ORDER_NOT_FOUND', message: 'Order not found or does not belong to your store' });
-  if (order.status !== 'pending') return json(res, 409, { error: 'ORDER_NOT_PENDING', message: 'Only pending orders can be updated' });
+  if (order.status !== requiredCurrent) {
+    return json(res, 409, { error: 'INVALID_TRANSITION', message: `Order must be ${requiredCurrent} to set ${newStatus}` });
+  }
 
   const { data, error } = await adminClient
     .from('orders')
@@ -243,13 +253,105 @@ async function updateOrderStatus(req, res, storeId) {
   return json(res, 200, { order: data });
 }
 
+// ─── Driver handlers ──────────────────────────────────────────────────────────
+
+async function getDriverOrders(res, userId) {
+  const [availRes, mineRes] = await Promise.all([
+    adminClient
+      .from('orders')
+      .select('id, store_id, stores(name), customer_name, delivery_type, location_link, items, total_price, status, created_at')
+      .eq('status', 'ready_for_shipping')
+      .is('driver_id', null)
+      .eq('delivery_type', 'delivery')
+      .order('created_at', { ascending: false })
+      .limit(50),
+    adminClient
+      .from('orders')
+      .select('id, store_id, stores(name), customer_name, delivery_type, location_link, items, total_price, status, created_at')
+      .eq('driver_id', userId)
+      .in('status', ['ready_for_shipping', 'out_for_delivery'])
+      .order('created_at', { ascending: false })
+      .limit(50),
+  ]);
+
+  if (availRes.error) return json(res, 500, { error: 'FETCH_FAILED', message: availRes.error.message });
+  if (mineRes.error)  return json(res, 500, { error: 'FETCH_FAILED', message: mineRes.error.message });
+
+  return json(res, 200, { available: availRes.data || [], mine: mineRes.data || [] });
+}
+
+async function takeOrder(req, res, userId) {
+  const orderId = normalizeString(req.body?.id);
+  if (!orderId) return json(res, 400, { error: 'MISSING_ID', message: 'Order id is required' });
+
+  // Atomic claim: only succeeds if driver_id is still null
+  const { data, error } = await adminClient
+    .from('orders')
+    .update({ driver_id: userId })
+    .eq('id', orderId)
+    .eq('status', 'ready_for_shipping')
+    .is('driver_id', null)
+    .select('id, driver_id, status')
+    .maybeSingle();
+
+  if (error) return json(res, 500, { error: 'TAKE_ORDER_FAILED', message: error.message });
+  if (!data) return json(res, 409, { error: 'ALREADY_TAKEN', message: 'This order has already been taken by another driver' });
+
+  return json(res, 200, { order: data });
+}
+
+async function updateDriverStatus(req, res, userId) {
+  const orderId = normalizeString(req.body?.id);
+  const newStatus = normalizeString(req.body?.status).toLowerCase();
+
+  if (!orderId) return json(res, 400, { error: 'MISSING_ID', message: 'Order id is required' });
+  if (newStatus !== 'out_for_delivery' && newStatus !== 'delivered') {
+    return json(res, 400, { error: 'INVALID_STATUS', message: 'Status must be out_for_delivery or delivered' });
+  }
+
+  const { data: order, error: lookupErr } = await adminClient
+    .from('orders').select('id, status, driver_id').eq('id', orderId).maybeSingle();
+
+  if (lookupErr) return json(res, 500, { error: 'ORDER_LOOKUP_FAILED', message: lookupErr.message });
+  if (!order)               return json(res, 404, { error: 'ORDER_NOT_FOUND' });
+  if (order.driver_id !== userId) return json(res, 403, { error: 'FORBIDDEN', message: 'This order is not assigned to you' });
+
+  const validFrom = { out_for_delivery: 'ready_for_shipping', delivered: 'out_for_delivery' };
+  if (order.status !== validFrom[newStatus]) {
+    return json(res, 409, { error: 'INVALID_TRANSITION', message: `Order must be ${validFrom[newStatus]} to set ${newStatus}` });
+  }
+
+  const { data, error } = await adminClient
+    .from('orders').update({ status: newStatus }).eq('id', orderId)
+    .select('id, status, updated_at').single();
+
+  if (error) return json(res, 500, { error: 'UPDATE_FAILED', message: error.message });
+  return json(res, 200, { order: data });
+}
+
 // ─── Main handler ─────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
+  const resource = normalizeString(req.query?.resource).toLowerCase();
+
+  // Driver resource — separate role check (delivery role)
+  if (resource === 'driver') {
+    const driver = await requireDelivery(req, res);
+    if (!driver) return;
+    const userId = driver.user.id;
+    if (req.method === 'GET') return getDriverOrders(res, userId);
+    if (req.method === 'PATCH') {
+      const action = normalizeString(req.body?.action).toLowerCase();
+      if (action === 'take')   return takeOrder(req, res, userId);
+      if (action === 'status') return updateDriverStatus(req, res, userId);
+      return json(res, 400, { error: 'MISSING_ACTION', message: 'action must be take or status' });
+    }
+    return json(res, 405, { error: 'METHOD_NOT_ALLOWED' });
+  }
+
+  // All other resources — trader role
   const trader = await requireTrader(req, res);
   if (!trader) return;
-
-  const resource = normalizeString(req.query?.resource).toLowerCase();
   const userId = trader.user.id;
 
   if (resource === 'store') {
@@ -276,5 +378,5 @@ export default async function handler(req, res) {
     return json(res, 405, { error: 'METHOD_NOT_ALLOWED' });
   }
 
-  return json(res, 400, { error: 'MISSING_RESOURCE', message: 'resource query param must be store, products, or orders' });
+  return json(res, 400, { error: 'MISSING_RESOURCE', message: 'resource must be store, products, orders, or driver' });
 }

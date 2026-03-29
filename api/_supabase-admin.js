@@ -165,6 +165,34 @@ export async function requireTrader(req, res) {
   return { user: authResult.user, token: authResult.token };
 }
 
+export async function requireDelivery(req, res) {
+  const authResult = await requireAuth(req, res);
+  if (!authResult) return null;
+
+  const { data: profile, error } = await adminClient
+    .from('user_profiles')
+    .select('role, account_status')
+    .eq('user_id', authResult.user.id)
+    .maybeSingle();
+
+  if (error) {
+    json(res, 500, { error: 'PROFILE_LOOKUP_FAILED', message: 'Failed to validate role' });
+    return null;
+  }
+
+  if (profile?.account_status === 'banned') {
+    json(res, 403, { error: 'ACCOUNT_BANNED', message: 'Your account is banned' });
+    return null;
+  }
+
+  if (profile?.role !== 'delivery' && profile?.role !== 'admin') {
+    json(res, 403, { error: 'FORBIDDEN', message: 'Delivery access required' });
+    return null;
+  }
+
+  return { user: authResult.user, token: authResult.token };
+}
+
 export function getPagination(req, fallbackPageSize = 20, maxPageSize = 100) {
   const page = Math.max(1, Number.parseInt(String(req.query.page || '1'), 10) || 1);
   const requestedPageSize = Number.parseInt(String(req.query.pageSize || fallbackPageSize), 10) || fallbackPageSize;

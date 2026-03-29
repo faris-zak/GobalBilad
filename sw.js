@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v6';
+const CACHE_VERSION = 'v7';
 const STATIC_CACHE = `gobalbilad-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `gobalbilad-runtime-${CACHE_VERSION}`;
 
@@ -16,6 +16,8 @@ const STATIC_ASSETS = [
   '/auth-callback.html',
   '/trader.html',
   '/carts.html',
+  '/driver-dashboard.html',
+  '/assets/js/driver.js',
   '/stores.html',
   '/store.html',
   '/checkout.html',
@@ -28,6 +30,7 @@ const STATIC_ASSETS = [
   '/assets/js/store.js',
   '/assets/js/checkout.js',
   '/components/site-header.js',
+  '/components/site-footer.js',
   '/assets/images/gb-icon.png',
   '/assets/images/gb-banner.webp',
   'https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap'

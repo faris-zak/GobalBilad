@@ -47,6 +47,16 @@ async function enhanceAuthLinks() {
       }
     }
 
+    if (profile?.role === 'delivery' && profile?.account_status !== 'banned') {
+      const nav = document.getElementById('siteNav');
+      if (nav && !nav.querySelector('a[href="/driver"]')) {
+        const driverLink = document.createElement('a');
+        driverLink.href = '/driver';
+        driverLink.textContent = 'لوحة المندوب';
+        nav.insertBefore(driverLink, nav.querySelector('.nav-cta-mobile'));
+      }
+    }
+
     const canApplyForRole =
       profile?.account_status !== 'banned' &&
       profile?.role === 'user' &&

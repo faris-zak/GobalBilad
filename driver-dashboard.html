@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar-OM" dir="rtl">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3JG6XP3YDN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-3JG6XP3YDN');
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="gNTAV4_HL6DKg_nrsbGdCuCppQ7wbXqpq6f3vwiH3S8" />
+  <meta name="author" content="Al-Faris Mujahid AlZakwani, Awab Hilal AlZakwani">
+  <meta name="keywords" content="جوب البلاد, جوب, البلاد, دكاكين البلاد, دكاكين, طلب عبر واتساب, متاجر محلية, تسوق محلي, عمان">
+  <meta name="theme-color" content="#fff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>لوحة المندوب – GobalBilad</title>
+  <meta name="description" content="لوحة تحكم مندوب التوصيل – جوب البلاد">
+
+  <!-- Facebook Meta Tags -->
+  <meta property="og:url" content="https://gobalbilad.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="جوب البلاد">
+  <meta property="og:description" content="دكاكين البلاد فمخباك">
+  <meta property="og:image" content="https://opengraph.b-cdn.net/production/images/66ab0b5f-1e37-4dc0-8981-8023091df655.png?token=bk1vDi4Saw5_bwdXjEp_5TYyAwQmij9Wicpv7DgY4TA&height=655&width=1200&expires=33310465447">
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:domain" content="gobalbilad.vercel.app">
+  <meta property="twitter:url" content="https://gobalbilad.vercel.app/">
+  <meta name="twitter:title" content="جوب البلاد">
+  <meta name="twitter:description" content="دكاكين البلاد فمخباك">
+  <meta name="twitter:image" content="https://opengraph.b-cdn.net/production/images/66ab0b5f-1e37-4dc0-8981-8023091df655.png?token=bk1vDi4Saw5_bwdXjEp_5TYyAwQmij9Wicpv7DgY4TA&height=655&width=1200&expires=33310465447">
+
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="assets/images/gb-icon.ico" type="image/x-icon">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/images/gb-icon.png">
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="components/site-header.js"></script>
+  <style>
+    /* ── Layout ── */
+    .drv-page {
+      max-width: 860px;
+      margin: 2.5rem auto;
+      padding: 0 1rem 5rem;
+    }
+    .drv-page-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 0.4rem;
+    }
+    .drv-page-sub {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      margin-bottom: 2rem;
+    }
+
+    /* ── Section headers ── */
+    .drv-section {
+      margin-bottom: 2.5rem;
+    }
+    .drv-section-head {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+    .drv-section-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin: 0;
+    }
+    .drv-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.5rem;
+      height: 1.5rem;
+      padding: 0 0.35rem;
+      border-radius: 999px;
+      background: var(--green);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .drv-refresh-btn {
+      margin-right: auto;
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.8rem;
+      font-size: 0.85rem;
+      font-family: var(--font-body);
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .drv-refresh-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    /* ── Order card ── */
+    .drv-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.9rem;
+    }
+    .drv-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.65rem;
+    }
+    .drv-store-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+    }
+    .drv-delivery-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 999px;
+      padding: 0.15rem 0.6rem;
+    }
+
+    /* ── Items list ── */
+    .drv-items {
+      list-style: none;
+      margin: 0 0 0.7rem;
+      padding: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 0.5rem 0;
+    }
+    .drv-item-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-mid);
+      padding: 0.2rem 0;
+    }
+    .drv-item-price {
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    /* ── Card footer ── */
+    .drv-card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    .drv-total {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-dark);
+    }
+    .drv-location-btn {
+      font-size: 0.82rem;
+      color: var(--green);
+      text-decoration: none;
+      padding: 0.25rem 0.6rem;
+      border: 1px solid var(--green);
+      border-radius: var(--radius-sm);
+      transition: background 0.15s;
+    }
+    .drv-location-btn:hover {
+      background: var(--green);
+      color: #fff;
+    }
+
+    /* ── Action buttons ── */
+    .drv-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .drv-btn {
+      flex: 1;
+      min-width: 130px;
+      padding: 0.55rem 1rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .drv-btn:active { transform: scale(0.98); }
+    .drv-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .drv-btn-take  { background: var(--green); color: #fff; }
+    .drv-btn-start { background: #1976d2;      color: #fff; }
+    .drv-btn-done  { background: #2e7d32;      color: #fff; }
+
+    /* ── Empty / error states ── */
+    .drv-empty, .drv-error {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-mid);
+      font-size: 0.92rem;
+      background: var(--sand);
+      border-radius: var(--radius);
+    }
+    .drv-error { color: #c62828; background: #fce4ec; }
+
+    /* ── Access denied splash ── */
+    .drv-denied {
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+    .drv-denied h2 {
+      font-family: var(--font-display);
+      color: var(--text-dark);
+      margin-bottom: 0.6rem;
+    }
+    .drv-denied p  { color: var(--text-mid); margin-bottom: 1.5rem; }
+    .drv-denied a  {
+      display: inline-block;
+      padding: 0.6rem 1.4rem;
+      background: var(--green);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* ── Toast ── */
+    .drv-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(1.5rem);
+      background: #323232;
+      color: #fff;
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    .drv-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .drv-toast.err { background: #c62828; }
+  </style>
+</head>
+<body>
+  <site-header></site-header>
+  <main id="drvMain"></main>
+  <div class="drv-toast" id="drvToast"></div>
+
+  <script type="module">
+    import { initDriver } from './assets/js/driver.js';
+
+    async function boot() {
+      const main = document.getElementById('drvMain');
+
+      // ── Auth check ──────────────────────────────────────────────────────────
+      if (typeof checkSession !== 'function') {
+        main.innerHTML = denied('تعذّر تحميل المصادقة، حاول لاحقاً.');
+        return;
+      }
+
+      const session = await checkSession();
+      if (!session) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const user = typeof getCurrentUser === 'function' ? await getCurrentUser() : null;
+      if (!user) { window.location.href = '/login'; return; }
+
+      const profile = typeof getUserProfile === 'function' ? await getUserProfile(user.id) : null;
+      const role = profile?.role;
+      const banned = profile?.account_status === 'banned';
+
+      if (banned || (role !== 'delivery' && role !== 'admin')) {
+        main.innerHTML = `
+          <div class="drv-denied">
+            <h2>غير مصرّح لك بالدخول</h2>
+            <p>هذه الصفحة مخصّصة لمناديب التوصيل فقط.</p>
+            <a href="/">العودة للرئيسية</a>
+          </div>`;
+        return;
+      }
+
+      // ── Render shell ────────────────────────────────────────────────────────
+      main.innerHTML = `
+        <div class="drv-page">
+          <h1 class="drv-page-title">لوحة المندوب</h1>
+          <p class="drv-page-sub">استلم الطلبات الجاهزة وتابع توصيلاتك النشطة</p>
+
+          <section class="drv-section">
+            <div class="drv-section-head">
+              <h2 class="drv-section-title">طلبات جاهزة للاستلام</h2>
+              <span class="drv-count" id="availableCount">0</span>
+              <button class="drv-refresh-btn" id="refreshBtn">↻ تحديث</button>
+            </div>
+            <div id="availableList">
+              <p class="drv-empty">جارٍ التحميل…</p>
+            </div>
+          </section>
+
+          <section class="drv-section">
+            <div class="drv-section-head">
+              <h2 class="drv-section-title">طلباتي النشطة</h2>
+              <span class="drv-count" id="myCount">0</span>
+            </div>
+            <div id="myOrdersList">
+              <p class="drv-empty">جارٍ التحميل…</p>
+            </div>
+          </section>
+        </div>`;
+
+      // ── Bootstrap driver module ─────────────────────────────────────────────
+      const token = session.access_token;
+      await initDriver(token);
+    }
+
+    // ── Denied helper ────────────────────────────────────────────────────────
+    function denied(msg) {
+      return `<div class="drv-denied"><h2>خطأ</h2><p>${msg}</p><a href="/">الرئيسية</a></div>`;
+    }
+
+    boot();
+  </script>
+</body>
+</html>
