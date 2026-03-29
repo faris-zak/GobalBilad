@@ -1,10 +1,11 @@
 import { adminClient, getPagination, json, normalizeString, requireTrader, requireDelivery } from './_supabase-admin.js';
 
-const ALLOWED_ORDER_STATUSES = new Set(['pending', 'confirmed', 'cancelled', 'ready_for_shipping', 'out_for_delivery', 'delivered']);
+const ALLOWED_ORDER_STATUSES = new Set(['pending', 'confirmed', 'cancelled', 'rejected', 'ready_for_shipping', 'out_for_delivery', 'delivered']);
 
 const TRADER_STATUS_TRANSITIONS = {
   confirmed:          'pending',
   cancelled:          'pending',
+  rejected:           'pending',
   ready_for_shipping: 'confirmed',
 };
 

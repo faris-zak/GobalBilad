@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/orders/update-status", "destination": "/api/orders?_action=update-status" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/account", "destination": "/account.html" },
     { "source": "/admin", "destination": "/admin.html" },

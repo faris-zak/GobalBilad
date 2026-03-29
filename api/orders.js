@@ -1,4 +1,154 @@
-import { adminClient, json, normalizeString, optionalAuth } from './_supabase-admin.js';
+import { adminClient, json, normalizeString, optionalAuth, requireAuth } from './_supabase-admin.js';
+
+// ─── Status-update: valid statuses ────────────────────────────────────────────
+const VALID_STATUSES = new Set([
+  'pending', 'confirmed', 'rejected',
+  'ready_for_shipping', 'out_for_delivery', 'delivered',
+]);
+
+// Role-based transition table: role → { current_status → [allowed next statuses] }
+const ROLE_TRANSITIONS = {
+  trader: {
+    pending:   ['confirmed', 'rejected'],
+    confirmed: ['ready_for_shipping'],
+  },
+  delivery: {
+    ready_for_shipping: ['out_for_delivery'],
+    out_for_delivery:   ['delivered'],
+  },
+};
+
+async function updateOrderStatus(req, res) {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    return json(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Use POST /api/orders/update-status' });
+  }
+
+  // ── Authenticate ──────────────────────────────────────────────────────────
+  const authResult = await requireAuth(req, res);
+  if (!authResult) return;
+  const userId = authResult.user.id;
+
+  // ── Resolve role from server-side profile (never trust client-supplied role) ─
+  const { data: profile, error: profileErr } = await adminClient
+    .from('user_profiles')
+    .select('role, account_status')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (profileErr) return json(res, 500, { error: 'PROFILE_LOOKUP_FAILED', message: profileErr.message });
+  if (profile?.account_status === 'banned') {
+    return json(res, 403, { error: 'ACCOUNT_BANNED', message: 'Your account is banned' });
+  }
+
+  const role = profile?.role || 'user';
+  if (!['trader', 'delivery', 'admin'].includes(role)) {
+    return json(res, 403, { error: 'FORBIDDEN', message: 'Only store owners, drivers, or admins can update order status' });
+  }
+
+  // ── Parse & validate body ─────────────────────────────────────────────────
+  const body = parseBody(req.body);
+  const orderId  = normalizeString(body?.order_id);
+  const newStatus = normalizeString(body?.new_status).toLowerCase();
+
+  if (!orderId) {
+    return json(res, 400, { error: 'MISSING_ORDER_ID', message: 'order_id is required' });
+  }
+  if (!VALID_STATUSES.has(newStatus)) {
+    return json(res, 400, {
+      error: 'INVALID_STATUS',
+      message: `new_status must be one of: ${[...VALID_STATUSES].join(', ')}`,
+    });
+  }
+
+  // ── Fetch order ───────────────────────────────────────────────────────────
+  const { data: order, error: orderErr } = await adminClient
+    .from('orders')
+    .select('id, status, driver_id, store_id, delivery_type')
+    .eq('id', orderId)
+    .maybeSingle();
+
+  if (orderErr) return json(res, 500, { error: 'ORDER_LOOKUP_FAILED', message: orderErr.message });
+  if (!order)   return json(res, 404, { error: 'ORDER_NOT_FOUND', message: 'Order not found' });
+
+  const currentStatus = order.status;
+
+  if (currentStatus === newStatus) {
+    return json(res, 409, { error: 'NO_CHANGE', message: `Order is already ${newStatus}` });
+  }
+
+  // ── Role-specific transition validation ───────────────────────────────────
+  if (role === 'trader') {
+    // Must own the store
+    const { data: store } = await adminClient
+      .from('stores')
+      .select('id')
+      .eq('id', order.store_id)
+      .eq('owner_user_id', userId)
+      .maybeSingle();
+
+    if (!store) {
+      return json(res, 403, { error: 'FORBIDDEN', message: 'This order does not belong to your store' });
+    }
+
+    const allowed = ROLE_TRANSITIONS.trader[currentStatus];
+    if (!allowed || !allowed.includes(newStatus)) {
+      return json(res, 409, {
+        error: 'INVALID_TRANSITION',
+        message: `Store cannot move order from '${currentStatus}' to '${newStatus}'`,
+      });
+    }
+
+  } else if (role === 'delivery') {
+    const allowed = ROLE_TRANSITIONS.delivery[currentStatus];
+    if (!allowed || !allowed.includes(newStatus)) {
+      return json(res, 409, {
+        error: 'INVALID_TRANSITION',
+        message: `Driver cannot move order from '${currentStatus}' to '${newStatus}'`,
+      });
+    }
+
+    // Driver starting delivery: atomic claim (assign driver_id if null)
+    if (newStatus === 'out_for_delivery') {
+      if (order.driver_id && order.driver_id !== userId) {
+        return json(res, 409, { error: 'ALREADY_ASSIGNED', message: 'This order is already assigned to another driver' });
+      }
+      const { data: claimed, error: claimErr } = await adminClient
+        .from('orders')
+        .update({ status: 'out_for_delivery', driver_id: userId })
+        .eq('id', orderId)
+        .eq('status', 'ready_for_shipping')
+        .is('driver_id', null)
+        .select('id, status, driver_id, updated_at')
+        .maybeSingle();
+
+      if (claimErr) return json(res, 500, { error: 'UPDATE_FAILED', message: claimErr.message });
+      if (!claimed) return json(res, 409, { error: 'ALREADY_ASSIGNED', message: 'Order was taken by another driver' });
+
+      return json(res, 200, { success: true, message: 'Delivery started', order: claimed });
+    }
+
+    // Driver completing delivery: must be the assigned driver
+    if (newStatus === 'delivered') {
+      if (order.driver_id !== userId) {
+        return json(res, 403, { error: 'FORBIDDEN', message: 'This order is not assigned to you' });
+      }
+    }
+
+  }
+  // admin: no transition restriction
+
+  // ── Apply update ──────────────────────────────────────────────────────────
+  const { data: updated, error: updateErr } = await adminClient
+    .from('orders')
+    .update({ status: newStatus })
+    .eq('id', orderId)
+    .select('id, status, driver_id, updated_at')
+    .single();
+
+  if (updateErr) return json(res, 500, { error: 'UPDATE_FAILED', message: updateErr.message });
+  return json(res, 200, { success: true, message: 'Order status updated', order: updated });
+}
 
 function parseBody(rawBody) {
   if (!rawBody) {
@@ -55,6 +205,11 @@ function normalizeItems(items) {
 }
 
 export default async function handler(req, res) {
+  // Route: POST /api/orders/update-status (via vercel.json rewrite → ?_action=update-status)
+  if (normalizeString(req.query?._action).toLowerCase() === 'update-status') {
+    return updateOrderStatus(req, res);
+  }
+
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return json(res, 405, { error: 'METHOD_NOT_ALLOWED', message: 'Use POST /api/orders' });

@@ -44,6 +44,394 @@
         <link rel="icon" href="assets/images/gb-icon.ico" type="image/x-icon">
 
         <link rel="stylesheet" href="assets/css/main.css">
+        <style>
+            .home-page {
+                background:
+                    radial-gradient(900px 420px at 88% -10%, rgba(26, 107, 60, 0.16), transparent 60%),
+                    radial-gradient(700px 360px at 8% 6%, rgba(200, 146, 42, 0.18), transparent 56%),
+                    var(--sand);
+            }
+
+            .home-main {
+                overflow: hidden;
+            }
+
+            .home-shell {
+                width: min(1120px, calc(100% - 2rem));
+                margin-inline: auto;
+            }
+
+            .home-hero {
+                padding: clamp(1.4rem, 3.2vw, 2.8rem) 0 2.2rem;
+            }
+
+            .home-hero-grid {
+                display: grid;
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .home-hero-copy {
+                background: linear-gradient(140deg, #ffffff 0%, #f7fff9 58%, #eff7ff 100%);
+                border: 1px solid #dfebdf;
+                border-radius: 28px;
+                padding: clamp(1rem, 2.8vw, 2rem);
+                box-shadow: 0 18px 45px rgba(23, 34, 24, 0.1);
+            }
+
+            .home-kicker {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.45rem;
+                padding: 0.28rem 0.72rem;
+                border-radius: 999px;
+                background: #ecfdf3;
+                border: 1px solid #b7ebc6;
+                color: #067647;
+                font-size: 0.84rem;
+                font-weight: 700;
+                margin-bottom: 0.8rem;
+            }
+
+            .home-title {
+                margin: 0 0 0.65rem;
+                font-family: var(--font-display);
+                font-size: clamp(2rem, 6.2vw, 3.7rem);
+                line-height: 1.2;
+                color: #17261d;
+            }
+
+            .home-title span {
+                color: var(--green);
+            }
+
+            .home-subtitle {
+                margin: 0;
+                max-width: 60ch;
+                color: #51605a;
+                font-size: clamp(1rem, 2.8vw, 1.08rem);
+                line-height: 1.95;
+            }
+
+            .home-cta-row {
+                margin-top: 1.1rem;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.65rem;
+            }
+
+            .home-cta {
+                min-height: 46px;
+                border-radius: 14px;
+                padding: 0.78rem 1.1rem;
+                font-size: 0.96rem;
+                font-weight: 700;
+            }
+
+            .home-cta-outline {
+                background: #fff;
+                border: 1.6px solid #d6e0d8;
+                color: #26352d;
+            }
+
+            .home-stats {
+                margin-top: 1.15rem;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.55rem;
+            }
+
+            .home-stat {
+                background: #fff;
+                border: 1px solid #e8ede7;
+                border-radius: 14px;
+                padding: 0.7rem 0.72rem;
+            }
+
+            .home-stat strong {
+                display: block;
+                font-family: var(--font-display);
+                font-size: clamp(1.12rem, 4vw, 1.5rem);
+                color: #1f3327;
+            }
+
+            .home-stat span {
+                color: #607069;
+                font-size: 0.83rem;
+            }
+
+            .home-hero-showcase {
+                background: #13241a;
+                border-radius: 28px;
+                border: 1px solid #22422f;
+                box-shadow: 0 18px 45px rgba(18, 37, 27, 0.32);
+                color: #f4fff7;
+                overflow: hidden;
+            }
+
+            .home-showcase-head {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.95rem 1rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            }
+
+            .home-showcase-head strong {
+                font-size: 0.96rem;
+            }
+
+            .home-showcase-head span {
+                font-size: 0.78rem;
+                opacity: 0.8;
+            }
+
+            .home-order-list {
+                padding: 0.8rem;
+                display: grid;
+                gap: 0.62rem;
+            }
+
+            .home-order {
+                background: rgba(255, 255, 255, 0.07);
+                border: 1px solid rgba(255, 255, 255, 0.14);
+                border-radius: 14px;
+                padding: 0.72rem;
+                display: grid;
+                gap: 0.35rem;
+            }
+
+            .home-order strong {
+                font-size: 0.93rem;
+                color: #d4ffe0;
+            }
+
+            .home-order p {
+                margin: 0;
+                color: rgba(233, 255, 241, 0.9);
+                font-size: 0.84rem;
+            }
+
+            .home-order-meta {
+                display: flex;
+                justify-content: space-between;
+                color: rgba(234, 255, 242, 0.8);
+                font-size: 0.75rem;
+            }
+
+            .home-section {
+                padding: 1.2rem 0 2rem;
+            }
+
+            .home-section-head {
+                display: flex;
+                justify-content: space-between;
+                align-items: end;
+                gap: 1rem;
+                flex-wrap: wrap;
+                margin-bottom: 0.95rem;
+            }
+
+            .home-section-title {
+                margin: 0;
+                font-family: var(--font-display);
+                font-size: clamp(1.45rem, 4.6vw, 2.2rem);
+                color: #1a2b1f;
+            }
+
+            .home-section-sub {
+                margin: 0;
+                color: #5d6b64;
+                font-size: 0.96rem;
+            }
+
+            .home-why-grid {
+                display: grid;
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+                gap: 0.72rem;
+            }
+
+            .home-why-card {
+                background: #fff;
+                border: 1px solid #e5ece6;
+                border-radius: 18px;
+                padding: 1rem;
+                box-shadow: 0 10px 26px rgba(16, 24, 40, 0.05);
+            }
+
+            .home-why-card h3 {
+                margin: 0 0 0.3rem;
+                font-family: var(--font-display);
+                font-size: 1.12rem;
+            }
+
+            .home-why-card p {
+                margin: 0;
+                color: #5b6963;
+                line-height: 1.85;
+                font-size: 0.9rem;
+            }
+
+            .home-steps {
+                display: grid;
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+                gap: 0.72rem;
+            }
+
+            .home-step {
+                background: #fff;
+                border: 1px solid #e4ece5;
+                border-radius: 18px;
+                padding: 0.95rem;
+                display: flex;
+                gap: 0.75rem;
+                align-items: flex-start;
+            }
+
+            .home-step-num {
+                width: 34px;
+                height: 34px;
+                border-radius: 999px;
+                background: var(--green);
+                color: #fff;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 0.86rem;
+                flex: 0 0 auto;
+            }
+
+            .home-step h3 {
+                margin: 0 0 0.22rem;
+                font-size: 1rem;
+                font-family: var(--font-display);
+            }
+
+            .home-step p {
+                margin: 0;
+                color: #5f6f67;
+                font-size: 0.9rem;
+                line-height: 1.85;
+            }
+
+            .home-category-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.6rem;
+            }
+
+            .home-category {
+                display: grid;
+                gap: 0.22rem;
+                background: #fff;
+                border: 1px solid #e4ece5;
+                border-radius: 16px;
+                padding: 0.8rem;
+                transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            }
+
+            .home-category:hover {
+                transform: translateY(-2px);
+                border-color: #b7d7bf;
+                box-shadow: 0 8px 22px rgba(25, 44, 34, 0.08);
+            }
+
+            .home-category strong {
+                font-size: 0.96rem;
+                color: #23352b;
+            }
+
+            .home-category span {
+                font-size: 0.82rem;
+                color: #5f6f67;
+            }
+
+            .home-merchant {
+                padding-bottom: 2.5rem;
+            }
+
+            .home-merchant-box {
+                border-radius: 26px;
+                background: linear-gradient(132deg, #123321 0%, #1b5a38 45%, #2a7f52 100%);
+                color: #fff;
+                border: 1px solid #2f7c54;
+                padding: clamp(1rem, 3vw, 1.8rem);
+                display: grid;
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+                gap: 0.95rem;
+                box-shadow: 0 22px 45px rgba(18, 42, 28, 0.32);
+            }
+
+            .home-merchant h2 {
+                margin: 0 0 0.4rem;
+                font-family: var(--font-display);
+                font-size: clamp(1.45rem, 4.8vw, 2.3rem);
+            }
+
+            .home-merchant p {
+                margin: 0;
+                color: rgba(255, 255, 255, 0.88);
+                line-height: 1.9;
+            }
+
+            .home-merchant-list {
+                margin: 0.7rem 0 0;
+                padding: 0;
+                list-style: none;
+                display: grid;
+                gap: 0.4rem;
+                font-size: 0.9rem;
+            }
+
+            .home-merchant-panel {
+                background: rgba(255, 255, 255, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 18px;
+                padding: 0.8rem;
+                display: grid;
+                gap: 0.5rem;
+            }
+
+            .home-merchant-panel strong {
+                font-size: 0.93rem;
+                color: #d8ffe7;
+            }
+
+            .home-merchant-row {
+                background: rgba(255, 255, 255, 0.12);
+                border-radius: 10px;
+                padding: 0.5rem 0.6rem;
+                font-size: 0.82rem;
+                display: flex;
+                justify-content: space-between;
+                gap: 0.4rem;
+            }
+
+            @media (min-width: 760px) {
+                .home-hero-grid {
+                    grid-template-columns: 1.15fr 0.85fr;
+                }
+
+                .home-why-grid {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+
+                .home-steps {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+
+                .home-category-grid {
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                }
+
+                .home-merchant-box {
+                    grid-template-columns: 1.25fr 0.75fr;
+                    align-items: start;
+                }
+            }
+        </style>
 
         <link rel="manifest" href="manifest.json">
         <link rel="apple-touch-icon" href="assets/images/gb-icon.png">
@@ -57,166 +445,201 @@
         <script src="components/site-footer.js"></script>
         
     </head>
-    <body>
+    <body class="home-page">
 
-        <!-- ===== SITE HEADER ===== -->
         <site-header></site-header>
 
-        <!-- ===== HERO ===== -->
-        <section class="hero">
-            <div class="hero-bg-circle"></div>
-            <div class="hero-content">
-            <h1 class="hero-title">
-                طازج من<br />
-                <em>حارتك المحلية</em>
-            </h1>
-            <p class="hero-subtitle">
-                اطلب البقالة والخبز والمنتجات المحلية مباشرة من متاجر منطقتك —
-                بدون تحميل تطبيق وبدون خطوات دفع معقدة. فقط واتساب.
-            </p>
-            <a href="stores.html" class="btn btn-primary btn-large">
-                تصفح المتاجر المحلية
-                <span class="btn-arrow">←</span>
-            </a>
-            </div>
-            <div class="hero-image">
-            <div class="hero-card">
-                <div class="hero-card-img">🥖</div>
-                <div class="hero-card-body">
-                <span class="hero-card-label">مخبز النور</span>
-                <span class="hero-card-sub">خبز طازج يوميًا</span>
-                </div>
-                <a class="hero-card-wa" href="#">
-                <span>اطلب عبر</span>
-                <strong>واتساب</strong>
-                </a>
-            </div>
-            <div class="hero-card hero-card--alt">
-                <div class="hero-card-img">🛒</div>
-                <div class="hero-card-body">
-                <span class="hero-card-label">بقالة البركة</span>
-                <span class="hero-card-sub">احتياجاتك اليومية</span>
-                </div>
-                <a class="hero-card-wa" href="#">
-                <span>اطلب عبر</span>
-                <strong>واتساب</strong>
-                </a>
-            </div>
-            </div>
-        </section>
-
-        <!-- ===== HOW IT WORKS ===== -->
-        <section class="how-it-works">
-            <div class="section-inner">
-            <h2 class="section-title">كيف يعمل الموقع</h2>
-            <p class="section-sub">ثلاث خطوات بسيطة. لا حاجة للتسجيل للعملاء.</p>
-            <div class="steps">
-
-                <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-icon">🏪</div>
-                <h3>ابحث عن متجر</h3>
-                <p>تصفح البقالات والمخابز ومتاجر الطعام القريبة منك.</p>
-                </div>
-
-                <div class="step-divider">——</div>
-
-                <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-icon">🛍️</div>
-                <h3>اختر المنتج</h3>
-                <p>شاهد المنتجات مع الأسعار والوصف واختر ما تحتاجه.</p>
-                </div>
-
-                <div class="step-divider">——</div>
-
-                <div class="step">
-                <div class="step-number">3</div>
-                <div class="step-icon">💬</div>
-                <h3>اطلب عبر واتساب</h3>
-                <p>اضغط الزر، وستكون رسالة الطلب جاهزة للإرسال.</p>
-                </div>
-
-            </div>
-            </div>
-        </section>
-
-        <!-- ===== CATEGORIES ===== -->
-        <section class="categories">
-            <div class="section-inner">
-            <h2 class="section-title">تصفح حسب التصنيف</h2>
-            <div class="category-grid">
-                <a href="stores.html?category=grocery" class="category-card">
-                <span class="cat-icon">🛒</span>
-                <span class="cat-name">بقالة</span>
-                </a>
-                <a href="stores.html?category=bakery" class="category-card">
-                <span class="cat-icon">🥖</span>
-                <span class="cat-name">مخبوزات</span>
-                </a>
-                <a href="stores.html?category=meat" class="category-card">
-                <span class="cat-icon">🥩</span>
-                <span class="cat-name">لحوم وأسماك</span>
-                </a>
-                <a href="stores.html?category=dairy" class="category-card">
-                <span class="cat-icon">🥛</span>
-                <span class="cat-name">ألبان</span>
-                </a>
-                <a href="stores.html?category=sweets" class="category-card">
-                <span class="cat-icon">🍬</span>
-                <span class="cat-name">حلويات</span>
-                </a>
-                <a href="stores.html?category=drinks" class="category-card">
-                <span class="cat-icon">🧃</span>
-                <span class="cat-name">مشروبات</span>
-                </a>
-            </div>
-            </div>
-        </section>
-
-        <!-- ===== FOR STORE OWNERS ===== -->
-        <section class="for-owners">
-            <div class="owners-inner">
-            <div class="owners-text">
-                <span class="owners-badge">📦 لصاحب المتجر</span>
-                <h2>ابدأ البيع أونلاين خلال دقائق</h2>
-                <p>
-                لا تحتاج لأي خبرة تقنية. أنشئ متجرك، أضف منتجاتك،
-                وابدأ استقبال الطلبات عبر واتساب اليوم.
-                </p>
-                <ul class="owners-features">
-                <li>✅ الانضمام مجانًا</li>
-                <li>✅ إدارة سهلة للمنتجات</li>
-                <li>✅ استقبال الطلبات على واتساب</li>
-                <li>✅ إضافة رابط إنستغرام</li>
-                </ul>
-                <a href="login.html" class="btn btn-primary">أنشئ متجرك ←</a>
-            </div>
-            <div class="owners-visual">
-                <div class="phone-mockup">
-                <div class="phone-screen">
-                    <div class="phone-header">📦 متجري</div>
-                    <div class="phone-product">
-                    <span>🥖 خبز رقاق</span>
-                    <span class="phone-price">0.500 ر.ع</span>
+        <main class="home-main">
+            <section class="home-hero">
+                <div class="home-shell">
+                    <div class="home-hero-grid">
+                        <article class="home-hero-copy">
+                            <span class="home-kicker">خدمة محلية سريعة داخل عُمان</span>
+                            <h1 class="home-title">طلباتك اليومية من <span>دكاكين البلاد</span> في أقل من دقيقة</h1>
+                            <p class="home-subtitle">
+                                جوب البلاد يجمع متاجر منطقتك في مكان واحد. اختر المنتجات، أرسل الطلب عبر واتساب، وتابع الاستلام أو التوصيل بسهولة.
+                            </p>
+                            <div class="home-cta-row">
+                                <a href="stores.html" class="btn btn-primary home-cta">تصفح المتاجر الآن</a>
+                                <a href="apply-role.html" class="btn home-cta home-cta-outline">انضم كتاجر أو مندوب</a>
+                            </div>
+                            <div class="home-stats" aria-label="إحصائيات سريعة">
+                                <div class="home-stat">
+                                    <strong>+120</strong>
+                                    <span>منتج محلي متجدد</span>
+                                </div>
+                                <div class="home-stat">
+                                    <strong>+35</strong>
+                                    <span>متجر في المنصة</span>
+                                </div>
+                                <div class="home-stat">
+                                    <strong>2-5 د</strong>
+                                    <span>وقت تجهيز الطلب</span>
+                                </div>
+                            </div>
+                        </article>
+                        <aside class="home-hero-showcase" aria-label="معاينة الطلبات">
+                            <div class="home-showcase-head">
+                                <strong>طلبات جديدة اليوم</strong>
+                                <span>تحديث مباشر</span>
+                            </div>
+                            <div class="home-order-list">
+                                <article class="home-order">
+                                    <strong>مخبز الواحة</strong>
+                                    <p>خبز رقاق + خبز بر</p>
+                                    <div class="home-order-meta">
+                                        <span>المعمورة</span>
+                                        <span>1.300 ر.ع</span>
+                                    </div>
+                                </article>
+                                <article class="home-order">
+                                    <strong>بقالة البركة</strong>
+                                    <p>أرز، حليب، بيض، زيت</p>
+                                    <div class="home-order-meta">
+                                        <span>السيب</span>
+                                        <span>6.750 ر.ع</span>
+                                    </div>
+                                </article>
+                                <article class="home-order">
+                                    <strong>خضار الريف</strong>
+                                    <p>خضار طازجة لعائلة صغيرة</p>
+                                    <div class="home-order-meta">
+                                        <span>الحيل</span>
+                                        <span>3.900 ر.ع</span>
+                                    </div>
+                                </article>
+                            </div>
+                        </aside>
                     </div>
-                    <div class="phone-product">
-                    <span>🍞 خبز قمح كامل</span>
-                    <span class="phone-price">0.800 ر.ع</span>
-                    </div>
-                    <div class="phone-product">
-                    <span>🥐 كرواسون</span>
-                    <span class="phone-price">0.300 ر.ع</span>
-                    </div>
-                    <div class="phone-add-btn">+ إضافة منتج</div>
                 </div>
-                </div>
-            </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- ===== FOOTER ===== -->
-                <site-footer></site-footer>
+            <section class="home-section">
+                <div class="home-shell">
+                    <div class="home-section-head">
+                        <h2 class="home-section-title">لماذا جوب البلاد؟</h2>
+                        <p class="home-section-sub">تجربة طلب بسيطة، واضحة، وبدون تعقيد.</p>
+                    </div>
+                    <div class="home-why-grid">
+                        <article class="home-why-card">
+                            <h3>بدون تطبيق</h3>
+                            <p>كل الطلب يتم من المتصفح مباشرة، ثم إرسال الرسالة عبر واتساب خلال خطوات قصيرة.</p>
+                        </article>
+                        <article class="home-why-card">
+                            <h3>متاجر قريبة منك</h3>
+                            <p>نركز على المتاجر المحلية في منطقتك حتى تحصل على خدمة أسرع ومنتجات أقرب.</p>
+                        </article>
+                        <article class="home-why-card">
+                            <h3>لوحات تحكم ذكية</h3>
+                            <p>واجهات واضحة للتاجر والمندوب لتتبع الطلبات وتحديث الحالة بشكل لحظي.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="home-section">
+                <div class="home-shell">
+                    <div class="home-section-head">
+                        <h2 class="home-section-title">كيف يعمل الموقع</h2>
+                        <p class="home-section-sub">ثلاث خطوات واضحة من البحث حتى تأكيد الطلب.</p>
+                    </div>
+                    <div class="home-steps">
+                        <article class="home-step">
+                            <span class="home-step-num">1</span>
+                            <div>
+                                <h3>اختر المتجر المناسب</h3>
+                                <p>تصفح المتاجر حسب الفئة أو القرب، ثم افتح صفحة المنتجات الخاصة بكل متجر.</p>
+                            </div>
+                        </article>
+                        <article class="home-step">
+                            <span class="home-step-num">2</span>
+                            <div>
+                                <h3>أضف المنتجات إلى السلة</h3>
+                                <p>اختر الكميات المطلوبة، وراجع الإجمالي قبل الانتقال إلى تأكيد الطلب.</p>
+                            </div>
+                        </article>
+                        <article class="home-step">
+                            <span class="home-step-num">3</span>
+                            <div>
+                                <h3>أرسل الطلب عبر واتساب</h3>
+                                <p>رسالة مرتبة وجاهزة تُرسل مباشرة للمتجر لبدء التجهيز في أسرع وقت.</p>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="home-section">
+                <div class="home-shell">
+                    <div class="home-section-head">
+                        <h2 class="home-section-title">تصفح حسب التصنيف</h2>
+                        <p class="home-section-sub">ابدأ بسرعة عبر الفئة الأقرب لاحتياجك اليومي.</p>
+                    </div>
+                    <div class="home-category-grid">
+                        <a href="stores.html?category=grocery" class="home-category">
+                            <strong>بقالة</strong>
+                            <span>منتجات يومية ومواد أساسية</span>
+                        </a>
+                        <a href="stores.html?category=bakery" class="home-category">
+                            <strong>مخبوزات</strong>
+                            <span>خبز طازج وحلويات خفيفة</span>
+                        </a>
+                        <a href="stores.html?category=meat" class="home-category">
+                            <strong>لحوم وأسماك</strong>
+                            <span>خيارات متنوعة للطبخ اليومي</span>
+                        </a>
+                        <a href="stores.html?category=dairy" class="home-category">
+                            <strong>ألبان</strong>
+                            <span>حليب، أجبان، ومشتقاتها</span>
+                        </a>
+                        <a href="stores.html?category=sweets" class="home-category">
+                            <strong>حلويات</strong>
+                            <span>منتجات ضيافة ومناسبات</span>
+                        </a>
+                        <a href="stores.html?category=drinks" class="home-category">
+                            <strong>مشروبات</strong>
+                            <span>بارد وساخن لجميع الأوقات</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="home-section home-merchant">
+                <div class="home-shell">
+                    <div class="home-merchant-box">
+                        <div>
+                            <h2>هل تملك متجرًا؟ ابدأ البيع خلال دقائق</h2>
+                            <p>سجّل حسابك، أضف منتجاتك، واستقبل الطلبات من عملاء قريبين منك عبر لوحة تحكم سهلة.</p>
+                            <ul class="home-merchant-list">
+                                <li>إدارة المنتجات والأسعار بسهولة</li>
+                                <li>متابعة الطلبات وتحديث حالتها لحظيًا</li>
+                                <li>إمكانية التعاون مع مناديب التوصيل</li>
+                            </ul>
+                            <div class="home-cta-row">
+                                <a href="login.html" class="btn btn-primary home-cta">ابدأ كمتجر الآن</a>
+                                <a href="apply-role.html" class="btn home-cta home-cta-outline">التقديم كمندوب</a>
+                            </div>
+                        </div>
+                        <aside class="home-merchant-panel">
+                            <strong>معاينة لوحة المتجر</strong>
+                            <div class="home-merchant-row">
+                                <span>طلبات جديدة</span>
+                                <span>7</span>
+                            </div>
+                            <div class="home-merchant-row">
+                                <span>متوسط التجهيز</span>
+                                <span>14 دقيقة</span>
+                            </div>
+                            <div class="home-merchant-row">
+                                <span>المنتجات النشطة</span>
+                                <span>48</span>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <site-footer></site-footer>
         
         <script src="assets/js/main.js"></script>
     </body>
