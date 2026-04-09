@@ -43,6 +43,11 @@ function updateCartMeta(storeId) {
 }
 
 function showMessage(text) {
+  if (window.showGlobalToast) {
+    window.showGlobalToast(text, 'ok', 2000);
+    return;
+  }
+  // Fallback for pages where main.js toast isn't available yet
   const node = document.getElementById('storeNotice');
   if (!node) return;
   node.textContent = text;

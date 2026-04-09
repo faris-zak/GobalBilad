@@ -1,25 +1,22 @@
 (function () {
   const NAV_LINKS = [
-    { href: 'index.html', label: 'الرئيسية' },
     { href: 'stores.html', label: 'المتاجر' },
-    { href: 'about-us.html', label: 'من نحن' },
     { href: 'apply-role.html', label: 'سجّل كتاجر أو مندوب' },
-    { href: 'terms-of-service.html', label: 'شروط الخدمة' },
-    { href: 'privacy-policy.html', label: 'سياسة الخصوصية' },
     { href: 'contact-us.html', label: 'تواصل معنا' }
   ];
+
+  /** Simple cart SVG icon (24×24) */
+  const CART_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`;
 
   class SiteHeader extends HTMLElement {
     connectedCallback() {
       const page = location.pathname.split('/').pop() || 'index.html';
 
       const navItems = NAV_LINKS.map(({ href, label }) => {
-        // about-us.html is treated as the same active page as about.html
         const isActive =
           page === href ||
-          (page === '' && href === 'index.html') ||
-          (page === 'about-us.html' && href === 'about.html') ||
-          (page === 'carts.html' && href === 'carts.html');
+          page + '.html' === href ||
+          (page === '' && href === 'index.html');
         return `<a href="${href}"${isActive ? ' class="active"' : ''}>${label}</a>`;
       }).join('\n              ');
 
@@ -33,7 +30,7 @@
             <nav class="site-nav" id="siteNav" aria-label="التنقل الرئيسي">
               ${navItems}
               <a href="carts.html" class="nav-cart-link" aria-label="سلة الطلبات">
-                سلة الطلبات
+                ${CART_SVG}
                 <span class="cart-badge" id="headerCartBadge">0</span>
               </a>
               <a href="login.html" class="nav-cta-mobile">تسجيل دخول</a>

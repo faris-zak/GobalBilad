@@ -7,8 +7,37 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+/**
+ * Reads the Supabase session from localStorage without importing the full SDK.
+ * Returns true if a valid (non-expired) token is found — lightweight check only.
+ */
+function getQuickSession() {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith('sb-') || !key.endsWith('-auth-token')) continue;
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const parsed = JSON.parse(raw);
+      const expiresAt = parsed?.expires_at;
+      if (!expiresAt) continue;
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (nowSec < Number(expiresAt)) return true;
+    }
+  } catch (_) {}
+  return false;
+}
+
 async function enhanceAuthLinks() {
+  // If auth.js is not loaded, do a quick localStorage check so login links
+  // still update to "حسابي" on public pages for signed-in users.
   if (typeof checkSession !== 'function') {
+    if (getQuickSession()) {
+      document.querySelectorAll('a[href="login.html"], a[href="/login"], a[href="/login.html"]').forEach((link) => {
+        link.href = '/account';
+        link.textContent = 'حسابي';
+      });
+    }
     return;
   }
 
@@ -82,6 +111,38 @@ window.addEventListener('load', () => {
   initContactForm();
 });
 
+let _globalToastTimer;
+
+/**
+ * Shows a transient popup toast notification.
+ * @param {string} msg  - Text to display.
+ * @param {'ok'|'err'|'warn'} [type='ok'] - Visual variant.
+ * @param {number} [duration=3500] - Auto-dismiss delay in ms.
+ */
+window.showGlobalToast = function showGlobalToast(msg, type = 'ok', duration = 3500) {
+  let toast = document.getElementById('globalToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'globalToast';
+    toast.className = 'global-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = msg;
+  toast.className = `global-toast ${type}`;
+
+  // Force reflow so the transition fires even when already visible
+  void toast.offsetWidth;
+  toast.classList.add('is-visible');
+
+  clearTimeout(_globalToastTimer);
+  _globalToastTimer = setTimeout(() => {
+    toast.classList.remove('is-visible');
+  }, duration);
+};
+
 function initRevealOnScroll() {
   const revealItems = document.querySelectorAll('.reveal');
   if (!revealItems.length || typeof IntersectionObserver === 'undefined') {
@@ -106,7 +167,6 @@ function initContactForm() {
     return;
   }
 
-  const successMessage = document.getElementById('successMessage');
   const submitBtn = form.querySelector('button[type="submit"]');
 
   async function submitContactForm(payload) {
@@ -138,11 +198,6 @@ function initContactForm() {
       submitBtn.disabled = true;
     }
 
-    if (successMessage) {
-      successMessage.classList.remove('show', 'is-error');
-      successMessage.textContent = '';
-    }
-
     const formData = new FormData(form);
 
     try {
@@ -154,17 +209,10 @@ function initContactForm() {
         message: formData.get('message')
       });
 
-      if (successMessage) {
-        successMessage.textContent = 'تم إرسال رسالتك بنجاح';
-        successMessage.classList.add('show');
-      }
-
+      window.showGlobalToast('تم إرسال رسالتك بنجاح', 'ok');
       form.reset();
     } catch (error) {
-      if (successMessage) {
-        successMessage.textContent = error.message || 'تعذر إرسال الرسالة حالياً. حاول مرة أخرى.';
-        successMessage.classList.add('show', 'is-error');
-      }
+      window.showGlobalToast(error.message || 'تعذر إرسال الرسالة حالياً. حاول مرة أخرى.', 'err');
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;

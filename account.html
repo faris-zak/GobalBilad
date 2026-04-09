@@ -142,7 +142,8 @@
       .order-cancel-btn:hover { background: #fee4e2; }
       .order-cancel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
-    <script src="components/site-header.js"></script>
+    <script defer src="components/site-header.js"></script>
+    <script defer src="components/site-footer.js"></script>
           <!-- Vercel Web Analytics -->
         <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -200,38 +201,34 @@
                 <button id="useGpsBtn" class="btn btn-outline" type="button">استخدام موقعي الحالي</button>
                 <button id="centerServiceBtn" class="btn btn-outline" type="button">الانتقال لمركز نطاق الخدمة</button>
               </div>
-              <div class="row two" style="margin-top: 10px;">
-                <div class="field">
-                  <label for="latitude">خط العرض</label>
-                  <input id="latitude" type="number" step="any" placeholder="23.6" readonly />
+              <div class="coord-display" id="coordDisplay">
+                <div class="coord-item">
+                  <span class="coord-item-label">خط العرض:</span>
+                  <span class="coord-item-value" id="latitude">—</span>
                 </div>
-                <div class="field">
-                  <label for="longitude">خط الطول</label>
-                  <input id="longitude" type="number" step="any" placeholder="58.4" readonly />
+                <div class="coord-item">
+                  <span class="coord-item-label">خط الطول:</span>
+                  <span class="coord-item-value" id="longitude">—</span>
                 </div>
               </div>
-              <div class="location-actions">
-                <button id="validateLocationBtn" class="btn btn-primary" type="button">التحقق من الموقع</button>
-                <button id="lockCenterBtn" class="btn btn-outline" type="button">اعتماد مركز الخريطة</button>
-              </div>
+              <input type="hidden" id="latHidden" />
+              <input type="hidden" id="lngHidden" />
               <div id="mapPanel" class="map-panel">
                 <div class="map-wrap">
                   <div id="mapCanvas" class="map-canvas"></div>
                   <div class="map-crosshair" aria-hidden="true"><span class="map-crosshair-dot"></span></div>
                 </div>
-                <p class="account-sub" style="margin: 8px 0 0;">حرّك الخريطة حتى يصبح موقعك تحت علامة + ثم اضغط اعتماد مركز الخريطة.</p>
+                <p class="account-sub" style="margin: 8px 0 0;">حرّك الخريطة حتى يصبح موقعك تحت علامة + — سيتم اعتماده تلقائياً.</p>
               </div>
-              <p id="locationStatus" class="location-status" aria-live="polite">استخدم الخريطة مباشرة أو زر GPS ثم تحقّق من الموقع.</p>
+              <p id="locationStatus" class="location-status" aria-live="polite" style="display:none;"></p>
             </div>
           </div>
 
           <div class="actions">
             <button id="saveBtn" class="btn btn-primary" type="submit">حفظ</button>
-            <button id="logoutBtn" class="btn btn-outline" type="button">تسجيل خروج</button>
-            <button id="deleteBtn" class="btn btn-danger" type="button">حذف الحساب</button>
           </div>
 
-          <p id="accountMsg" class="msg"></p>
+          <p id="accountMsg" class="msg" style="display:none;"></p>
         </form>
       </section>
     </main>
@@ -244,6 +241,16 @@
         </div>
       </div>
     </section>
+
+    <section class="account-danger-zone" aria-label="إجراءات الحساب">
+      <div class="account-danger-zone-inner">
+        <p class="account-danger-zone-label">إجراءات الحساب</p>
+        <button id="logoutBtn" class="btn btn-outline" type="button">تسجيل خروج</button>
+        <button id="deleteBtn" class="btn btn-danger" type="button">حذف الحساب</button>
+      </div>
+    </section>
+
+    <site-footer></site-footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -262,10 +269,10 @@
       const deleteBtn = document.getElementById('deleteBtn');
       const useGpsBtn = document.getElementById('useGpsBtn');
       const centerServiceBtn = document.getElementById('centerServiceBtn');
-      const validateLocationBtn = document.getElementById('validateLocationBtn');
-      const lockCenterBtn = document.getElementById('lockCenterBtn');
       const latitudeEl = document.getElementById('latitude');
       const longitudeEl = document.getElementById('longitude');
+      const latHiddenEl = document.getElementById('latHidden');
+      const lngHiddenEl = document.getElementById('lngHidden');
       const locationStatusEl = document.getElementById('locationStatus');
       const mapPanelEl = document.getElementById('mapPanel');
       const mapCanvasEl = document.getElementById('mapCanvas');
@@ -284,13 +291,15 @@
       const MAP_DEFAULT_ZOOM = 14;
 
       function showMessage(type, text) {
-        accountMsg.className = `msg ${type}`;
-        accountMsg.textContent = text;
+        if (window.showGlobalToast) {
+          window.showGlobalToast(text, type);
+        }
       }
 
       function setLocationStatus(type, text) {
-        locationStatusEl.className = `location-status ${type}`;
-        locationStatusEl.textContent = text;
+        if (window.showGlobalToast) {
+          window.showGlobalToast(text, type);
+        }
       }
 
       function renderApplicationStatus(profile) {
@@ -344,9 +353,9 @@
       }
 
       function readLatLng() {
-        const lat = Number(latitudeEl.value);
-        const lng = Number(longitudeEl.value);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        const lat = Number(latHiddenEl.value);
+        const lng = Number(lngHiddenEl.value);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
           return null;
         }
         return { lat, lng };
@@ -380,8 +389,15 @@
       function setCoordinates(lat, lng, options = {}) {
         const shouldUpdateMap = options.updateMap !== false;
         const resetValidation = options.resetValidation !== false;
-        latitudeEl.value = String(lat);
-        longitudeEl.value = String(lng);
+
+        // Update visible text labels
+        latitudeEl.textContent = Number(lat).toFixed(6);
+        longitudeEl.textContent = Number(lng).toFixed(6);
+
+        // Update hidden inputs used by readLatLng()
+        latHiddenEl.value = String(lat);
+        lngHiddenEl.value = String(lng);
+
         if (resetValidation) {
           locationValidated = false;
         }
@@ -458,7 +474,7 @@
           const markerLatLng = mapMarker.getLatLng();
           setCoordinates(markerLatLng.lat, markerLatLng.lng, { updateMap: false });
           locationSource = 'map_pin';
-          setLocationStatus('warn', 'تم تحديث الإحداثيات من الخريطة. اضغط التحقق من الموقع.');
+          setLocationStatus('warn', 'تم تحديث الإحداثيات من الخريطة. اضغط حفظ عند الاستعداد.');
 
           try {
             await reverseGeocode(markerLatLng.lat, markerLatLng.lng);
@@ -472,7 +488,7 @@
           mapMarker.setLatLng([lat, lng]);
           setCoordinates(lat, lng, { updateMap: false });
           locationSource = 'map_pin';
-          setLocationStatus('warn', 'تم تحديد نقطة جديدة على الخريطة. اضغط التحقق من الموقع.');
+          setLocationStatus('warn', 'تم تحديد نقطة جديدة على الخريطة. اضغط حفظ عند الاستعداد.');
 
           try {
             await reverseGeocode(lat, lng);
@@ -496,7 +512,7 @@
         mapMarker.setLatLng(center);
         setCoordinates(center.lat, center.lng, { updateMap: false });
         locationSource = 'map_pin';
-        setLocationStatus('warn', 'تم اعتماد مركز الخريطة. اضغط التحقق من الموقع.');
+        setLocationStatus('warn', 'تم اعتماد مركز الخريطة. اضغط حفظ عند الاستعداد.');
 
         try {
           await reverseGeocode(center.lat, center.lng);
@@ -568,7 +584,7 @@
 
             if (profile.location_validated) {
               locationValidated = true;
-              setLocationStatus('ok', 'تم تحميل موقع محفوظ ومتحقق منه.');
+              // silently restore validated state — no toast on page load
             }
           } else {
             renderApplicationStatus(null);
@@ -593,7 +609,7 @@
           async (pos) => {
             setCoordinates(pos.coords.latitude, pos.coords.longitude);
             locationSource = 'gps';
-            setLocationStatus('warn', 'تم التقاط الموقع. اضغط التحقق من الموقع.');
+            setLocationStatus('warn', 'تم التقاط الموقع عبر GPS. اضغط حفظ عند الاستعداد.');
 
             try {
               await reverseGeocode(pos.coords.latitude, pos.coords.longitude);
@@ -620,49 +636,7 @@
         ensureMapReady();
         setCoordinates(MAP_DEFAULT_CENTER.lat, MAP_DEFAULT_CENTER.lng);
         locationSource = 'map_pin';
-        setLocationStatus('warn', 'تم الانتقال إلى مركز نطاق الخدمة. حرّك المؤشر لموقعك الفعلي ثم تحقّق.');
-      });
-
-      lockCenterBtn.addEventListener('click', async () => {
-        await lockMapCenter();
-      });
-
-      latitudeEl.addEventListener('input', () => {
-        locationValidated = false;
-      });
-
-      longitudeEl.addEventListener('input', () => {
-        locationValidated = false;
-      });
-
-      validateLocationBtn.addEventListener('click', async () => {
-        const coords = readLatLng();
-        if (!coords) {
-          locationValidated = false;
-          setLocationStatus('err', 'الرجاء إدخال إحداثيات صحيحة.');
-          return;
-        }
-
-        validateLocationBtn.disabled = true;
-        validateLocationBtn.textContent = 'جاري التحقق...';
-
-        try {
-          const result = await validateLocationWithApi(coords.lat, coords.lng);
-          locationValidated = !!result.eligible;
-
-          if (result.eligible) {
-            setLocationStatus('ok', `الموقع داخل نطاق الخدمة. المسافة عن المركز: ${Number(result.distanceKm).toFixed(2)} كم.`);
-          } else {
-            setLocationStatus('err', `الموقع خارج نطاق الخدمة حاليًا. المسافة عن المركز: ${Number(result.distanceKm).toFixed(2)} كم.`);
-          }
-        } catch (err) {
-          locationValidated = false;
-          console.error('Location validation failed:', err);
-          setLocationStatus('err', 'تعذر التحقق عبر الخادم الآن. يمكنك تعديل الإحداثيات والمحاولة مرة أخرى.');
-        } finally {
-          validateLocationBtn.disabled = false;
-          validateLocationBtn.textContent = 'التحقق من الموقع';
-        }
+        setLocationStatus('warn', 'تم الانتقال إلى مركز نطاق الخدمة. حرّك المؤشر لموقعك الفعلي.');
       });
 
       accountForm.addEventListener('submit', async (e) => {
@@ -671,27 +645,27 @@
 
         const coords = readLatLng();
         if (!coords) {
-          showMessage('err', 'الرجاء تحديد الموقع على الخريطة أو عبر GPS قبل الحفظ.');
-          return;
-        }
-
-        if (!locationValidated) {
-          showMessage('err', 'الرجاء التحقق من الموقع قبل الحفظ.');
+          showMessage('err', 'الرجاء تحديد موقعك على الخريطة أو عبر GPS قبل الحفظ.');
           return;
         }
 
         saveBtn.disabled = true;
-        saveBtn.textContent = 'جاري الحفظ...';
+        saveBtn.textContent = 'جاري التحقق...';
 
         try {
-          const finalValidation = await validateLocationWithApi(coords.lat, coords.lng);
-          if (!finalValidation.eligible) {
+          // Step 1: validate location
+          const validationResult = await validateLocationWithApi(coords.lat, coords.lng);
+          if (!validationResult.eligible) {
             locationValidated = false;
-            setLocationStatus('err', 'الموقع خارج نطاق الخدمة حاليًا. عدّل الموقع ثم أعد التحقق.');
-            showMessage('err', 'لا يمكن حفظ موقع خارج نطاق الخدمة.');
+            setLocationStatus('err', `الموقع خارج نطاق الخدمة حاليًا. المسافة عن المركز: ${Number(validationResult.distanceKm).toFixed(2)} كم.`);
+            showMessage('err', 'الموقع خارج نطاق الخدمة. يرجى اختيار موقع داخل منطقة التغطية.');
             return;
           }
 
+          locationValidated = true;
+          saveBtn.textContent = 'جاري الحفظ...';
+
+          // Step 2: save profile
           const upsertedProfile = await upsertUserProfile({
             user_id: currentUser.id,
             full_name: fullNameEl.value.trim(),
@@ -714,7 +688,7 @@
           setCoordinates(persistedLat, persistedLng, { resetValidation: false });
           locationSource = savedProfile?.location_source || locationSource;
           locationValidated = true;
-          showMessage('ok', 'تم حفظ بنجاح.');
+          showMessage('ok', 'تم حفظ البيانات بنجاح.');
         } catch (err) {
           console.error('Save failed:', err);
           const details = [err?.code, err?.message].filter(Boolean).join(' | ');
